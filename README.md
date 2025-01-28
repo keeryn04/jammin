@@ -1,1 +1,1 @@
-# jammin-app
+# Jammin
