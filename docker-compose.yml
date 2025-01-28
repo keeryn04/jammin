@@ -1,0 +1,22 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+        - ./frontend:/usr/src/app/frontend
+        - /usr/src/app/frontend/node_modules
+    environment:
+      # hot reloading
+      - WATCHPACK_POLLING=true
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/usr/src/app/backend
