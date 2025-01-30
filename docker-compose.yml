@@ -1,0 +1,28 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/usr/src/app/backend
+    environment:
+      FLASK_ENV: development
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    volumes:
+    - ./frontend:/usr/src/app/frontend
+    - /usr/src/app/frontend/node_modules
+    environment:
+      - VITE_BACKEND_URL=http://backend:5000
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev"]
