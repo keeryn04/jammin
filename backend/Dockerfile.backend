@@ -1,17 +1,20 @@
-# Use the official Python image as a base image for the backend
-FROM python:3.8
+# Use official Python image
+FROM python:3.10
 
-WORKDIR /usr/src/app/backend
+# Set the working directory
+WORKDIR /app
 
-# Copy the requirements file first to leverage Docker cache
-COPY ./backend/requirements.txt .
+# Copy dependencies
+COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY ./backend/app.py .
+# Copy the rest of the backend files
+COPY . .
 
+# Expose Flask’s default port
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+# Run Flask (adjust host & port as needed)
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
