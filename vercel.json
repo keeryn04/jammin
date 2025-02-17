@@ -1,15 +1,22 @@
 {
-    "version": 2,
     "builds": [
       {
-        "src": "Dockerfile",
-        "use": "@vercel/docker"
+        "src": "client/package.json",
+        "use": "@vercel/static-build"
+      },
+      {
+        "src": "server/app.py",
+        "use": "@vercel/python"
       }
     ],
     "routes": [
       {
-        "src": "/(.*)",
-        "dest": "/"
+        "src": "/api/(.*)",
+        "dest": "backend/app.py"
+      },
+      {
+        "src": "(.*)",
+        "dest": "frontend/$1"
       }
     ]
   }  

@@ -11,8 +11,15 @@ RUN npm install
 # Copy the rest of the frontend files
 COPY . .
 
-# Expose Vite’s default port
-EXPOSE 3000
+RUN npm run build
 
-# Start Vite dev server
-CMD ["npm", "run", "dev"]
+# Install a simple HTTP server to serve the static files
+RUN npm install -g serve
+
+RUN ls -alh /usr/src/app/frontend/dist
+
+# Expose the port for the static files (Vite's default preview port is 5000)
+EXPOSE 5000
+
+# Serve the static files
+CMD ["serve", "dist", "-l", "5000"]

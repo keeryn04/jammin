@@ -144,3 +144,4 @@ dist
 .pnp.*
 
 tokens.txt
+.vercel

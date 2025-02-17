@@ -23,5 +23,6 @@ export default defineConfig({
       input: '/index.html'
     }
   },
+  outDir: 'dist',
 })
 

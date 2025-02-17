@@ -1,7 +1,7 @@
 # app.py
 from flask import Flask, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='path_to_vite_dist', static_url_path='/')
 
 @app.route('/')
 def hello():
