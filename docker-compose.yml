@@ -39,9 +39,10 @@ services:
       MYSQL_ROOT_PASSWORD: password  
       MYSQL_DATABASE: jammin_db
     ports:
-      - "3307:3306"  #Expose MySQL port
+      - "3307:3306"  #Expose MySQL port (Swapped to 3307 to make unique connection, 3306 is MySQL base connection)
     volumes:
       - mysql_data:/var/lib/mysql  #Persist data if container removed
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql #Initialize database on container creation
     networks:
       - default
 
