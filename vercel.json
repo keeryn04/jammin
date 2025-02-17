@@ -1,22 +1,22 @@
 {
-    "builds": [
-      {
-        "src": "client/package.json",
-        "use": "@vercel/static-build"
-      },
-      {
-        "src": "server/app.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "backend/app.py"
-      },
-      {
-        "src": "(.*)",
-        "dest": "frontend/$1"
-      }
-    ]
-  }  
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "backend/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/app.py"
+    },
+    {
+      "src": "(.*)",
+      "dest": "frontend/$1"
+    }
+  ]
+}
