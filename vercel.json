@@ -5,7 +5,7 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "api/app.py",
+      "src": "api-python/app.py",
       "use": "@vercel/python"
     }
   ],
