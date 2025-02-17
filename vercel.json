@@ -5,14 +5,14 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "backend/app.py",
+      "src": "api/app.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "backend/app.py"
+      "dest": "api/app.py"
     },
     {
       "src": "(.*)",
