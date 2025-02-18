@@ -4,8 +4,6 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 
 app = Flask(__name__)
-app.secret_key = "b5f5e137ee0d45c3a15a53938b4c7248"
-
 SPOTIPY_CLIENT_ID = "ec7d412a119243419b8118fb6cbc8529"
 SPOTIPY_CLIENT_SECRET = "b5f5e137ee0d45c3a15a53938b4c7248"
 SPOTIPY_REDIRECT_URI = "http://localhost:5000/callback"
