@@ -1,48 +1,107 @@
-from flask import Flask, jsonify
-import mysql.connector
+from flask import Flask, request, redirect, session, jsonify
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 import os
 
 app = Flask(__name__)
+app.secret_key = "b5f5e137ee0d45c3a15a53938b4c7248"
 
-#Get environment variables for MySQL connection
-DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
-DB_NAME = os.getenv('DB_NAME', 'jammin_db')
+SPOTIPY_CLIENT_ID = "ec7d412a119243419b8118fb6cbc8529"
+SPOTIPY_CLIENT_SECRET = "b5f5e137ee0d45c3a15a53938b4c7248"
+SPOTIPY_REDIRECT_URI = "http://localhost:5000/callback"
 
-#Test database connection
-def get_db_connection():
-    conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
-    )
-    return conn
+SCOPE = "user-library-read user-read-private playlist-read-private user-top-read user-read-playback-state user-modify-playback-state"
 
-@app.route("/", methods=["GET"])
+sp_oauth = SpotifyOAuth(
+    client_id=SPOTIPY_CLIENT_ID,
+    client_secret=SPOTIPY_CLIENT_SECRET,
+    redirect_uri=SPOTIPY_REDIRECT_URI,
+    scope=SCOPE
+)
+
+@app.route("/")
 def home():
     return jsonify({"message": "API is working!"})
 
-@app.route("/api/hello", methods=["GET"])
-def hello():
-    return jsonify({"message": "Hello from Flask!"})
+@app.route("/login")
+def login():
+    auth_url = sp_oauth.get_authorize_url()
+    return redirect(auth_url)
 
-#Test fetch
-@app.route("/api/data", methods=["GET"])
-def get_data():
+@app.route("/callback")
+def callback():
+    code = request.args.get("code")
+    if not code:
+        return jsonify({"error": "Authorization failed"}), 400
+
+    token_info = sp_oauth.get_access_token(code)
+    session["token_info"] = token_info
+
+    return redirect("/profile")
+
+@app.route("/profile")
+def profile():
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM songs")
-        rows = cursor.fetchall()
+        token_info = session.get("token_info", None)
+        if not token_info:
+            return jsonify({"error": "Not authenticated"}), 401
 
-        cursor.close()
-        conn.close()
+        # Refresh token if expired
+        if sp_oauth.is_token_expired(token_info):
+            token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
+            session["token_info"] = token_info
 
-        return jsonify(rows)
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
+        sp = spotipy.Spotify(auth=token_info["access_token"])
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+        # Fetch user profile
+        user_info = sp.current_user()
+
+        # Fetch top tracks
+        top_tracks = sp.current_user_top_tracks(limit=5)["items"] if sp.current_user_top_tracks(limit=5) else []
+
+        # Fetch top artists
+        top_artists = sp.current_user_top_artists(limit=5)["items"] if sp.current_user_top_artists(limit=5) else []
+
+        # Fetch user playlists
+        playlists = sp.current_user_playlists()["items"] if sp.current_user_playlists() else []
+
+        # Fetch currently playing track (handle errors)
+        currently_playing = None
+        try:
+            playback = sp.current_playback()
+            if playback and playback["item"]:
+                currently_playing = playback["item"]["name"]
+        except Exception as e:
+            currently_playing = "No song playing"
+
+        return jsonify({
+            "user": user_info,
+            "top_tracks": [{"name": t["name"], "artist": t["artists"][0]["name"]} for t in top_tracks],
+            "top_artists": [{"name": a["name"], "genres": a["genres"]} for a in top_artists],
+            "playlists": [{"name": p["name"], "id": p["id"]} for p in playlists],
+            "currently_playing": currently_playing
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/play", methods=["GET"])
+def play_default_song():
+    token_info = session.get("token_info", None)
+    if not token_info:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    # Refresh token if expired
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
+        session["token_info"] = token_info
+
+    sp = spotipy.Spotify(auth=token_info["access_token"])
+
+    track_id = "5ZLUm9eab8y3tqQ1OhQSHI"  # Default song
+
+    try:
+        sp.start_playback(uris=[f"spotify:track:{track_id}"])
+        return jsonify({"message": f"Now playing: {track_id}"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
