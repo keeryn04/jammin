@@ -5,6 +5,7 @@ import Homepage from './components/HomePage/Homepage';
 import LandingPage from './components/LandingPage/LandingPage';
 import LoginPage from './components/Login_Signup/LoginPage';
 import About from './components/About/About';
+import QuickNav from './components/QuickNav/QuickNav';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -23,6 +24,8 @@ function App() {
           {/*Simple directory page, Login, Sign-up, About*/}
           <Route path="/Login" element={<LoginPage />}/>
           <Route path="/About" element={<About />}/>
+          <Route path="/QuickNav" element={<QuickNav />}/>
+
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

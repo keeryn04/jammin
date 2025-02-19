@@ -10,6 +10,7 @@ function Homepage() {
         <Link to="/Login"><button className='btn'>Login</button></Link>
         <Link to="/About"><button className='btn'>About</button></Link>
         <Link to="/Welcome"><button className='btn'>Landing Page</button></Link>
+        <Link to="/QuickNav"><button className='btn'>QuickNav</button></Link>
       </div>
     </div>
 
