@@ -10,6 +10,9 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+#Setup MySQL connection
+RUN pip install mysql-connector-python 
+
 # Copy the rest of the backend files
 COPY . .
 
