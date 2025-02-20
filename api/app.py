@@ -24,17 +24,13 @@ def get_db_connection():
 def home():
     return jsonify({"message": "API is working!"})
 
-@app.route("/api/hello", methods=["GET"])
-def hello():
-    return jsonify({"message": "Hello from Flask!"})
-
 #Test fetch
 @app.route("/api/data", methods=["GET"])
 def get_data():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM songs")
+        cursor.execute("SELECT * FROM users")
         rows = cursor.fetchall()
 
         cursor.close()
