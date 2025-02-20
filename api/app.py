@@ -2,18 +2,26 @@ from flask import Flask, request, redirect, session, jsonify
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
-SPOTIPY_CLIENT_ID = "ec7d412a119243419b8118fb6cbc8529"
-SPOTIPY_CLIENT_SECRET = ""
-SPOTIPY_REDIRECT_URI = "http://localhost:5000/callback"
+# Set the secret key
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
+
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+print("SPOTIFY_CLIENT_ID:", SPOTIFY_CLIENT_ID)
+print("SPOTIFY_CLIENT_SECRET:", SPOTIFY_CLIENT_SECRET)
+print("SPOTIFY_REDIRECT_URI:", SPOTIFY_REDIRECT_URI)
 
 SCOPE = "user-library-read user-read-private playlist-read-private user-top-read user-read-playback-state user-modify-playback-state"
 
 sp_oauth = SpotifyOAuth(
-    client_id=SPOTIPY_CLIENT_ID,
-    client_secret=SPOTIPY_CLIENT_SECRET,
-    redirect_uri=SPOTIPY_REDIRECT_URI,
+    client_id=SPOTIFY_CLIENT_ID,
+    client_secret=SPOTIFY_CLIENT_SECRET,
+    redirect_uri=SPOTIFY_REDIRECT_URI,
     scope=SCOPE
 )
 
