@@ -314,9 +314,17 @@ def delete_spotify_data(spotify_id):
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
     
-@app.route("/api/spotify_data/<spotify_id>", methods=["UPDATE"])
-def update_spotify_data(spotify_id, top_songs, top_artists, top_genres, profile_name, profile_image):
+@app.route("/api/spotify_data/<spotify_id>", methods=["PUT"])
+def update_spotify_data(spotify_id):
     try:
+        data = request.json
+
+        top_songs = data.get("top_songs")
+        top_artists = data.get("top_artists")
+        top_genres = data.get("top_genres")
+        profile_name = data.get("profile_name")
+        profile_image = data.get("profile_image")
+        
         conn = get_db_connection()
         cursor = conn.cursor()
 
