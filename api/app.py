@@ -6,6 +6,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
+
 #Get environment variables for MySQL connection
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_USER = os.getenv('DB_USER', 'root')
@@ -26,8 +28,17 @@ def get_db_connection():
         print(f"Database connection error: {err}")
         return None
 
-# Default path
-@app.route("/api/status", methods=["GET"])
+#Apply API key to backend access
+def require_api_key(f):
+    def decorated_function(*args, **kwargs):
+        api_key = request.args.get("api_key")
+        if api_key != API_ACCESS_KEY:
+            return jsonify({"error": "Unauthorized"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+#Default path
+@app.route("/", methods=["GET"])
 def default_api():
     return jsonify({"message": "API is working!"})
 
@@ -247,6 +258,76 @@ def delete_swipe(swipe_id):
         conn.close()
 
         return jsonify({"message": "Swipe deleted successfully"}), 200
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+
+# -------------------- SPOTIFY DATA --------------------
+@app.route("/api/spotify_data", methods=["GET"])
+def get_swipes():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM spotify_data")
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(rows)
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+
+@app.route("/api/spotify-data", methods=["POST"])
+def add_spotify_data():
+    try:
+        data = request.json
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = """
+        INSERT INTO spotify_data (spotify_id, top_songs, top_artists, top_genres, profile_link) 
+        VALUES (UUID(), %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (data["spotify_id"], data["top_songs"], data["top_artists"], data["top_genres"], data["profile_name"], data["profile_link"]))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Spotify entry added successfully"}), 201
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+    
+@app.route("/api/spotify_data/<spotify_id>", methods=["DELETE"])
+def delete_spotify_data(spotify_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM spotify_data WHERE spotify_id = %s", (spotify_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Spotify data deleted successfully"}), 200
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+    
+@app.route("/api/spotify_data/<spotify_id>", methods=["UPDATE"])
+def update_spotify_data(spotify_id, top_songs, top_artists, top_genres, profile_name, profile_image):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE spotify_data SET top_songs=%s, top_artists=%s, top_genres=%s, profile_name=%s, profile_image=%s WHERE spotify_id=%s", 
+                       (top_songs, top_artists, top_genres, profile_name, profile_image, spotify_id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Spotify data updated successfully"}), 200
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
 

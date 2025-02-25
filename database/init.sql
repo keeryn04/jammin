@@ -45,6 +45,16 @@ CREATE TABLE IF NOT EXISTS swipes (
     FOREIGN KEY (swiped_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS spotify_data (
+    spotify_id VARCHAR(100) PRIMARY KEY,
+    top_songs VARCHAR(100) NOT NULL,
+    top_artists VARCHAR(100) NOT NULL,
+    top_genres VARCHAR(100) NOT NULL,
+    profile_name VARCHAR(20) UNIQUE NOT NULL,
+    profile_image VARCHAR(50) UNIQUE NOT NULL,
+    FOREIGN KEY (spotify_id) REFERENCES users(spotify_id) ON DELETE CASCADE
+);
+
 -- Test data, remove later
 INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
 VALUES 
