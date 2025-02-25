@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import mysql.connector
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 #Get environment variables for MySQL connection
 DB_HOST = os.getenv('DB_HOST', 'localhost')
@@ -27,7 +29,7 @@ def get_db_connection():
 # Default path
 @app.route("/api/status", methods=["GET"])
 def default_api():
-    return jsonify({"API is working!"})
+    return jsonify({"message": "API is working!"})
 
 # -------------------- USERS --------------------
 @app.route("/api/users", methods=["GET"])
