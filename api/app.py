@@ -1,12 +1,29 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
+from spotipy.oauth2 import SpotifyOAuth
 import mysql.connector
 import os
+import requests
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "key")
 
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+
+SCOPE = "user-library-read user-read-private playlist-read-private user-top-read"
+
+sp_oauth = SpotifyOAuth(
+    client_id=SPOTIFY_CLIENT_ID,
+    client_secret=SPOTIFY_CLIENT_SECRET,
+    redirect_uri=SPOTIFY_REDIRECT_URI,
+    scope=SCOPE
+)
 
 #Get environment variables for MySQL connection
 DB_HOST = os.getenv('DB_HOST', 'localhost')
@@ -36,6 +53,102 @@ def require_api_key(f):
             return jsonify({"error": "Unauthorized"}), 403
         return f(*args, **kwargs)
     return decorated_function
+
+# Spotify Authentication Routes
+@app.route("/spotify/login")
+def spotify_login():
+    auth_url = sp_oauth.get_authorize_url()
+    return redirect(auth_url)
+
+@app.route("/spotify/callback")
+def spotify_callback():
+    code = request.args.get("code")
+    token_url = "https://accounts.spotify.com/api/token"
+    response = requests.post(
+        token_url,
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": SPOTIFY_REDIRECT_URI,
+            "client_id": SPOTIFY_CLIENT_ID,
+            "client_secret": SPOTIFY_CLIENT_SECRET,
+        },
+    )
+    data = response.json()
+    session["spotify_access_token"] = data.get("access_token")
+    return redirect("/fetch_spotify_data")
+
+@app.route("/fetch_spotify_data")
+def fetch_spotify_data():
+    access_token = session.get("spotify_access_token")
+    if not access_token:
+        return jsonify({"error": "No Spotify access token"}), 401
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    user_profile = requests.get("https://api.spotify.com/v1/me", headers=headers).json()
+    top_artists = requests.get("https://api.spotify.com/v1/me/top/artists?limit=10", headers=headers).json()
+    top_tracks = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=5", headers=headers).json()
+
+    images = user_profile.get("images", [])
+    profile_image = images[0]["url"] if images else ""
+
+    spotify_data = {
+        "spotify_id": user_profile.get("id"),
+        "top_songs": [track["name"] for track in top_tracks.get("items", [])],
+        "top_artists": [artist["name"] for artist in top_artists.get("items", [])],
+        "top_genres": list(set(
+            genre 
+            for artist in top_artists.get("items", []) 
+            for genre in artist.get("genres", [])
+        )),
+        "profile_name": user_profile.get("display_name"),
+        "profile_image": profile_image,
+    }
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+    cursor = conn.cursor()
+
+    # Check if a user with this spotify_id already exists in the users table
+    cursor.execute("SELECT COUNT(*) FROM users WHERE spotify_id = %s", (spotify_data["spotify_id"],))
+    result = cursor.fetchone()
+    if result[0] == 0:
+        # Insert new user record with default values if it doesn't exist
+        new_user_query = """
+        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
+        VALUES (UUID(), %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(new_user_query, (
+            spotify_data["spotify_id"],
+            spotify_data["profile_name"] or "unknown_user",
+            f"{spotify_data['spotify_id']}@example.com",
+            "dummy_password",  # Replace with a secure default or handle appropriately
+            18,                # Default age (must be >= 13)
+            ""
+        ))
+        conn.commit()
+
+    # Insert or update spotify_data
+    query = (
+        "INSERT INTO spotify_data (spotify_id, top_songs, top_artists, top_genres, profile_name, profile_image) "
+        "VALUES (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE "
+        "top_songs=VALUES(top_songs), top_artists=VALUES(top_artists), "
+        "top_genres=VALUES(top_genres), profile_name=VALUES(profile_name), profile_image=VALUES(profile_image)"
+    )
+    cursor.execute(query, (
+        spotify_data["spotify_id"],
+        ", ".join(spotify_data["top_songs"]),
+        ", ".join(spotify_data["top_artists"]),
+        ", ".join(spotify_data["top_genres"]),
+        spotify_data["profile_name"],
+        spotify_data["profile_image"]
+    ))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Spotify data fetched and stored successfully"})
 
 #Default path
 @app.route("/", methods=["GET"])
@@ -263,7 +376,7 @@ def delete_swipe(swipe_id):
 
 # -------------------- SPOTIFY DATA --------------------
 @app.route("/api/spotify_data", methods=["GET"])
-def get_swipes():
+def get_spotify_data():
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
