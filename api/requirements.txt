@@ -4,3 +4,4 @@ mysql-connector-python
 requests
 spotipy
 dotenv
+flask-session
