@@ -5,6 +5,7 @@ USE jammin_db;
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
     spotify_id VARCHAR(100) UNIQUE NOT NULL,
+    username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     age INT CHECK (age >= 13),
@@ -49,12 +50,12 @@ CREATE TABLE IF NOT EXISTS users_music_data (
     user_id CHAR(36) NOT NULL,
     profile_name VARCHAR(20) UNIQUE NOT NULL,
     profile_image VARCHAR(50) UNIQUE NOT NULL,
-    top_songs VARCHAR(100) NOT NULL,
-    top_songs_pictures VARCHAR(100) NOT NULL,
-    top_artists VARCHAR(100) NOT NULL,
-    top_artists_pictures VARCHAR(100) NOT NULL,
-    top_genres VARCHAR(100) NOT NULL,
-    top_genres_pictures VARCHAR(100) NOT NULL,
+    top_songs VARCHAR(300) NOT NULL,
+    top_songs_pictures VARCHAR(1000) NOT NULL,
+    top_artists VARCHAR(300) NOT NULL,
+    top_artists_pictures VARCHAR(1000) NOT NULL,
+    top_genres VARCHAR(300) NOT NULL,
+    top_genres_pictures VARCHAR(1000) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

@@ -5,6 +5,7 @@ import mysql.connector
 import os
 import requests
 from dotenv import load_dotenv
+import uuid
 load_dotenv()
 
 from database_connector import get_db_connection
@@ -15,6 +16,7 @@ API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 SCOPE = "user-library-read user-read-private playlist-read-private user-top-read"
 
@@ -61,11 +63,14 @@ def spotify_callback():
 @spotify_routes.route("/fetch_spotify_data")
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
+    
     if not access_token:
         return jsonify({"error": "No Spotify access token"}), 401
-
+    
     headers = {"Authorization": f"Bearer {access_token}"}
-    user_profile = requests.get("https://api.spotify.com/v1/me", headers=headers).json()
+    response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+    user_profile = response.json()
+
     top_artists = requests.get("https://api.spotify.com/v1/me/top/artists?limit=10", headers=headers).json()
     top_tracks = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=5", headers=headers).json()
 

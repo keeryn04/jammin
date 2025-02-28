@@ -5,3 +5,4 @@ requests
 spotipy
 dotenv
 flask-session
+uuid
