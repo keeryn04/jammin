@@ -11,6 +11,8 @@ function Homepage() {
         <Link to="/About"><button className='btn'>About</button></Link>
         <Link to="/Welcome"><button className='btn'>Landing Page</button></Link>
         <Link to="/QuickNav"><button className='btn'>QuickNav</button></Link>
+        <Link to="/MatchingPageDesktop"><button className='btn'>Dashboard</button></Link>
+        <Link to="/Profile"><button className='btn'>Profile</button></Link>
       </div>
     </div>
 
