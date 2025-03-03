@@ -271,6 +271,57 @@ def get_user_data():
         return jsonify(rows)
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
+    
+#For fetching data to send to ChatGPT
+@app.route("/api/user_data/<user_id>", methods=["GET"])
+def get_user_music_data_by_id(user_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        if rows:
+            response = {
+                "user_id": rows[0]["user_id"],
+                "music_profile": {
+                    "top_songs": rows[0]["top_songs"],
+                    "top_artists": rows[0]["top_artists"],
+                    "top_genres": rows[0]["top_genres"]
+                }
+            }
+        else:
+            response = {"error": "User not found"}
+
+        return jsonify(response)
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+
+#For fetching specific number of top artists  
+@app.route("/api/user_data/<user_id>/<int:limit>", methods=["GET"])
+def get_user_top_artists_by_id(user_id, limit):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if row:
+            top_artists_list = row["top_artists"].split(", ")[:limit]
+            top_artists_pictures_list = row["top_artists_pictures"].split(", ")[:limit]
+            response = {
+                "user_id": user_id,
+                "top_artists": top_artists_list,
+                "top_artists_pictures": top_artists_pictures_list
+            }
+        else:
+            response = {"error": "User not found"}
+
+        return jsonify(response)
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
 
 @app.route("/api/user_data", methods=["POST"])
 def add_user_data():
