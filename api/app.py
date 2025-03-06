@@ -12,9 +12,6 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
-print("SPOTIFY_CLIENT_ID:", SPOTIFY_CLIENT_ID)
-print("SPOTIFY_CLIENT_SECRET:", SPOTIFY_CLIENT_SECRET)
-print("SPOTIFY_REDIRECT_URI:", SPOTIFY_REDIRECT_URI)
 
 SCOPE = "user-library-read user-read-private playlist-read-private user-top-read user-read-playback-state user-modify-playback-state"
 
