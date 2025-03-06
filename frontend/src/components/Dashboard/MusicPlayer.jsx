@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { PrevButton, PlayButton, NextButton } from "./icons";
+import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import RedPlayButton
 
 export default function MusicPlayer({ currentTime, totalDuration, onSeek }) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false); // State to track hover
   const seekBarRef = useRef(null); // Ref for the seek bar container
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -100,6 +102,8 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek }) {
         <div
           className="cursor-pointer focus:outline-none relative"
           aria-label="Play"
+          onMouseEnter={() => setIsHoveringPlayButton(true)} // Set hover state to true
+          onMouseLeave={() => setIsHoveringPlayButton(false)} // Set hover state to false
         >
           {/* Red circle behind the Play icon */}
           <div className="absolute inset-0 flex items-center justify-center z-0">
@@ -107,7 +111,11 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek }) {
           </div>
           {/* Play icon */}
           <div className="relative z-10">
-            <PlayButton className="w-12 h-12" /> {/* Larger size for Play button */}
+            {isHoveringPlayButton ? (
+              <RedPlayButton className="w-10 h-10" /> // Smaller size for RedPlayButton
+            ) : (
+              <PlayButton className="w-12 h-12" /> // Default size for PlayButton
+            )}
           </div>
         </div>
 
