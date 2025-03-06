@@ -81,8 +81,6 @@ def fetch_spotify_data():
     logging.debug(f"User Profile: {json.dumps(user_profile, indent=2)}")
     images = user_profile.get("images", [])
     profile_image = images[0]["url"] if images else "https://pixabay.com/vectors/user-avatar-user-icon-account-icon-6380868/"
-    logging.debug(f"Images: {images}")
-    logging.debug(f"Profile Image: {profile_image}")
 
     spotify_data = {
         "spotify_id": user_profile.get("id"),

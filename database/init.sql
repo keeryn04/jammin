@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS users_music_data (
     user_data_id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
     profile_name VARCHAR(100) UNIQUE NOT NULL,
-    profile_image VARCHAR(1000) UNIQUE NOT NULL,
+    profile_image VARCHAR(1000) NOT NULL,
     top_songs VARCHAR(300) NOT NULL,
     top_songs_pictures VARCHAR(1000) NOT NULL,
     top_artists VARCHAR(300) NOT NULL,
