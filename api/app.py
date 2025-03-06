@@ -2,8 +2,11 @@ from flask import Flask, request, redirect, session, jsonify
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
-
+import openai
+import json
+from pydantic import BaseModel
 app = Flask(__name__)
+"""
 SPOTIPY_CLIENT_ID = "ec7d412a119243419b8118fb6cbc8529"
 SPOTIPY_CLIENT_SECRET = ""
 SPOTIPY_REDIRECT_URI = "http://localhost:5000/callback"
@@ -16,11 +19,11 @@ sp_oauth = SpotifyOAuth(
     redirect_uri=SPOTIPY_REDIRECT_URI,
     scope=SCOPE
 )
-
+"""
 @app.route("/")
 def home():
     return jsonify({"message": "API is working!"})
-
+"""
 @app.route("/login")
 def login():
     auth_url = sp_oauth.get_authorize_url()
@@ -103,3 +106,70 @@ def play_default_song():
         return jsonify({"message": f"Now playing: {track_id}"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    """
+
+
+@app.route("/chattesting", methods=["GET"])
+def run_ChatQuery():    
+    openai.api_key = ""
+    client = openai.OpenAI(api_key=openai.api_key)
+
+    messages = [ #defines the role of
+        {"role": "system", "content": 
+        """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
+        The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
+        The output should be in JSON format.
+        Example input:
+        [
+        {'userid':'0', 'topSongs':['SongA'], 'topArtists':['ArtistA'], 'topGenres':['GenreA']},
+        {'userid':'72', 'topSongs':['SongB'], 'topArtists':['ArtistB'], 'topGenres':['GenreB']}
+        ]
+        Example output:
+        [
+            {'userID':'72', 'compatibility_score': 75,'reasoning':'They have similar favourite artists, and similar genres'}
+        ]
+        """}]
+
+    message = [{"userid":"0", 
+                "topSongs":["Hotline Bling","Be Nice 2 Me","Stephanie", "did i tell u that i miss u","Beanie"],
+                "topArtists":["Drake","Malcolm Todd","Bladee","BROCKHAMPTON","d4vd"],
+                "topGenres":["HipHop","Rap","Indie Pop","R&B","Alt HipHop"]},
+                {
+                "userid": "5",
+                "topSongs": ["Obedient", "Super Rich Kids", "Stephanie", "NOKIA", "Pink + White"],
+                "topArtists": ["Bladee", "Frank Ocean", "MarQ", "Lauryn Hill", "Kanye West"],
+                "topGenres": ["R&B", "Alt HipHop", "Rap", "HipHop", "Indie Pop"]
+                },
+                {
+                "userid": "4",
+                "topSongs": ["Money Trees", "N95", "Alright", "Praise The Lord", "Power"],
+                "topArtists": ["Kendrick Lamar", "J. Cole", "A$AP Rocky", "Kanye West", "Jay-Z"],
+                "topGenres": ["HipHop", "Rap", "Conscious Rap", "Boom Bap", "Alternative HipHop"]
+                },
+                {
+                "userid": "3",
+                "topSongs": ["The Less I Know The Better", "Electric Feel", "Somebody Else", "Loving Is Easy", "West Coast"],
+                "topArtists": ["Tame Impala", "MGMT", "The 1975", "Rex Orange County", "Lana Del Rey"],
+                "topGenres": ["Indie Rock", "Psychedelic Pop", "Alternative", "Dream Pop", "Indie Pop"]
+                },
+                {
+                "userid": "1",
+                "topSongs": ["Master of Puppets", "Paranoid", "Ace of Spades", "Holy Wars", "Raining Blood"],
+                "topArtists": ["Metallica", "Black Sabbath", "Motörhead", "Megadeth", "Slayer"],
+                "topGenres": ["Heavy Metal", "Thrash Metal", "Hard Rock", "Classic Metal", "Speed Metal"]
+                },
+                {
+                "userid": "2",
+                "topSongs": ["Clair de Lune", "Nocturne Op. 9 No. 2", "Gymnopédie No. 1", "Moonlight Sonata", "Rhapsody in Blue"],
+                "topArtists": ["Claude Debussy", "Frédéric Chopin", "Erik Satie", "Ludwig van Beethoven", "George Gershwin"],
+                "topGenres": ["Classical", "Romantic", "Impressionist", "Baroque", "Jazz-Classical Fusion"]
+                }]#here ideally would run get requests from spotify for specific users
+    message_content = json.dumps(message)
+    messages.append({"role": "user", "content": message_content})
+    chat = client.beta.chat.completions.parse(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        response_format={"type": "json_object"}
+    )
+    reply = chat.choices[0].message.content
+    return jsonify(json.loads(reply))
