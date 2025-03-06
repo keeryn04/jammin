@@ -5,6 +5,9 @@ import Homepage from './components/HomePage/Homepage';
 import LandingPage from './components/LandingPage/LandingPage';
 import LoginPage from './components/Login_Signup/LoginPage';
 import About from './components/About/About';
+import QuickNav from './components/QuickNav/QuickNav';
+import Dashboard from './components/Dashboard/MainLayout';
+import Profile from './components/Profile/SpotifyProfile';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -23,6 +26,10 @@ function App() {
           {/*Simple directory page, Login, Sign-up, About*/}
           <Route path="/Login" element={<LoginPage />}/>
           <Route path="/About" element={<About />}/>
+          <Route path="/QuickNav" element={<QuickNav />}/>
+          <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
+          <Route path="/Profile" element={<Profile />}/>
+
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
