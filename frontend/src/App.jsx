@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import OLD_LandingPage from './components/OLD_DELETE_LandingPage/LandingPage';
+import LandingPage from './components/LandingPage1/LandingPage';
 import LoginPage from './components/Login_Signup/LoginPage';
 import About from './components/About/About';
 import QuickNav from './components/QuickNav/QuickNav';
