@@ -49,13 +49,13 @@ CREATE TABLE IF NOT EXISTS users_music_data (
     user_data_id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
     profile_name VARCHAR(100) UNIQUE NOT NULL,
-    profile_image VARCHAR(TEXT) UNIQUE NOT NULL,
+    profile_image VARCHAR(100) NOT NULL,
     top_songs VARCHAR(300) NOT NULL,
-    top_songs_pictures VARCHAR(TEXT) NOT NULL,
+    top_songs_pictures VARCHAR(1000) NOT NULL,
     top_artists VARCHAR(300) NOT NULL,
-    top_artists_pictures VARCHAR(TEXT) NOT NULL,
+    top_artists_pictures VARCHAR(1000) NOT NULL,
     top_genres VARCHAR(300) NOT NULL,
-    top_genres_pictures VARCHAR(TEXT) NOT NULL,
+    top_genres_pictures VARCHAR(1000) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
