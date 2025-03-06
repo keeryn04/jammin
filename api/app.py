@@ -7,8 +7,10 @@ import os
 import mysql.connector
 import uuid
 from dotenv import load_dotenv
-import openai
-import json
+
+from routes.gpt import openai_routes
+
+
 
 # Load environment variables
 load_dotenv()
@@ -23,6 +25,7 @@ CORS(app)
 
 # Register Blueprints
 app.register_blueprint(spotify_routes)
+app.register_blueprint(openai_routes)
 
 # API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
@@ -392,71 +395,6 @@ def update_user_data(user_id):
         return jsonify({"message": "Music data updated successfully"}), 200
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-
-@app.route("/chattesting", methods=["GET"])
-def run_ChatQuery():    
-    openai.api_key = ""
-    client = openai.OpenAI(api_key=openai.api_key)
-
-    messages = [ #defines the role of
-        {"role": "system", "content": 
-        """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-        The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
-        The output should be in JSON format.
-        Example input:
-        [
-        {'userid':'0', 'topSongs':['SongA'], 'topArtists':['ArtistA'], 'topGenres':['GenreA']},
-        {'userid':'72', 'topSongs':['SongB'], 'topArtists':['ArtistB'], 'topGenres':['GenreB']}
-        ]
-        Example output:
-        [
-            {'userID':'72', 'compatibility_score': 75,'reasoning':'They have similar favourite artists, and similar genres'}
-        ]
-        """}]
-
-    message = [{"userid":"0", 
-                "topSongs":["Hotline Bling","Be Nice 2 Me","Stephanie", "did i tell u that i miss u","Beanie"],
-                "topArtists":["Drake","Malcolm Todd","Bladee","BROCKHAMPTON","d4vd"],
-                "topGenres":["HipHop","Rap","Indie Pop","R&B","Alt HipHop"]},
-                {
-                "userid": "5",
-                "topSongs": ["Obedient", "Super Rich Kids", "Stephanie", "NOKIA", "Pink + White"],
-                "topArtists": ["Bladee", "Frank Ocean", "MarQ", "Lauryn Hill", "Kanye West"],
-                "topGenres": ["R&B", "Alt HipHop", "Rap", "HipHop", "Indie Pop"]
-                },
-                {
-                "userid": "4",
-                "topSongs": ["Money Trees", "N95", "Alright", "Praise The Lord", "Power"],
-                "topArtists": ["Kendrick Lamar", "J. Cole", "A$AP Rocky", "Kanye West", "Jay-Z"],
-                "topGenres": ["HipHop", "Rap", "Conscious Rap", "Boom Bap", "Alternative HipHop"]
-                },
-                {
-                "userid": "3",
-                "topSongs": ["The Less I Know The Better", "Electric Feel", "Somebody Else", "Loving Is Easy", "West Coast"],
-                "topArtists": ["Tame Impala", "MGMT", "The 1975", "Rex Orange County", "Lana Del Rey"],
-                "topGenres": ["Indie Rock", "Psychedelic Pop", "Alternative", "Dream Pop", "Indie Pop"]
-                },
-                {
-                "userid": "1",
-                "topSongs": ["Master of Puppets", "Paranoid", "Ace of Spades", "Holy Wars", "Raining Blood"],
-                "topArtists": ["Metallica", "Black Sabbath", "Motörhead", "Megadeth", "Slayer"],
-                "topGenres": ["Heavy Metal", "Thrash Metal", "Hard Rock", "Classic Metal", "Speed Metal"]
-                },
-                {
-                "userid": "2",
-                "topSongs": ["Clair de Lune", "Nocturne Op. 9 No. 2", "Gymnopédie No. 1", "Moonlight Sonata", "Rhapsody in Blue"],
-                "topArtists": ["Claude Debussy", "Frédéric Chopin", "Erik Satie", "Ludwig van Beethoven", "George Gershwin"],
-                "topGenres": ["Classical", "Romantic", "Impressionist", "Baroque", "Jazz-Classical Fusion"]
-                }]#here ideally would run get requests from spotify for specific users
-    message_content = json.dumps(message)
-    messages.append({"role": "user", "content": message_content})
-    chat = client.beta.chat.completions.parse(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        response_format={"type": "json_object"}
-    )
-    reply = chat.choices[0].message.content
-    return jsonify(json.loads(reply))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
