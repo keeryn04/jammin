@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 import uuid
 load_dotenv()
 
+import logging
+import json
+logging.basicConfig(level=logging.DEBUG)
+
 from database_connector import get_db_connection
 
 spotify_routes = Blueprint("spotify_routes", __name__)
@@ -74,8 +78,11 @@ def fetch_spotify_data():
     top_artists = requests.get("https://api.spotify.com/v1/me/top/artists?limit=10", headers=headers).json()
     top_tracks = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=5", headers=headers).json()
 
+    logging.debug(f"User Profile: {json.dumps(user_profile, indent=2)}")
     images = user_profile.get("images", [])
-    profile_image = images[0]["url"] if images else ""
+    profile_image = images[0]["url"] if images else "https://pixabay.com/vectors/user-avatar-user-icon-account-icon-6380868/"
+    logging.debug(f"Images: {images}")
+    logging.debug(f"Profile Image: {profile_image}")
 
     spotify_data = {
         "spotify_id": user_profile.get("id"),
