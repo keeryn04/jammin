@@ -1,6 +1,5 @@
 flask
 flask-cors
-openai
 mysql-connector-python
 requests
 spotipy
