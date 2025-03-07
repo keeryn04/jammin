@@ -3,7 +3,15 @@
 import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  const loginRedirect = () => {
+    navigate('/Login');
+  }
+
+  const signupRedirect = () => {
+    navigate('/Signup1')
+  }
 
   return (
     <section className="flex flex-col gap-6 items-center">
@@ -12,13 +20,16 @@ const CTASection = () => {
                   text-neutral-900 w-[356px] max-md:text-2xl max-md:h-[60px] max-md:w-[300px] 
                     max-sm:w-full max-sm:text-xl max-sm:h-[50px] max-sm:max-w-[280px]"
         aria-label="Sign up for free"
-        onClick={() => navigate("/Profile")}
+        onClick={signupRedirect}
       >
         Sign up for Free
       </button>
       <div className="flex gap-2.5 items-center text-2xl font-bold text-white max-sm:flex-col max-sm:gap-4">
 
-        <button className="p-2.5 hover:underline cursor-pointer max-sm:text-xl">
+        <button 
+          className="p-2.5 hover:underline cursor-pointer max-sm:text-xl"
+          onClick={loginRedirect}
+        >
           Log In
         </button>
 

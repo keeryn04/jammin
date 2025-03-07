@@ -1,6 +1,6 @@
 "use client";
 
-import Logo from "./Logo";
+import Logo from "../Generic/Logo";
 import Heading from "./Heading";
 import CTASection from "./CTASection";
 
