@@ -5,4 +5,4 @@ requests
 spotipy
 dotenv
 flask-session
-uuid
+uuid==1.30

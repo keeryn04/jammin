@@ -1,22 +1,20 @@
 import os
-import mysql.connector
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
 #Get environment variables for MySQL connection
-DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
-DB_NAME = os.getenv('DB_NAME', 'jammin_db')
+load_dotenv()
+
+#Get Supabase connection things from environment file
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 #Test database connection
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME
-        )
-        return conn
-    except mysql.connector.Error as err:
-        print(f"Database connection error: {err}")
+        return supabase
+    except Exception as e:
+        print(f"Supabase connection error: {e}")
         return None

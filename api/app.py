@@ -4,7 +4,6 @@ from flask_cors import CORS
 from routes.spotify import spotify_routes
 from database_connector import get_db_connection
 import os
-import mysql.connector
 import uuid
 from dotenv import load_dotenv
 
@@ -22,8 +21,8 @@ CORS(app)
 # Register Blueprints
 app.register_blueprint(spotify_routes)
 
-# API Key Authentication
-API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
+#API Key Authentication
+API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 
 #Apply API key to backend access
 def require_api_key(f):
@@ -44,15 +43,18 @@ def default_api():
 def get_users():
     try:
         conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users")
-        rows = cursor.fetchall()
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
 
-        cursor.close()
-        conn.close()
+        response = conn.table("users").select("*").execute()
+        
+        print(response)  
 
-        return jsonify(rows)
-    except mysql.connector.Error as err:
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response["error"]["message"])
+
+        return jsonify(response.data), 200
+    except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
 
 @app.route("/api/users", methods=["POST"])
@@ -60,59 +62,65 @@ def add_user():
     try:
         data = request.json
         conn = get_db_connection()
-        cursor = conn.cursor()
-
-        query = """
-        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio) 
-        VALUES (UUID(), %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(query, (data["spotify_id"], data["username"], data["email"], data["password_hash"], data["age"], data.get("bio")))
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
         
-        conn.commit()
-        cursor.close()
-        conn.close()
+        response = conn.table('users').insert({
+            "user_id": str(uuid.uuid4()),
+            "spotify_id": data["spotify_id"],
+            "username": data["username"],
+            "email": data["email"],
+            "password_hash": data["password_hash"],
+            "age": data["age"],
+            "bio": data.get("bio", None)
+        }).execute()
+        
+        if response.error:
+            raise Exception(response.error.message)
 
         return jsonify({"message": "User added successfully"}), 201
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/users/<user_id>", methods=["DELETE"])
 def delete_user(user_id):
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
 
-        cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
+        response = conn.table('users').delete().eq('user_id', user_id).execute()
+        
+        if response.error:
+            raise Exception(response.error.message)
 
         return jsonify({"message": "User deleted successfully"}), 200
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/users/<user_id>", methods=["PUT"])
 def update_user(user_id):
     try:
         data = request.json
         conn = get_db_connection()
-        cursor = conn.cursor()
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
+        
+        response = conn.table('users').update({
+            "spotify_id": data["spotify_id"],
+            "username": data["username"],
+            "email": data["email"],
+            "password_hash": data["password_hash"],
+            "age": data["age"],
+            "bio": data.get("bio", None)
+        }).eq('user_id', user_id).execute()
 
-        query = """
-        UPDATE users 
-        SET spotify_id=%s, username=%s, email=%s, password_hash=%s, age=%s, bio=%s 
-        WHERE user_id=%s
-        """
-        cursor.execute(query, (data["spotify_id"], data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"), user_id))
-
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if response.error:
+            raise Exception(response.error.message)
 
         return jsonify({"message": "User updated successfully"}), 200
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # -------------------- USER SETTINGS --------------------
 @app.route("/api/user_settings", methods=["GET"])
