@@ -1,7 +1,6 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
-import mysql.connector
 import os
 import requests
 from dotenv import load_dotenv
@@ -12,7 +11,7 @@ import logging
 import json
 logging.basicConfig(level=logging.DEBUG)
 
-from database_connector import get_db_connection
+from api.database_connector import get_db_connection
 
 spotify_routes = Blueprint("spotify_routes", __name__)
 

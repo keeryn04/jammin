@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
-from routes.spotify import spotify_routes
-from database_connector import get_db_connection
+from api.routes.spotify import spotify_routes
+from api.database_connector import get_db_connection
 import os
 import uuid
 from dotenv import load_dotenv
