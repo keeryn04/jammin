@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../Generic/Logo";
+import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 
@@ -38,9 +39,7 @@ const SignupContainer2 = () => {
     <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
       <Logo />
 
-      <h1 className="mb-10 text-6xl font-bold text-center text-white max-md:text-5xl max-sm:text-4xl">
-        Just a bit more
-      </h1>
+      <Heading text="Just a bit more"/>
 
       <div className="w-full max-w-[527px] max-md:max-w-[90%]">
         <FormInput 

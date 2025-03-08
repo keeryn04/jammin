@@ -1,7 +1,7 @@
 "use client";
 
 import Logo from "../Generic/Logo";
-import Heading from "./Heading";
+import Heading from "../Generic/Heading";
 import CTASection from "./CTASection";
 
   const LandingPage = () => {
@@ -10,7 +10,7 @@ import CTASection from "./CTASection";
         <header>
           <Logo />
         </header>
-        <Heading />
+        <Heading text="Ready to meet new people to jam with?"/>
         <CTASection />
       </main>
     );
