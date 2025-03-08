@@ -6,6 +6,13 @@ import Logo from "../Generic/Logo";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 
+/**
+ * This the login container. It is the page displayed for the user such that they can input their email and password and login to the system
+ * The components that make up this file are the logo svg, the form input, error message, and primary / secondary coloured buttons
+ * The functions below contain functionality for handling clicking the buttons such as login and back, as well as functions that update the typed email and password
+ * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
+ */
+
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
