@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './components/LandingPage/LandingPage';
+import LandingPage from './components/LandingPage/LandingPageContainer';
 import LoginContainer from './components/LoginPage/LoginContainer';
 import About from './components/About/About';
 import QuickNav from './components/QuickNav/QuickNav';
