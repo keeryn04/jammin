@@ -9,12 +9,18 @@ import ActionButton from "../Generic/ActionButton";
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("Error Message Here");
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate()
 
   const handleLogin = () => {
-    console.log(`${email} and ${password}`);
+    //Check login information, then either advance the user, or display and error
+    if (false /* Change to database check */) {
+      //Add pathing
+    }
+    else {
+      setError("Email or password incorrect")
+    }
   };
 
   const handleEmailInput = (event) => {
@@ -51,7 +57,7 @@ const LoginContainer = () => {
           placeholder="Enter your password..."
           inputHandler={handlePasswordInput}
         />
-
+        {/*If error != null, error message will be displayed on screen*/}
         {error && (
           <p className="mx-0 my-5 text-2xl text-center text-red-500 max-sm:text-xl">
             {error}
