@@ -1,3 +1,10 @@
+/**
+ * This is a generic form input field for users to type into
+ * It allows for either regular or hidden typing based on the type passed in the props (text or password)
+ * it can also be given a label above it and the placeholder text inside of it for prompting the user
+ * Finally it also gets a input handler that should be a react state setter so the value typed into it can be gathered for later use
+ */
+
 const FormInput = ({ label, type, placeholder, inputHandler }) => {
     return (
       <div className="mb-5 max-sm:mb-4 justify-items-start">
