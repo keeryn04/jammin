@@ -4,7 +4,7 @@ import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
 import CTASection from "./CTASection";
 
-  const LandingPage = () => {
+  const LandingPageContainer = () => {
     return (
       <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
         <header>
@@ -16,4 +16,4 @@ import CTASection from "./CTASection";
     );
   };
 
-export default LandingPage;
+export default LandingPageContainer;
