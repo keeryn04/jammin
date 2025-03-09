@@ -7,17 +7,31 @@ import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 
+/**
+ * This is the first cotainer for the signup process
+ * This page includes prompts for the users email, password, and an additional entry of the password to confirm its what the user wanted to type
+ * It then has a button for going back to the landing page, and a button for going to the next step of the process
+ * There is error checking on the email that it doesn't already exist in the database (TO BE ADDED) and that both passwords entered match
+ */
+
 const SignupContainer1 = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("")
-  const [error, setError] = useState("Error Message Here");
+  const [error, setError] = useState(null);
 
   //Navigation
   const navigate = useNavigate()
 
   const handleNext = () => {
-    navigate("/Signup2")
+    if (password != passwordCheck) {
+      setError("Passwords entered do not match")
+    }
+    else if (email != "Evan Test" /* ADD DATABASE CHECK */) {
+      setError("Email entered is already under use")
+    }
+    else 
+      navigate("/Signup2")
   };
 
   const handleBack = () => {
