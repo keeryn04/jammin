@@ -1,12 +1,15 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
-import mysql.connector
 import os
 import requests
 from dotenv import load_dotenv
 import uuid
 load_dotenv()
+
+import logging
+import json
+logging.basicConfig(level=logging.DEBUG)
 
 from database_connector import get_db_connection
 
@@ -26,15 +29,6 @@ sp_oauth = SpotifyOAuth(
     redirect_uri=SPOTIFY_REDIRECT_URI,
     scope=SCOPE
 )
-
-#Apply API key to backend access
-def require_api_key(f):
-    def decorated_function(*args, **kwargs):
-        api_key = request.args.get("api_key")
-        if api_key != API_ACCESS_KEY:
-            return jsonify({"error": "Unauthorized"}), 403
-        return f(*args, **kwargs)
-    return decorated_function
 
 # Spotify Authentication Routes
 @spotify_routes.route("/spotify/login")
@@ -75,7 +69,7 @@ def fetch_spotify_data():
     top_tracks = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=5", headers=headers).json()
 
     images = user_profile.get("images", [])
-    profile_image = images[0]["url"] if images else ""
+    profile_image = images[0]["url"] if images and "url" in images[0] else "profile.png"
 
     spotify_data = {
         "spotify_id": user_profile.get("id"),

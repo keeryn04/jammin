@@ -1,11 +1,14 @@
 import os
+from flask.cli import load_dotenv
 import mysql.connector
 
 #Get environment variables for MySQL connection
-DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'password')
-DB_NAME = os.getenv('DB_NAME', 'jammin_db')
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
 
 #Test database connection
 def get_db_connection():
