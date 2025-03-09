@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * This is the container for the landing page of the system
+ * This page prompts the user with a call to action to signup, login, or continue as a guest and navigates them to the respective page
+ */
+
 import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
 import CTASection from "./CTASection";
