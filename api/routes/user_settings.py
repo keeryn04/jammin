@@ -3,7 +3,6 @@ from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
-from api.app import require_api_key
 import os
 from dotenv import load_dotenv
 
@@ -29,9 +28,6 @@ def get_user_settings():
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @user_setting_routes.route("/api/user_settings/<setting_id>", methods=["GET"])
 def get_user_setting(setting_id):
@@ -46,7 +42,7 @@ def get_user_setting(setting_id):
         except ValueError:
             return jsonify({"error": "Invalid setting_id format"}), 400
 
-        response = conn.table("user_settings").select("*").eq('setting_uuid', str(setting_uuid)).execute()
+        response = conn.table("user_settings").select("*").eq('setting_id', str(setting_uuid)).execute()
         
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
@@ -54,9 +50,6 @@ def get_user_setting(setting_id):
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
     
 @user_setting_routes.route("/api/user_settings", methods=["POST"])
 def add_user_settings():
@@ -83,9 +76,6 @@ def add_user_settings():
         return jsonify({"message": "User settings added successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @user_setting_routes.route("/api/user_settings/<setting_id>", methods=["PUT"])
 def update_user_settings(setting_id):
@@ -115,9 +105,6 @@ def update_user_settings(setting_id):
         return jsonify({"message": "User Settings updated successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
     
 @user_setting_routes.route("/api/user_settings/<setting_id>", methods=["DELETE"])
 def delete_user_settings(setting_id):
@@ -140,6 +127,3 @@ def delete_user_settings(setting_id):
         return jsonify({"message": "Settings deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        if conn:
-            conn.close()

@@ -2,7 +2,6 @@ from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
-from api.app import require_api_key
 import os
 import uuid
 from dotenv import load_dotenv
@@ -49,9 +48,6 @@ def get_match(match_id):
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @matches_routes.route("/api/matches", methods=["POST"])
 def add_match():
@@ -76,9 +72,7 @@ def add_match():
         return jsonify({"message": "Match added successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
+
 @matches_routes.route("/api/matches/<match_id>", methods=["POST"])
 def update_match(match_id):
     conn = None
@@ -106,9 +100,6 @@ def update_match(match_id):
         return jsonify({"message": "Match updated successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @matches_routes.route("/api/matches/<match_id>", methods=["DELETE"])
 def delete_match(match_id):
@@ -130,6 +121,3 @@ def delete_match(match_id):
         return jsonify({"message": "Match deleted successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()

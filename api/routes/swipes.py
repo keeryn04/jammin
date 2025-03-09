@@ -2,7 +2,6 @@ from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
-from api.app import require_api_key
 import os
 import uuid
 from dotenv import load_dotenv
@@ -28,9 +27,6 @@ def get_swipes():
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
     
 @swipes_routes.route("/api/swipes/<swipe_id>", methods=["GET"])
 def get_swipe(swipe_id):
@@ -52,9 +48,6 @@ def get_swipe(swipe_id):
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @swipes_routes.route("/api/swipes", methods=["POST"])
 def add_swipe(swipe_id):
@@ -105,9 +98,6 @@ def update_swipe(swipe_id):
         return jsonify({"message": "Swipe updated successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    finally:
-        if conn:
-            conn.close()
 
 @swipes_routes.route("/api/swipes/<swipe_id>", methods=["DELETE"])
 def delete_swipe(swipe_id):
