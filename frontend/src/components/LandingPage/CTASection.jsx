@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * This is the call to action section of the landing page
+ * It holds the large button to sign up with, and the two pieces of clickable text for login and continue as guest
+ * All button functionality is used for redirecting to the pages labeled on the buttons
+ */
+
 import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
