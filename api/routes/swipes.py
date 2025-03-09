@@ -56,7 +56,7 @@ def get_swipe(swipe_id):
         if conn:
             conn.close()
 
-@swipes_routes.route("/api/swipes/<swipe_id>", methods=["POST"])
+@swipes_routes.route("/api/swipes", methods=["POST"])
 def add_swipe(swipe_id):
     try:
         data = request.json
@@ -65,7 +65,7 @@ def add_swipe(swipe_id):
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
 
-        response = conn.table("swipes").update({
+        response = conn.table("swipes").upsert({
             "swipe_id": swipe_id,
             "swiper_id": data["swiper_id"],
             "swiped_id": data["swiped_id"],
@@ -78,6 +78,36 @@ def add_swipe(swipe_id):
         return jsonify({"message": "Swipe recorded successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
+    
+@swipes_routes.route("/api/swipes/<swipe_id>", methods=["POST"])
+def update_swipe(swipe_id):
+    conn = None
+    try:
+        data = request.json
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
+        
+        try:
+            swipe_uuid = uuid.UUID(swipe_id)
+        except ValueError:
+            return jsonify({"error": "Invalid swipe_id format"}), 400
+        
+        response = conn.table("swipes").update({
+            "swiper_id": data["swiper_id"],
+            "swiped_id": data["swiped_id"],
+            "action": data["action"]
+        }).eq('swipe_id', str(swipe_uuid)).execute()
+
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response.error.message)
+
+        return jsonify({"message": "Swipe updated successfully"}), 200
+    except Exception as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
+    finally:
+        if conn:
+            conn.close()
 
 @swipes_routes.route("/api/swipes/<swipe_id>", methods=["DELETE"])
 def delete_swipe(swipe_id):

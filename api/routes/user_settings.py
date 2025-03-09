@@ -107,14 +107,14 @@ def update_user_settings(setting_id):
             "notifications": data["notifications"],
             "theme_preference": data["theme_preference"],
             "language": data["language"]
-        }).eq('setting_uuid', str(setting_uuid)).execute()
+        }).eq('setting_id', str(setting_uuid)).execute()
 
         if isinstance(response, dict) and "error" in response:
             raise Exception(response.error.message)
 
         return jsonify({"message": "User Settings updated successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
     finally:
         if conn:
             conn.close()

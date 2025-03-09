@@ -1,7 +1,12 @@
 from flask import Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
-from api.routes import spotify_routes, user_routes, user_setting_routes, swipes_routes, matches_routes, user_data_routes
+from api.routes.spotify import spotify_routes
+from api.routes.users import user_routes
+from api.routes.user_settings import user_setting_routes
+from api.routes.swipes import swipes_routes
+from api.routes.matches import matches_routes 
+from api.routes.user_data import user_data_routes
 import os
 from dotenv import load_dotenv
 

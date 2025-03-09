@@ -100,57 +100,49 @@ def fetch_spotify_data():
         "profile_image": profile_image,
     }
 
-    conn = get_db_connection()
-    if conn is None:
-        return jsonify({"error": "Database connection failed"}), 500
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
 
-    cursor.execute("SELECT user_id FROM users WHERE spotify_id = %s", (spotify_data["spotify_id"],))
-    result = cursor.fetchone()
-    if result is None:
-        new_user_id = str(uuid.uuid4())
-        new_user_query = """
-        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(new_user_query, (
-            new_user_id,
-            spotify_data["spotify_id"],
-            spotify_data["profile_name"] or "unknown_user",
-            f"{spotify_data['spotify_id']}@example.com",
-            "dummy_password",  
-            18,                
-            ""
-        ))
-        user_id = new_user_id
-        conn.commit()
-    else:
-        user_id = result[0]
+        #Check if user exists
+        existing_user_response = conn.table("users").select("user_id").eq("spotify_id", spotify_data["spotify_id"]).execute()
 
-    query = """
-        INSERT INTO users_music_data (user_data_id, user_id, top_songs, top_songs_pictures, 
-                                      top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
-                                      profile_name, profile_image) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
-        top_songs=VALUES(top_songs), top_songs_pictures=VALUES(top_songs_pictures),
-        top_artists=VALUES(top_artists), top_artists_pictures=VALUES(top_artists_pictures),
-        top_genres=VALUES(top_genres), top_genres_pictures=VALUES(top_genres_pictures),
-        profile_name=VALUES(profile_name), profile_image=VALUES(profile_image)
-        """
-    cursor.execute(query, (
-        str(uuid.uuid4()),
-        user_id,
-        ", ".join(spotify_data["top_songs"]),
-        ", ".join(spotify_data["top_songs_pictures"]),
-        ", ".join(spotify_data["top_artists"]),
-        ", ".join(spotify_data["top_artists_pictures"]),
-        ", ".join(spotify_data["top_genres"]),
-        ", ".join(spotify_data["top_genres_pictures"]),
-        spotify_data["profile_name"],
-        spotify_data["profile_image"]
-    ))
-    conn.commit()
-    cursor.close()
-    conn.close()
+        if existing_user_response.data: #Existing user
+            user_id = existing_user_response.data[0]["user_id"]
+        else: #New user
+            user_id = str(uuid.uuid4())
+            response = conn.table("users").upsert({
+                "user_id": user_id,
+                "spotify_id": spotify_data["spotify_id"],
+                "username": spotify_data.get("profile_name", "unknown_user"),
+                "email": f"{spotify_data['spotify_id']}@example.com",
+                "password_hash": "dummy_password",
+                "age": 18,
+                "bio": ""
+            }).execute()
 
-    return jsonify({"message": "Spotify data fetched and stored successfully"})
+            if isinstance(response, dict) and "error" in response:
+                raise Exception(response["error"]["message"])
+
+        user_data_id = str(uuid.uuid4())
+        response = conn.table("users_music_data").upsert({
+            "user_data_id": user_data_id,
+            "user_id": user_id,
+            "top_songs": ", ".join(spotify_data["top_songs"]),
+            "top_songs_pictures": ", ".join(spotify_data["top_songs_pictures"]),
+            "top_artists": ", ".join(spotify_data["top_artists"]),
+            "top_artists_pictures": ", ".join(spotify_data["top_artists_pictures"]),
+            "top_genres": ", ".join(spotify_data["top_genres"]),
+            "top_genres_pictures": ", ".join(spotify_data["top_genres_pictures"]),
+            "profile_name": spotify_data["profile_name"],
+            "profile_image": spotify_data["profile_image"]
+        }).execute()
+
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response["error"]["message"])
+
+        return jsonify({"message": "Spotify data added or updated successfully"}), 201
+
+    except Exception as err:
+        return jsonify({"error": f"Database error: {err}"}), 500
