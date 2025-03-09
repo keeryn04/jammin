@@ -1,7 +1,6 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
-import mysql.connector
 import os
 import requests
 from dotenv import load_dotenv
@@ -30,15 +29,6 @@ sp_oauth = SpotifyOAuth(
     redirect_uri=SPOTIFY_REDIRECT_URI,
     scope=SCOPE
 )
-
-#Apply API key to backend access
-def require_api_key(f):
-    def decorated_function(*args, **kwargs):
-        api_key = request.args.get("api_key")
-        if api_key != API_ACCESS_KEY:
-            return jsonify({"error": "Unauthorized"}), 403
-        return f(*args, **kwargs)
-    return decorated_function
 
 # Spotify Authentication Routes
 @spotify_routes.route("/spotify/login")
