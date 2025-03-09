@@ -6,7 +6,8 @@ import LoginPage from './components/Login_Signup/LoginPage';
 import About from './components/About/About';
 import QuickNav from './components/QuickNav/QuickNav';
 import Dashboard from './components/Dashboard/MainLayout';
-import Profile from './components/Profile/SpotifyProfile';
+import SpotifyProfile from './components/Profile/SpotifyProfile';
+import PublicProfile from './components/PublicProfile/ProfileLayout'
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -25,7 +26,10 @@ function App() {
           <Route path="/About" element={<About />}/>
           <Route path="/QuickNav" element={<QuickNav />}/>
           <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
-          <Route path="/Profile" element={<Profile />}/>
+          <Route path="/PublicProfile" element={<PublicProfile />}/>
+
+
+          <Route path="/SpotifyProfile" element={<SpotifyProfile />}/>
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

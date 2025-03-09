@@ -18,7 +18,13 @@ const CommonArtistsSection = () => {
       <h2 className="mb-12 text-base leading-6 text-center text-white">
         Artists in Common
       </h2>
-      <div className="overflow-y-auto max-h-[400px] p-4"> {/* Scrollable container */}
+      <div className="overflow-y-auto max-h-[300px] p-4 [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:rounded-full
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"> {/* Scrollable container */}
         <div className="grid gap-5 justify-center grid-cols-[repeat(2,128px)] max-sm:gap-4 max-sm:grid-cols-[1fr]">
           {artists.map((artist) => (
             <CommonArtist
