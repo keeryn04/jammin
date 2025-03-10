@@ -6,12 +6,13 @@ import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
+import DropdownMenu from "../Generic/DropdownMenu"
 
 const SignupContainer2 = () => {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("")
-  const [error, setError] = useState("Error Message Here");
+  const [error, setError] = useState(null);
 
 
   //Navigation
@@ -56,6 +57,8 @@ const SignupContainer2 = () => {
           placeholder="Enter your age..."
           inputHandler={handleAgeInput}
         />
+
+        <DropdownMenu/>
 
         {error && (
           <p className="mx-0 my-5 text-2xl text-center text-red-500 max-sm:text-xl">

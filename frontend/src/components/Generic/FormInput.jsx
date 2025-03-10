@@ -16,7 +16,7 @@ const FormInput = ({ label, type, placeholder, inputHandler }) => {
             type={type}
             placeholder={placeholder}
             onChange={inputHandler}
-            className="px-4 py-0 text-2xl font-bold text-white border-[none] size-full max-sm:text-xl"
+            className="px-4 py-0 text-2xl font-bold placeholder-stone-400 text-white border-[none] size-full max-sm:text-xl"
           />
         </div>
       </div>
