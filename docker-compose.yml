@@ -46,5 +46,17 @@ services:
     networks:
       - default
 
+  test-runner:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.backend  #For backend testing
+    volumes:
+      - ./api:/usr/src/app/api
+    depends_on:
+      - backend
+      - mysql
+    working_dir: /usr/src/app/api
+    command: ["python", "backend_tests"]
+
 volumes:
   mysql_data:
