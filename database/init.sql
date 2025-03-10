@@ -1,10 +1,10 @@
+-- SQLBook: Code
 CREATE DATABASE IF NOT EXISTS jammin_db;
 
 USE jammin_db;
 
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
-    spotify_id VARCHAR(100) UNIQUE NOT NULL,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS swipes (
 CREATE TABLE IF NOT EXISTS users_music_data (
     user_data_id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
+    spotify_id VARCHAR(100) UNIQUE NOT NULL,
     profile_name VARCHAR(100) UNIQUE NOT NULL,
     profile_image VARCHAR(1000) NOT NULL,
     top_songs VARCHAR(300) NOT NULL,

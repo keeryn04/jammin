@@ -40,13 +40,13 @@ def add_user_data():
         cursor = conn.cursor()
 
         query = """
-        INSERT INTO users_music_data (user_data_id, user_id, top_songs, top_songs_pictures, 
+        INSERT INTO users_music_data (user_data_id, user_id, spotify_id, top_songs, top_songs_pictures, 
                                       top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
                                       profile_name, profile_image) 
         VALUES (UUID(), %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(query, (
-            user_data_id, data["user_id"], data["top_songs"], data["top_songs_pictures"],
+            user_data_id, data["user_id"], data["spotify_id"], data["top_songs"], data["top_songs_pictures"],
             data["top_artists"], data["top_artists_pictures"], data["top_genres"], data["top_genres_pictures"],
             data["profile_name"], data["profile_image"]
         ))
