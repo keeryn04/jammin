@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import DropdownButton from "./DropdownButton";
 import MenuItems from "./MenuItems";
 
-const DropdownMenu = () => {
+const DropdownMenu = ( {setValue} ) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [selectedItem, setSelectedItem] = useState("Select your Gender...");
@@ -44,6 +44,7 @@ const DropdownMenu = () => {
 
   const handleItemClick = (item) => {
     setVariantStyle("selected");
+    setValue(item)
     setSelectedItem(item);
     setIsOpen(false);
     setActiveIndex(-1);

@@ -7,34 +7,69 @@ import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 import DropdownMenu from "../Generic/DropdownMenu"
+import { useSignupContext } from "./SignupContext";
 
 const SignupContainer2 = () => {
+  const {signupData, setSignupData} = useSignupContext()
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("")
   const [error, setError] = useState(null);
 
+  const fetchLink = "http://localhost:5000/api/users";
+
+  const attemptUserPost = async (signupData, name, gender, age) => {
+    try {
+      const response = await fetch(fetchLink, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: signupData['email'],
+          password_hash: signupData['password'],
+          username: name,
+          age: age,
+          gender: gender
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Signup Successful")
+      } else {
+        setError(data.error)
+      }
+      
+    } catch (error) {
+      console.error("error posting signup information", error)
+      setError("Failed to signup, please try again")
+    }
+  }
 
   //Navigation
   const navigate = useNavigate()
 
   const handleSignup = () => {
-    navigate("/Profile")
+    attemptUserPost(signupData, name, gender, age);
   };
 
   const handleBack = () => {
-    navigate("/Signup1");
+    navigate("/Signup/step1");
   };
 
   //Inputs
   const handleNameInput = (event) => {
-    setEmail(event.target.value);
+    setName(event.target.value);
   }
 
   const handleAgeInput = (event) => {
-    setPassword(event.target.value);
+    setAge(event.target.value);
   }
 
+  const handleGenderInput = (value) => {
+    setGender(value)
+  }
 
   return (
     <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
@@ -58,7 +93,9 @@ const SignupContainer2 = () => {
           inputHandler={handleAgeInput}
         />
 
-        <DropdownMenu/>
+        <DropdownMenu 
+          setValue = {handleGenderInput}
+        />
 
         {error && (
           <p className="mx-0 my-5 text-2xl text-center text-red-500 max-sm:text-xl">

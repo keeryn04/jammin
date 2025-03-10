@@ -6,6 +6,7 @@ import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
+import { useSignupContext } from "./SignupContext";
 
 /**
  * This is the first cotainer for the signup process
@@ -15,23 +16,49 @@ import ActionButton from "../Generic/ActionButton";
  */
 
 const SignupContainer1 = () => {
+  const {signupData, setSignupData} = useSignupContext()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("")
   const [error, setError] = useState(null);
 
+  const fetchLink = "http://localhost:5000/api/users"
+
+  const checkEmailAlreadyExists = async (inputEmail) => {
+    try {
+      const response = await fetch(fetchLink);
+      const data = await response.json();
+      for (var i = 0; i < data.length; i++) {
+        var user = data[i];
+        console.log(user["email"]);
+        if (inputEmail === user["email"]){
+          console.log("Email found")
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("error fetching users / checking email attempt", error)
+      return false
+    }
+  }
+
   //Navigation
   const navigate = useNavigate()
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    const emailAlreadyExists = await checkEmailAlreadyExists(email);
     if (password != passwordCheck) {
       setError("Passwords entered do not match")
     }
-    else if (email != "Evan Test" /* ADD DATABASE CHECK */) {
-      setError("Email entered is already under use")
+    else if (emailAlreadyExists) {
+      console.log("test")
+      setError("Email entered is already in use")
     }
-    else 
-      navigate("/Signup2")
+    else {
+      setSignupData({...signupData, email, password})
+      navigate("/Signup/step2")
+    }
   };
 
   const handleBack = () => {
