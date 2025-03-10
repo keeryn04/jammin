@@ -2,15 +2,28 @@ CREATE DATABASE IF NOT EXISTS jammin_db;
 
 USE jammin_db;
 
+CREATE TABLE IF NOT EXISTS users_music_data (
+    user_data_id CHAR(36) PRIMARY KEY,
+    spotify_id VARCHAR(100) UNIQUE NOT NULL,
+    profile_name VARCHAR(100) UNIQUE NOT NULL,
+    profile_image VARCHAR(1000) NOT NULL,
+    top_songs VARCHAR(300) NOT NULL,
+    top_songs_pictures VARCHAR(1000) NOT NULL,
+    top_artists VARCHAR(300) NOT NULL,
+    top_artists_pictures VARCHAR(1000) NOT NULL,
+    top_genres VARCHAR(300) NOT NULL,
+    top_genres_pictures VARCHAR(1000) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
-    user_data_id char(36) FOREIGN KEY,
+    user_data_id CHAR(36),
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     age INT CHECK (age >= 13),
     bio TEXT DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_data_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE
 );
 
@@ -46,29 +59,19 @@ CREATE TABLE IF NOT EXISTS swipes (
     FOREIGN KEY (swiped_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS users_music_data (
-    user_data_id CHAR(36) PRIMARY KEY,
-    spotify_id VARCHAR(100) UNIQUE NOT NULL,
-    profile_name VARCHAR(100) UNIQUE NOT NULL,
-    profile_image VARCHAR(1000) NOT NULL,
-    top_songs VARCHAR(300) NOT NULL,
-    top_songs_pictures VARCHAR(1000) NOT NULL,
-    top_artists VARCHAR(300) NOT NULL,
-    top_artists_pictures VARCHAR(1000) NOT NULL,
-    top_genres VARCHAR(300) NOT NULL,
-    top_genres_pictures VARCHAR(1000) NOT NULL,
-);
-
 -- Test data, remove later
-INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
+SET @user1 = UUID();
+SET @user2 = UUID();
+
+INSERT INTO users (user_id, username, email, password_hash, age, bio)
 VALUES 
-    (@user1 := UUID(), 'spotify_123', 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover'),
-    (@user2 := UUID(), 'spotify_456', 'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts');
+    (@user1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover'),
+    (@user2, 'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts');
 
 INSERT INTO user_settings (setting_id, user_id, discoverability, notifications, theme_preference, language)
 VALUES 
-    (UUID(), @user1, TRUE, FALSE, 'dark', 'en'),
-    (UUID(), @user2, FALSE, TRUE, 'light', 'es');
+    (UUID(), @user1, 1, 0, 'dark', 'en'),
+    (UUID(), @user2, 0, 1, 'light', 'es');
 
 INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status)
 VALUES 

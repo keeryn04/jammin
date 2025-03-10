@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
+import mysql.connector
 import uuid
 load_dotenv()
 
@@ -62,6 +63,8 @@ def fetch_spotify_data():
     if not access_token:
         return jsonify({"error": "No Spotify access token"}), 401
     
+    user_id = 'e220caf5-fdf9-11ef-8850-0242ac140002' #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
+
     if not user_id:
         return jsonify({"error": "No current user found"}), 401
     
@@ -107,9 +110,7 @@ def fetch_spotify_data():
     user_query = """
     SELECT user_data_id FROM users WHERE user_id=%s
     """
-    cursor.execute(user_query, (
-        user_id
-    ))
+    cursor.execute(user_query, (user_id,))
     
     user_data_id = cursor.fetchone()
 
@@ -120,7 +121,7 @@ def fetch_spotify_data():
         INSERT INTO users_music_data (user_data_id, spotify_id, top_songs, top_songs_pictures, 
                                       top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
                                       profile_name, profile_image) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
         top_songs=VALUES(top_songs), top_songs_pictures=VALUES(top_songs_pictures),
         top_artists=VALUES(top_artists), top_artists_pictures=VALUES(top_artists_pictures),
         top_genres=VALUES(top_genres), top_genres_pictures=VALUES(top_genres_pictures),

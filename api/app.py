@@ -1,13 +1,12 @@
 from flask import Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
-from api.routes.spotify import spotify_routes
-from api.routes.users import user_routes
-from api.routes.user_settings import user_setting_routes
-from api.routes.swipes import swipes_routes
-from api.routes.matches import matches_routes 
-from api.routes.user_data import user_data_routes
-from api.routes.login import login_routes
+from routes.spotify import spotify_routes
+from routes.users import user_routes
+from routes.user_settings import user_setting_routes
+from routes.swipes import swipes_routes
+from routes.matches import matches_routes 
+from routes.user_data import user_data_routes
 import os
 from dotenv import load_dotenv
 
@@ -29,7 +28,6 @@ app.register_blueprint(user_setting_routes)
 app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
-app.register_blueprint(login_routes)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
@@ -52,6 +50,7 @@ def default_api():
 @app.route("/api/login/<user_id>", methods=["GET"])
 def login_user(user_id):
     session['current_user_id'] = user_id
+    return jsonify({"message": "Login successful", "user_id": user_id}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
