@@ -9,11 +9,10 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-
 #Test database connection
 def get_db_connection():
     try:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
         return supabase
     except Exception as e:
         print(f"Supabase connection error: {e}")

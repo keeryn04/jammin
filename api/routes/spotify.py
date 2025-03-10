@@ -114,7 +114,6 @@ def fetch_spotify_data():
             user_id = str(uuid.uuid4())
             response = conn.table("users").upsert({
                 "user_id": user_id,
-                "spotify_id": spotify_data["spotify_id"],
                 "username": spotify_data.get("profile_name", "unknown_user"),
                 "email": f"{spotify_data['spotify_id']}@example.com",
                 "password_hash": "dummy_password",
@@ -129,6 +128,7 @@ def fetch_spotify_data():
         response = conn.table("users_music_data").upsert({
             "user_data_id": user_data_id,
             "user_id": user_id,
+            "spotify_id": spotify_data["spotify_id"],
             "top_songs": ", ".join(spotify_data["top_songs"]),
             "top_songs_pictures": ", ".join(spotify_data["top_songs_pictures"]),
             "top_artists": ", ".join(spotify_data["top_artists"]),

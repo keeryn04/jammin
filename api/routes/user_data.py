@@ -40,6 +40,7 @@ def add_user_data():
         response = conn.table("users_music_data").insert({
                 "user_data_id": user_data_id,
                 "user_id": data["user_id"],
+                "spotify_id": data["spotify_id"],
                 "top_songs": data["top_songs"],
                 "top_songs_pictures": data["top_songs_pictures"],
                 "top_artists": data["top_artists"],
@@ -72,6 +73,7 @@ def update_user_data(user_data_id):
             return jsonify({"error": "Invalid user_data_id format"}), 400
         
         response = conn.table("users_music_data").insert({
+                "spotify_id": data["spotify_id"],
                 "top_songs": data["top_songs"],
                 "top_songs_pictures": data["top_songs_pictures"],
                 "top_artists": data["top_artists"],

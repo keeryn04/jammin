@@ -62,7 +62,6 @@ def add_user():
 
         response = conn.table('users').insert({
             "user_id": user_id,
-            "spotify_id": data["spotify_id"],
             "username": data["username"],
             "email": data["email"],
             "password_hash": data["password_hash"],
@@ -92,7 +91,6 @@ def update_user(user_id):
             return jsonify({"error": "Invalid user_id format"}), 400
         
         response = conn.table('users').update({
-            "spotify_id": data["spotify_id"],
             "username": data["username"],
             "email": data["email"],
             "password_hash": data["password_hash"],
