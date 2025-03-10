@@ -16,12 +16,42 @@ const SignupContainer2 = () => {
   const [age, setAge] = useState("")
   const [error, setError] = useState(null);
 
+  const fetchLink = "http://localhost:5000/api/users";
+
+  const attemptUserPost = async (signupData, name, gender, age) => {
+    try {
+      const response = await fetch(fetchLink, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: signupData['email'],
+          password_hash: signupData['password'],
+          username: name,
+          age: age,
+          gender: gender
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Signup Successful")
+      } else {
+        setError(data.error)
+      }
+      
+    } catch (error) {
+      console.error("error posting signup information", error)
+      setError("Failed to signup, please try again")
+    }
+  }
 
   //Navigation
   const navigate = useNavigate()
 
   const handleSignup = () => {
-    console.log(`${signupData['email']} ${signupData['password']} ${name} ${gender} ${age}`)
+    attemptUserPost(signupData, name, gender, age);
   };
 
   const handleBack = () => {
