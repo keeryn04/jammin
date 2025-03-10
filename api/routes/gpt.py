@@ -34,8 +34,13 @@ def run_ChatQuery(ref_user_id):
             return jsonify({"error": "Unable to connect to the database"}), 500
         
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users_music_data WHERE profile_name != %s LIMIT 5",(ref_user_id,))
-        user_ids = [row["user_id"] for row in cursor.fetchall()]
+        cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (ref_user_id,))
+        reference_user = cursor.fetchone()
+        user_ids = [reference_user["user_id"]] 
+        if not reference_user:
+            return jsonify({"error": "Could not get your Profile."}), 404
+        cursor.execute("SELECT * FROM users_music_data WHERE user_id != %s LIMIT 5",(ref_user_id,))
+        user_ids.extend([row["user_id"] for row in cursor.fetchall()])
 
         if not user_ids:
             return jsonify({"error": "No other users found for comparison"}), 404
