@@ -58,10 +58,10 @@ def add_user():
         cursor = conn.cursor()
 
         query = """
-        INSERT INTO users (user_id, username, email, password_hash, age, bio) 
+        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio) 
         VALUES (UUID(), %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (data["username"], data["email"], data["password_hash"], data["age"], data.get("bio")))
+        cursor.execute(query, (data["spotify_id"], data["username"], data["email"], data["password_hash"], data["age"], data.get("bio")))
         
         conn.commit()
         cursor.close()
@@ -83,10 +83,10 @@ def update_user(user_id):
 
         query = """
         UPDATE users 
-        SET username=%s, email=%s, password_hash=%s, age=%s, bio=%s 
+        SET spotify_id=%s, username=%s, email=%s, password_hash=%s, age=%s, bio=%s 
         WHERE user_id=%s
         """
-        cursor.execute(query, (data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"), user_id))
+        cursor.execute(query, (data["spotify_id"], data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"), user_id))
 
         conn.commit()
         cursor.close()

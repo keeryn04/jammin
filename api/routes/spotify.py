@@ -101,11 +101,12 @@ def fetch_spotify_data():
     if result is None:
         new_user_id = str(uuid.uuid4())
         new_user_query = """
-        INSERT INTO users (user_id, username, email, password_hash, age, bio)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(new_user_query, (
             new_user_id,
+            spotify_data["spotify_id"],
             spotify_data["profile_name"] or "unknown_user",
             f"{spotify_data['spotify_id']}@example.com",
             "dummy_password",  
