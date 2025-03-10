@@ -7,8 +7,10 @@ import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 import DropdownMenu from "../Generic/DropdownMenu"
+import { useSignupContext } from "./SignupContext";
 
 const SignupContainer2 = () => {
+  const {signupData, setSignupData} = useSignupContext()
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("")
@@ -19,22 +21,25 @@ const SignupContainer2 = () => {
   const navigate = useNavigate()
 
   const handleSignup = () => {
-    navigate("/Profile")
+    console.log(`${signupData['email']} ${signupData['password']} ${name} ${gender} ${age}`)
   };
 
   const handleBack = () => {
-    navigate("/Signup1");
+    navigate("/Signup/step1");
   };
 
   //Inputs
   const handleNameInput = (event) => {
-    setEmail(event.target.value);
+    setName(event.target.value);
   }
 
   const handleAgeInput = (event) => {
-    setPassword(event.target.value);
+    setAge(event.target.value);
   }
 
+  const handleGenderInput = (value) => {
+    setGender(value)
+  }
 
   return (
     <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
@@ -58,7 +63,9 @@ const SignupContainer2 = () => {
           inputHandler={handleAgeInput}
         />
 
-        <DropdownMenu/>
+        <DropdownMenu 
+          setValue = {handleGenderInput}
+        />
 
         {error && (
           <p className="mx-0 my-5 text-2xl text-center text-red-500 max-sm:text-xl">

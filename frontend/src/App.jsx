@@ -9,6 +9,7 @@ import Dashboard from './components/Dashboard/MainLayout';
 import Profile from './components/Profile/SpotifyProfile';
 import SignupContainer1 from './components/SignupPage/SignupContainer1';
 import SignupContainer2 from './components/SignupPage/SignupContainer2';
+import { SignupProvider } from './components/SignupPage/SignupContext';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -24,8 +25,16 @@ function App() {
 
           {/*Simple directory page, Login, Sign-up, About*/}
           <Route path="/Login" element={<LoginContainer />}/>
-          <Route path="/Signup1" element={<SignupContainer1/>}/>
-          <Route path="/Signup2" element={<SignupContainer2/>}/>
+          <Route 
+            path="/Signup/*" 
+            element={
+              <SignupProvider>
+                <Routes>
+                  <Route path="step1" element={<SignupContainer1/>}/>
+                  <Route path="step2" element={<SignupContainer2/>}/>
+                </Routes>
+              </SignupProvider>
+            }/>
           <Route path="/About" element={<About />}/>
           <Route path="/QuickNav" element={<QuickNav />}/>
           <Route path="/MatchingPageDesktop" element={<Dashboard />}/>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
@@ -19,12 +19,32 @@ const LoginContainer = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  const fetchLink = "http://localhost:5000/api/users"
+
+  const attemptLogin = async (inputEmail, inputPassword) => {
+    try {
+      const response = await fetch(fetchLink);
+      const data = await response.json();
+      for (var i = 0; i < data.length; i++) {
+        var user = data[i];
+        if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("error fetching users / login attempt", error)
+      return false
+    }
+  }
+
   const navigate = useNavigate()
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     //Check login information, then either advance the user, or display and error
-    if (false /* Change to database check */) {
-      //Add pathing
+    const loginSuccessful = await attemptLogin(email, password)
+    if (loginSuccessful == true) {
+      console.log("Woooooooooo")
     }
     else {
       setError("Email or password incorrect")

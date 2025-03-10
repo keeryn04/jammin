@@ -16,7 +16,7 @@ const CTASection = () => {
   }
 
   const signupRedirect = () => {
-    navigate('/Signup1')
+    navigate('/Signup/step1')
   }
 
   return (
