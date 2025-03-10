@@ -1,4 +1,9 @@
-const Heading = () => {
+/**
+ * This is a formatted header used for the landing, login, and signup pages
+ * Text is the text that will be displayed
+ */
+
+const Heading = ({text}) => {
     return (
       <h1 className="   mb-16 text-6xl 
                         font-bold text-center 
@@ -7,7 +12,7 @@ const Heading = () => {
                         max-sm:mb-20 
                         max-sm:max-w-full 
                         max-sm:text-4xl">
-        Ready to meet new people to Jam with?
+        {text}
       </h1>
     );
   };
