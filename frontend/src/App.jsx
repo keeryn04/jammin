@@ -8,6 +8,7 @@ import QuickNav from './components/QuickNav/QuickNav';
 import Dashboard from './components/Dashboard/MainLayout';
 import SpotifyProfile from './components/Profile/SpotifyProfile';
 import PublicProfile from './components/PublicProfile/ProfileLayout'
+import JamminProfile from './components/JamminProfile/ProfilePage'
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -27,6 +28,7 @@ function App() {
           <Route path="/QuickNav" element={<QuickNav />}/>
           <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
           <Route path="/PublicProfile" element={<PublicProfile />}/>
+          <Route path="/JamminProfile" element={<JamminProfile />}/>
 
 
           <Route path="/SpotifyProfile" element={<SpotifyProfile />}/>
