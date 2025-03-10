@@ -58,15 +58,9 @@ def spotify_callback():
 @spotify_routes.route("/fetch_spotify_data")
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
-    user_id = session.get("current_user_id")
-
-    user_id = "a2163de0-fe03-11ef-9f25-0242ac140002 "#TEMP USER REMOVE LATER FOR THE LOVE OF GOD
     
     if not access_token:
         return jsonify({"error": "No Spotify access token"}), 401
-    
-    if not user_id:
-        return jsonify({"error": "No current user found"}), 401
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -108,6 +102,7 @@ def fetch_spotify_data():
 
     #Fetch user_data_id based on current user
     #user_id = session.get('current_user_id')  # Retrieve from session
+    user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
 
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
@@ -123,13 +118,19 @@ def fetch_spotify_data():
     #Update users_music_data based on spotify data
     query = """
         INSERT INTO users_music_data (user_data_id, spotify_id, top_songs, top_songs_pictures, 
-                                      top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
-                                      profile_name, profile_image) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
-        top_songs=VALUES(top_songs), top_songs_pictures=VALUES(top_songs_pictures),
-        top_artists=VALUES(top_artists), top_artists_pictures=VALUES(top_artists_pictures),
-        top_genres=VALUES(top_genres), top_genres_pictures=VALUES(top_genres_pictures),
-        profile_name=VALUES(profile_name), profile_image=VALUES(profile_image)
+                              top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
+                              profile_name, profile_image) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+        ON DUPLICATE KEY UPDATE 
+        spotify_id=VALUES(spotify_id), 
+        top_songs=VALUES(top_songs), 
+        top_songs_pictures=VALUES(top_songs_pictures),
+        top_artists=VALUES(top_artists), 
+        top_artists_pictures=VALUES(top_artists_pictures),
+        top_genres=VALUES(top_genres), 
+        top_genres_pictures=VALUES(top_genres_pictures),
+        profile_name=VALUES(profile_name), 
+        profile_image=VALUES(profile_image)
         """
     cursor.execute(query, (
         user_data_id,
