@@ -63,10 +63,29 @@ CREATE TABLE IF NOT EXISTS swipes (
 SET @user1 = UUID();
 SET @user2 = UUID();
 
-INSERT INTO users (user_id, username, email, password_hash, age, bio)
+SET @user_data1 = UUID();
+SET @user_data2 = UUID();
+
+INSERT INTO users_music_data (
+    user_data_id, spotify_id, profile_name, profile_image, 
+    top_songs, top_songs_pictures, top_artists, top_artists_pictures, 
+    top_genres, top_genres_pictures
+) 
 VALUES 
-    (@user1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover'),
-    (@user2, 'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts');
+    (@user_data1, 'spotify_12345', 'CoolUser', 'https://example.com/profile.jpg',
+    'Song1, Song2, Song3', 'https://example.com/song1.jpg, https://example.com/song2.jpg, https://example.com/song3.jpg',
+    'Artist1, Artist2, Artist3', 'https://example.com/artist1.jpg, https://example.com/artist2.jpg, https://example.com/artist3.jpg',
+    'Rock, Jazz, Pop', 'https://example.com/rock.jpg, https://example.com/jazz.jpg, https://example.com/pop.jpg'),
+
+    (@user_data2, 'spotify_3456', 'BadUser', 'https://example.com/profile2.jpg',
+    'Song4, Song5, Song6', 'https://example.com/song4.jpg, https://example.com/song5.jpg, https://example.com/song6.jpg',
+    'Artist4, Artist5, Artist6', 'https://example.com/artist4.jpg, https://example.com/artist5.jpg, https://example.com/artist6.jpg',
+    'Metal, Blues, EDM', 'https://example.com/metal.jpg, https://example.com/blues.jpg, https://example.com/edm.jpg');
+
+INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, bio)
+VALUES 
+    (@user1, @user_data1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover'),
+    (@user2, @user_data2, 'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts');
 
 INSERT INTO user_settings (setting_id, user_id, discoverability, notifications, theme_preference, language)
 VALUES 
