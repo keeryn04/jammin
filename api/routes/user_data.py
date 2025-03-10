@@ -116,23 +116,30 @@ def get_user_music_data_by_id(user_id):
         
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
-        user_data_id = cursor.fetchone()
+        user_data = cursor.fetchone()
+
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+
+        user_data_id = user_data["user_data_id"]
 
         cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (user_data_id,))
-        rows = cursor.fetchall()
+        row = cursor.fetchone()
+
         cursor.close()
         conn.close()
-        if rows:
+
+        if row:
             response = {
-                "user_id": rows[0]["user_id"],
+                "user_id": user_id,
                 "music_profile": {
-                    "top_songs": rows[0]["top_songs"],
-                    "top_artists": rows[0]["top_artists"],
-                    "top_genres": rows[0]["top_genres"]
+                    "top_songs": row["top_songs"],
+                    "top_artists": row["top_artists"],
+                    "top_genres": row["top_genres"]
                 }
             }
         else:
-            response = {"error": "User not found"}
+            response = {"error": "User music data not found"}
 
         return jsonify(response)
     except mysql.connector.Error as err:
@@ -148,12 +155,19 @@ def get_user_top_artists_by_id(user_id, limit):
         
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
-        user_data_id = cursor.fetchone()
+        user_data = cursor.fetchone()
+
+        if not user_data:
+            return jsonify({"error": "User not found"}), 404
+
+        user_data_id = user_data["user_data_id"]
 
         cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (user_data_id,))
         row = cursor.fetchone()
+
         cursor.close()
         conn.close()
+
         if row:
             top_artists_list = row["top_artists"].split(", ")[:limit]
             top_artists_pictures_list = row["top_artists_pictures"].split(", ")[:limit]
@@ -163,7 +177,7 @@ def get_user_top_artists_by_id(user_id, limit):
                 "top_artists_pictures": top_artists_pictures_list
             }
         else:
-            response = {"error": "User not found"}
+            response = {"error": "User music data not found"}
 
         return jsonify(response)
     except mysql.connector.Error as err:
