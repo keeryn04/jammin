@@ -45,7 +45,7 @@ def run_ChatQuery(ref_user_id):
             cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,))
             user_row = cursor.fetchone()
             if not user_row:
-                continue  # Skip if user not found
+                continue  
 
             users_data.append({
                 "userid": user_row["user_id"],
@@ -55,7 +55,7 @@ def run_ChatQuery(ref_user_id):
             })
         cursor.close()
         conn.close()
-        messages = [ #defines the role of
+        messages = [ #defines the role of chat 
             {"role": "system", "content": 
             """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
             The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
@@ -91,14 +91,12 @@ def run_ChatQuery(ref_user_id):
 
 def insert_response(reply,ref_user_id):
     try:
-        # Parse the reply JSON
         matches_data = json.loads(reply).get("matches", [])
 
         if not matches_data:
             print("No matches found.")
             return
 
-        # Connect to the database
         conn = get_db_connection()
         if conn is None:
             print("Unable to connect to the database.")
@@ -106,7 +104,6 @@ def insert_response(reply,ref_user_id):
 
         cursor = conn.cursor()
 
-        # Insert data into the matches table
         for match in matches_data:
             user_id = match["userID"]
             compatibility_score = match["compatibility_score"]
@@ -117,7 +114,6 @@ def insert_response(reply,ref_user_id):
                 VALUES (UUID(), %s, %s, %s, 'pending')
             """, (ref_user_id, user_id, compatibility_score))
 
-        # Commit the transaction
         conn.commit()
         cursor.close()
         conn.close()
