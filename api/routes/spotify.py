@@ -101,8 +101,8 @@ def fetch_spotify_data():
     spotify_id = spotify_data["spotify_id"]
 
     #Fetch user_data_id based on current user
-    #user_id = session.get('current_user_id')  # Retrieve from session
-    user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
+    user_id = session.get('current_user_id')  # Retrieve from session
+    #user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
 
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
