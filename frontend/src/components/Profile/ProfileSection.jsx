@@ -56,10 +56,11 @@ const ProfileSection = () => {
         <img
           src={profileImage}
           alt="Profile"
-          className={`shadow-sm rounded-[99px] transition-all duration-500 ${
+          className={`shadow-sm rounded-[99px] object-cover transition-all duration-500 ${
             isClicked ? "w-20 h-20" : "w-32 h-32"
           }`}
         />
+
         <div
           className={`text-center transition-all duration-500 ${
             isClicked ? "text-left" : ""
