@@ -63,7 +63,7 @@ def add_user():
         user_uuid = str(uuid.uuid4())
         user_data_uuid = str(uuid.uuid4())
 
-        response = conn.table('user_music_data').insert({
+        response = conn.table('users_music_data').insert({
             "user_data_id": user_data_uuid,
             "profile_name": "",
             "profile_image": "",

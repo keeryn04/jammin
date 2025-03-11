@@ -14,18 +14,20 @@ import ActionButton from "../Generic/ActionButton";
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
  */
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const fetchLink = "http://localhost:5000/api/users"
-  const loginLink = "http://localhost:5000/api/login"
-  const redirectLink = "http://localhost:5000/spotify/login"
+  const fetchLink = `${SUPABASE_URL}/api/users`;
+  const loginLink = `${SUPABASE_URL}/api/login`;
+  const redirectLink = `${SUPABASE_URL}/spotify/login`;
 
   const backendRedirect = async () => {
     try {
-      window.location.href = "http://localhost:5000/spotify/login"; // Redirects to Flask backend
+      window.location.href = redirectLink; // Redirects to Flask backend
       const data = await response.json();
       if (response.ok) {
         navigate("/MatchingPageDesktop")
@@ -53,7 +55,6 @@ const LoginContainer = () => {
           });
 
           const data = await loginReturn.json();
-          console.log(data)
           return true;
         }
       }

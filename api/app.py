@@ -31,14 +31,7 @@ app.register_blueprint(user_setting_routes)
 app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
-app.register_blueprint(user_routes)
-app.register_blueprint(user_setting_routes)
-app.register_blueprint(matches_routes)
-app.register_blueprint(swipes_routes)
-app.register_blueprint(user_data_routes)
 
-#API Key Authentication
-API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 
