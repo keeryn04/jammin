@@ -8,7 +8,7 @@ import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 
 /**
- * This the login container. It is the page displayed for the user such that they can input their email and password and login to the system
+ * This is the login container. It is the page displayed for the user such that they can input their email and password and login to the system
  * The components that make up this file are the logo svg, the form input, error message, and primary / secondary coloured buttons
  * The functions below contain functionality for handling clicking the buttons such as login and back, as well as functions that update the typed email and password
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
@@ -21,6 +21,22 @@ const LoginContainer = () => {
 
   const fetchLink = "http://localhost:5000/api/users"
   const loginLink = "http://localhost:5000/api/login"
+  const redirectLink = "http://localhost:5000/spotify/login"
+
+  const backendRedirect = async () => {
+    try {
+      window.location.href = "http://localhost:5000/spotify/login"; // Redirects to Flask backend
+      const data = await response.json();
+      if (response.ok) {
+        navigate("/MatchingPageDesktop")
+      } else {
+        setError("Error authenticating spotify, please login and try again")
+      }
+    } catch {
+      setError("Error authenticating spotify, please login and try again")
+    }
+  }
+
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
@@ -31,6 +47,7 @@ const LoginContainer = () => {
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
           const loginReturn = await fetch(loginLink, {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
           });
@@ -53,7 +70,7 @@ const LoginContainer = () => {
     //Check login information, then either advance the user, or display and error
     const loginSuccessful = await attemptLogin(email, password)
     if (loginSuccessful == true) {
-      console.log("Woooooooooo")
+      backendRedirect();
     }
     else {
       setError("Email or password incorrect")

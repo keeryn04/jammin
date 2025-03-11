@@ -59,8 +59,8 @@ def spotify_callback():
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
     
-    if not access_token:
-        return jsonify({"error": "No Spotify access token"}), 401
+    if access_token == None:
+        return redirect("http://localhost:5173/login"), 402
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -94,7 +94,7 @@ def fetch_spotify_data():
 
     conn = get_db_connection()
     if conn is None:
-        return jsonify({"error": "Database connection failed"}), 500
+        return redirect("http://localhost:5173/login"), 500
     cursor = conn.cursor()
 
     #Save spotify ID
@@ -102,16 +102,16 @@ def fetch_spotify_data():
 
     #Fetch user_data_id based on current user
     user_id = session.get('current_user_id')  # Retrieve from session
-    #user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
+    #user_id = "fad10780-fe9f-11ef-b7de-0242ac120002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
 
     if not user_id:
-        return jsonify({"error": "User not logged in"}), 401
+        return redirect("http://localhost:5173/login/test"), 401
 
     cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
     result = cursor.fetchone()
 
     if not result:
-        return jsonify({"error": "User data not found"}), 404
+        return redirect("http://localhost:5173/login"), 404
 
     user_data_id = result[0]
 
@@ -148,4 +148,4 @@ def fetch_spotify_data():
     cursor.close()
     conn.close()
 
-    return jsonify({"message": "Spotify data fetched and stored successfully"})
+    return redirect("http://localhost:5173/login"), 201

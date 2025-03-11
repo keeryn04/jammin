@@ -16,8 +16,22 @@ export default defineConfig({
     }, 
     watch: {
     usePolling: true,
+    },
+    proxy: {
+    // Proxy API requests to Flask backend on port 5000
+    '/api': {
+      target: 'http://localhost:5000',  // Flask backend URL
+      changeOrigin: true,
+      secure: false,
+      ws: true, // Enable WebSocket support if needed
+    },
+    '/spotify': {
+      target: 'http://localhost:5000',  // Flask backend URL
+      changeOrigin: true,
+      secure: false,
+      ws: true, // Enable WebSocket support if needed
     }
-  },
+  }},
   build: {
     rollupOptions: {
       input: '/index.html'

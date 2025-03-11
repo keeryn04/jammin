@@ -17,9 +17,12 @@ app = Flask(__name__)
 
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_COOKIE_SAMESITE"] = "None"  # Allows cross-site cookies
+app.config["SESSION_COOKIE_SECURE"] = True  # Must be True for "None", works only over HTTPS
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "key")
 Session(app)
-CORS(app)
+
+CORS(app, supports_credentials=True)
 
 # Register Blueprints
 app.register_blueprint(spotify_routes)
@@ -56,7 +59,12 @@ def login_user():
         return jsonify({"error": "Missing user_id"}), 400
 
     session['current_user_id'] = user_id  #Store as session variable (Login)
-    return jsonify({"message": "Login successful", "user_id": user_id}), 201
+    response = jsonify({"message": "Login successful", "user_id": user_id})
+    origin = request.headers.get("Origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin  # Dynamic origin matching
+    response.headers["Access-Control-Allow-Credentials"] = "true"  # Corrected placement
+    return response, 201
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
