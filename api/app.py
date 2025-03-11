@@ -46,6 +46,17 @@ def require_api_key(f):
 def default_api():
     return jsonify({"message": "API is working!"})
 
+@app.route("/api/login", methods=["POST"])
+def login_user():
+    data = request.json
+    user_id = data.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Missing user_id"}), 400
+
+    session['current_user_id'] = user_id  #Store as session variable (Login)
+    return jsonify({"message": "Login successful", "user_id": user_id}), 201
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
     app.config["DEBUG"] = True

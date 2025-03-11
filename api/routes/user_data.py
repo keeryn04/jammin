@@ -32,10 +32,11 @@ def get_user_data():
 def add_user_data():
     try:
         data = request.json
-        user_data_id = str(uuid.uuid4())
         conn = get_db_connection()
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
+
+        user_data_id = str(uuid.uuid4())
 
         response = conn.table("users_music_data").insert({
                 "user_data_id": user_data_id,
@@ -103,7 +104,7 @@ def delete_user_data(user_data_id):
         except ValueError:
             return jsonify({"error": "Invalid user_data_id format"}), 400
 
-        response = conn.table("users_music_data").delete().eq("user_id", str(user_data_uuid)).execute()
+        response = conn.table("users_music_data").delete().eq("user_data_id", str(user_data_uuid)).execute()
 
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])

@@ -55,19 +55,38 @@ def add_user():
     conn = None
     try:
         data = request.json
-        user_id = str(uuid.uuid4())
         conn = get_db_connection()
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
 
+        user_uuid = str(uuid.uuid4())
+        user_data_uuid = str(uuid.uuid4())
+
+        response = conn.table('user_music_data').insert({
+            "user_data_id": user_data_uuid,
+            "profile_name": "",
+            "profile_image": "",
+            "top_songs": "",
+            "top_songs_pictures": "",
+            "top_artists": "",
+            "top_artists_pictures": "",
+            "top_genres": "",
+            "top_genres_pictures": ""
+        }).execute()
+
         response = conn.table('users').insert({
-            "user_id": user_id,
+            "user_id": user_uuid,
+            "user_data_id": user_data_uuid,
             "username": data["username"],
             "email": data["email"],
             "password_hash": data["password_hash"],
             "age": data["age"],
+            "gender": data["gender"], 
+            "spotify_auth": data["spotify_auth"],
             "bio": data.get("bio", None)
         }).execute()
+
+        session["current_user_id"] = user_uuid #Store current user_id as session variable (Register)
 
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
@@ -95,6 +114,11 @@ def update_user(user_id):
             "email": data["email"],
             "password_hash": data["password_hash"],
             "age": data["age"],
+            "gender": data.get("gender"), 
+            "school": data.get("school"), 
+            "occupation": data.get("occupation"), 
+            "looking_for": data.get("looking_for"), 
+            "spotify_auth": data.get("spotify_auth", False), #Default to False
             "bio": data.get("bio", None)
         }).eq('user_id', str(user_uuid)).execute()
 

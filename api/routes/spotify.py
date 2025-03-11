@@ -105,39 +105,34 @@ def fetch_spotify_data():
         if conn is None:
             return jsonify({"error": "Database connection failed"}), 500
 
+        #Save spotify ID
+        spotify_id = spotify_data["spotify_id"]
+
         #Check if user exists
-        existing_user_response = conn.table("users").select("user_id").eq("spotify_id", spotify_data["spotify_id"]).execute()
+        user_id = session.get('current_user_id')
 
-        if existing_user_response.data: #Existing user
-            user_id = existing_user_response.data[0]["user_id"]
-        else: #New user
-            user_id = str(uuid.uuid4())
-            response = conn.table("users").upsert({
-                "user_id": user_id,
-                "username": spotify_data.get("profile_name", "unknown_user"),
-                "email": f"{spotify_data['spotify_id']}@example.com",
-                "password_hash": "dummy_password",
-                "age": 18,
-                "bio": ""
-            }).execute()
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+        
+        response = conn.table("users").select("user_data_id").eq("user_id", user_id).execute()
 
-            if isinstance(response, dict) and "error" in response:
-                raise Exception(response["error"]["message"])
-
-        user_data_id = str(uuid.uuid4())
+        if not response.data:
+            return jsonify({"error": "User data not found"}), 404
+        
+        user_data_id = response.data[0]["user_data_id"]
+        
         response = conn.table("users_music_data").upsert({
-            "user_data_id": user_data_id,
-            "user_id": user_id,
-            "spotify_id": spotify_data["spotify_id"],
-            "top_songs": ", ".join(spotify_data["top_songs"]),
-            "top_songs_pictures": ", ".join(spotify_data["top_songs_pictures"]),
-            "top_artists": ", ".join(spotify_data["top_artists"]),
-            "top_artists_pictures": ", ".join(spotify_data["top_artists_pictures"]),
-            "top_genres": ", ".join(spotify_data["top_genres"]),
-            "top_genres_pictures": ", ".join(spotify_data["top_genres_pictures"]),
-            "profile_name": spotify_data["profile_name"],
-            "profile_image": spotify_data["profile_image"]
-        }).execute()
+                "user_data_id": user_data_id,
+                "spotify_id": spotify_id,
+                "top_songs": ", ".join(spotify_data["top_songs"]),
+                "top_songs_pictures": ", ".join(spotify_data["top_songs_pictures"]),
+                "top_artists": ", ".join(spotify_data["top_artists"]), 
+                "top_artists_pictures": ", ".join(spotify_data["top_artists_pictures"]),
+                "top_genres": ", ".join(spotify_data["top_genres"]),
+                "top_genres_pictures": ", ".join(spotify_data["top_genres_pictures"]),
+                "profile_name": spotify_data.get("profile_name"), 
+                "profile_image": spotify_data.get("profile_image")
+            }).execute()
 
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
