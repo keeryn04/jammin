@@ -52,8 +52,17 @@ const SignupContainer2 = () => {
   //Navigation
   const navigate = useNavigate()
 
+  //Numeric checker for age
+  const isNumeric = (value) => typeof value === "number" && !isNaN(value);
+
   const handleSignup = () => {
-    attemptUserPost(signupData, name, gender, age);
+    //Input checking
+    if (!isNumeric(age) || age <= 17 || age > 120)
+      setError("Age must be a number between 18 and 120")
+    else if (name.length > 40)
+      setError("Name must be less than 40 characters long")
+    else
+      attemptUserPost(signupData, name, gender, age);
   };
 
   const handleBack = () => {
