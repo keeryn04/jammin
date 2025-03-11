@@ -58,8 +58,16 @@ def add_user():
 
         cursor = conn.cursor()
 
-        user_id = uuid.uuid4()
-        user_data_uuid = uuid.uuid4()
+        user_id = str(uuid.uuid4())
+        user_data_uuid = str(uuid.uuid4())
+
+        query_user_data = """
+        INSERT INTO users_music_data (user_data_id, spotify_id, profile_name, profile_image, 
+        top_songs, top_songs_pictures, top_artists, top_artists_pictures, top_genres, top_genres_pictures) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+        """
+
+        cursor.execute(query_user_data, (user_data_uuid, "", "", "", "", "", "", "", "", ""))
 
         query_users = """
         INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, gender, spotify_auth, bio) 
@@ -67,14 +75,6 @@ def add_user():
         """
 
         cursor.execute(query_users, (user_id, user_data_uuid, data["username"], data["email"], data["password_hash"], data["age"], data["gender"], data["spotify_auth"], data.get("bio")))
-
-        query_user_data = """
-        INSERT INTO user_music_data (user_data_id, spotify_id, profile_name, profile_image, 
-        top_songs, top_songs_pictures, top_artists, top_artists_pictures, top_genres, top_genres_pictures) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
-        """
-
-        cursor.execute(query_user_data, (user_data_uuid, None, None, None, None, None, None, None, None, None))
 
         #Store current user_id as session variable (Register)
         session["current_user_id"] = user_id

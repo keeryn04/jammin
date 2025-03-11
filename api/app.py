@@ -47,8 +47,8 @@ def default_api():
     return jsonify({"message": "API is working!"})
 
 #For storing current session ID after login
-@app.route("/api/login/<user_id>", methods=["POST"])
-def login_user(user_id):
+@app.route("/api/login", methods=["POST"])
+def login_user():
     data = request.json
     user_id = data.get("user_id")
 
@@ -56,7 +56,7 @@ def login_user(user_id):
         return jsonify({"error": "Missing user_id"}), 400
 
     session['current_user_id'] = user_id  #Store as session variable (Login)
-    return jsonify({"message": "Login successful", "user_id": user_id}), 200
+    return jsonify({"message": "Login successful", "user_id": user_id}), 201
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
