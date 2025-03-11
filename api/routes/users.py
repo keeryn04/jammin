@@ -99,10 +99,16 @@ def update_user(user_id):
 
         query = """
         UPDATE users 
-        SET username=%s, email=%s, password_hash=%s, age=%s, bio=%s 
+        SET username=%s, email=%s, password_hash=%s, age=%s, bio=%s, 
+            gender=%s, school=%s, occupation=%s, looking_for=%s, spotify_auth=%s
         WHERE user_id=%s
         """
-        cursor.execute(query, (data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"), user_id))
+        cursor.execute(query, (
+            data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"),
+            data.get("gender"), data.get("school"), data.get("occupation"), data.get("looking_for"), 
+            data.get("spotify_auth", False),  #Default to False
+            user_id
+        ))
 
         conn.commit()
         cursor.close()
