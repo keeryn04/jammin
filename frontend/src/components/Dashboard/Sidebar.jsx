@@ -35,7 +35,7 @@ export default function Sidebar() {
   return (
     <nav className="flex flex-col items-center px-0 py-5 bg-neutral-800 w-[152px] max-md:w-20 max-sm:w-[60px] h-full justify-between">
       <div className="flex flex-col flex-1 justify-evenly items-center w-full">
-        <NavItem DefaultIcon={MatchesIcon} HoverIcon={MatchesIconHover} />
+      <Link to="/Matches"><NavItem DefaultIcon={MatchesIcon} HoverIcon={MatchesIconHover} /></Link>
         <NavItem DefaultIcon={HomeIcon} HoverIcon={HomeIconHover} />
         <Link to="/Matching"><NavItem DefaultIcon={ProfileIcon} HoverIcon={ProfileIconHover} /></Link>
         <Link to="/PublicProfile"><NavItem DefaultIcon={UserIcon} HoverIcon={UserIconHover} /></Link>

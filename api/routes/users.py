@@ -29,7 +29,7 @@ def get_users():
         return jsonify(rows)
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
-    
+
 @user_routes.route("/api/users/<user_id>", methods=["GET"])
 def get_user(user_id):
     try:
