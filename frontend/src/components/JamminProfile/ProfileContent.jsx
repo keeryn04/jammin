@@ -1,23 +1,33 @@
 import React from "react";
 import PhotoSection from "./PhotoSection";
 import ProfileForm from "./ProfileForm";
+import { ProfileHeader } from "./ProfileHeader";
 
 const ProfileContent = () => {
   return (
-    <section className="flex-1 px-10 py-20 max-md:px-5 max-md:py-10 max-sm:p-5">
-      <header className="flex justify-center items-center gap-10 py-10 text-center max-md:flex-col max-md:gap-5">
-        <h1 className="text-2xl font-bold text-gray-400 hover:text-teal-400 max-sm:text-xl cursor-pointer">
-            Public Profile
-        </h1>
-        <h2 className="text-2xl font-bold text-teal-400 transition-colors duration-200 max-sm:text-xl underline  cursor-pointer">
-            Jammin' Profile
-        </h2>
-        </header>
-      <div className="pl-80 max-md:pl-40">
-        <PhotoSection />
-        <ProfileForm />
-      </div>
-    </section>
+    <div className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
+      {/* Main Content (Flexible and Scrollable) */}
+      <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
+        {/* Profile Header (Consistent Positioning) */}
+        <div className="flex-shrink-0 w-full flex justify-center mb-6">
+          <ProfileHeader />
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex flex-1 justify-center p-6 rounded-lg bg-neutral-900 shadow-lg overflow-y-auto max-md:p-4 max-md:flex-col [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:rounded-full
+        [&::-webkit-scrollbar-track]:bg-gray-100
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-gray-300
+        dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+        dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+          <div className="max-w-[800px] w-full flex flex-col gap-10">
+            <PhotoSection />
+            <ProfileForm />
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 

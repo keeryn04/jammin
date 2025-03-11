@@ -29,7 +29,7 @@ const NavItem = ({ DefaultIcon, HoverIcon }) => (
 );
 
 
-export default function Sidebar() {
+export default function NavigationBar() {
   return (
     <nav className="flex flex-col items-center px-0 py-5 bg-neutral-800 w-[152px] max-md:w-20 max-sm:w-[60px] h-full justify-between">
       <div className="flex flex-col flex-1 justify-evenly items-center w-full">

@@ -15,20 +15,20 @@ const ProfileLayout = () => {
       </div>
 
       {/* Main Content (Flexible and Scrollable) */}
-      <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4 max-md:py-4">
-        {/* Profile Header (Fixed at the Top) */}
-        <div className="flex-shrink-0 w-full mb-6">
+      <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
+        {/* Profile Header (Consistent Positioning) */}
+        <div className="flex-shrink-0 w-full flex justify-center mb-6">
           <ProfileHeader />
         </div>
 
-        {/* Scrollable Body (Below the Header) */}
-        <div className="flex flex-1 gap-10 p-6 rounded-lg bg-neutral-900 shadow-lg overflow-y-auto [&::-webkit-scrollbar]:w-2
+        {/* Scrollable Content */}
+        <div className="flex flex-1 gap-10 p-6 rounded-lg bg-neutral-900 shadow-lg overflow-y-auto max-md:flex-col max-md:gap-5 max-md:p-4 [&::-webkit-scrollbar]:w-2
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-thumb]:rounded-full
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 max-md:flex-col max-md:gap-5 max-md:p-4">
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           {/* Left Column */}
           <div className="flex flex-col gap-10 flex-1 min-w-0">
             <ProfilePhoto />

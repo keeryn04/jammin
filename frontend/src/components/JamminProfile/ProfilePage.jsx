@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import Sidebar from "./Sidebar";
 import ProfileContent from "./ProfileContent";
+import NavigationBar from "./NavigationBar";
 
 const ProfilePage = () => {
   return (
-    <main className="flex min-h-screen bg-neutral-800">
-      <Sidebar />
+    <main className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
+      <NavigationBar />
       <ProfileContent />
     </main>
   );
