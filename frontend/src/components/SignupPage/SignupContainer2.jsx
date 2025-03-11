@@ -30,7 +30,8 @@ const SignupContainer2 = () => {
           email: signupData['email'],
           password_hash: signupData['password'],
           age: age,
-          gender: gender
+          gender: gender,
+          spotify_auth: false
         })
       });
 
