@@ -1,5 +1,5 @@
 "use client";
-import NavigationBar from "./NavigationBar";
+import NavigationBar from "../Dashboard/Sidebar";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfilePhoto } from "./ProfilePhoto";
 import { TopTracks } from "./TopTracks";

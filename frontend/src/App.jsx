@@ -3,7 +3,7 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage1/LandingPage';
 import About from './components/About/About';
-import QuickNav from './components/QuickNav/QuickNav';
+import QuickNav from './components/ErrorPage/QuickNav';
 import Dashboard from './components/Dashboard/MainLayout';
 import SpotifyProfile from './components/Profile/SpotifyProfile';
 import PublicProfile from './components/PublicProfile/ProfileLayout'
@@ -24,7 +24,7 @@ function App() {
           {/*Simple directory page, Login, Sign-up, About*/}
           <Route path="/About" element={<About />}/>
           <Route path="/QuickNav" element={<QuickNav />}/>
-          <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
+          <Route path="/Matching" element={<Dashboard />}/>
           <Route path="/PublicProfile" element={<PublicProfile />}/>
           <Route path="/JamminProfile" element={<JamminProfile />}/>
 

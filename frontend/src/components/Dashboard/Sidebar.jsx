@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 import {
   MatchesIcon,
   MatchesIconHover,
@@ -35,8 +37,8 @@ export default function Sidebar() {
       <div className="flex flex-col flex-1 justify-evenly items-center w-full">
         <NavItem DefaultIcon={MatchesIcon} HoverIcon={MatchesIconHover} />
         <NavItem DefaultIcon={HomeIcon} HoverIcon={HomeIconHover} />
-        <NavItem DefaultIcon={ProfileIcon} HoverIcon={ProfileIconHover} />
-        <NavItem DefaultIcon={UserIcon} HoverIcon={UserIconHover} />
+        <Link to="/Matching"><NavItem DefaultIcon={ProfileIcon} HoverIcon={ProfileIconHover} /></Link>
+        <Link to="/PublicProfile"><NavItem DefaultIcon={UserIcon} HoverIcon={UserIconHover} /></Link>
         <NavItem DefaultIcon={SettingsIcon} HoverIcon={SettingsIconHover} />
       </div>
     </nav>

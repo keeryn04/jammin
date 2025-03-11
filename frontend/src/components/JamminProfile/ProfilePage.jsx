@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import ProfileContent from "./ProfileContent";
-import NavigationBar from "./NavigationBar";
+import NavigationBar from "../Dashboard/Sidebar";
 
 const ProfilePage = () => {
   return (
