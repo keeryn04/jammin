@@ -46,6 +46,12 @@ def require_api_key(f):
 def default_api():
     return jsonify({"message": "API is working!"})
 
+#For storing current session ID after login
+@app.route("/api/login/<user_id>", methods=["GET"])
+def login_user(user_id):
+    session['current_user_id'] = user_id
+    return jsonify({"message": "Login successful", "user_id": user_id}), 200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
     app.config["DEBUG"] = True

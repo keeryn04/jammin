@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
+import mysql.connector
 import uuid
 load_dotenv()
 
@@ -96,41 +97,44 @@ def fetch_spotify_data():
         return jsonify({"error": "Database connection failed"}), 500
     cursor = conn.cursor()
 
-    cursor.execute("SELECT user_id FROM users WHERE spotify_id = %s", (spotify_data["spotify_id"],))
-    result = cursor.fetchone()
-    if result is None:
-        new_user_id = str(uuid.uuid4())
-        new_user_query = """
-        INSERT INTO users (user_id, spotify_id, username, email, password_hash, age, bio)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(new_user_query, (
-            new_user_id,
-            spotify_data["spotify_id"],
-            spotify_data["profile_name"] or "unknown_user",
-            f"{spotify_data['spotify_id']}@example.com",
-            "dummy_password",  
-            18,                
-            ""
-        ))
-        user_id = new_user_id
-        conn.commit()
-    else:
-        user_id = result[0]
+    #Save spotify ID
+    spotify_id = spotify_data["spotify_id"]
 
+    #Fetch user_data_id based on current user
+    #user_id = session.get('current_user_id')  # Retrieve from session
+    user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
+
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
+    cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
+    result = cursor.fetchone()
+
+    if not result:
+        return jsonify({"error": "User data not found"}), 404
+
+    user_data_id = result[0]
+
+    #Update users_music_data based on spotify data
     query = """
-        INSERT INTO users_music_data (user_data_id, user_id, top_songs, top_songs_pictures, 
-                                      top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
-                                      profile_name, profile_image) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE 
-        top_songs=VALUES(top_songs), top_songs_pictures=VALUES(top_songs_pictures),
-        top_artists=VALUES(top_artists), top_artists_pictures=VALUES(top_artists_pictures),
-        top_genres=VALUES(top_genres), top_genres_pictures=VALUES(top_genres_pictures),
-        profile_name=VALUES(profile_name), profile_image=VALUES(profile_image)
+        INSERT INTO users_music_data (user_data_id, spotify_id, top_songs, top_songs_pictures, 
+                              top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
+                              profile_name, profile_image) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+        ON DUPLICATE KEY UPDATE 
+        spotify_id=VALUES(spotify_id), 
+        top_songs=VALUES(top_songs), 
+        top_songs_pictures=VALUES(top_songs_pictures),
+        top_artists=VALUES(top_artists), 
+        top_artists_pictures=VALUES(top_artists_pictures),
+        top_genres=VALUES(top_genres), 
+        top_genres_pictures=VALUES(top_genres_pictures),
+        profile_name=VALUES(profile_name), 
+        profile_image=VALUES(profile_image)
         """
     cursor.execute(query, (
-        str(uuid.uuid4()),
-        user_id,
+        user_data_id,
+        spotify_id,
         ", ".join(spotify_data["top_songs"]),
         ", ".join(spotify_data["top_songs_pictures"]),
         ", ".join(spotify_data["top_artists"]),
