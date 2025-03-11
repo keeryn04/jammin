@@ -46,6 +46,9 @@ const SignupContainer1 = () => {
   //Navigation
   const navigate = useNavigate()
 
+  //Email regex
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
   const handleNext = async () => {
     const emailAlreadyExists = await checkEmailAlreadyExists(email);
     if (password != passwordCheck) {
@@ -55,6 +58,8 @@ const SignupContainer1 = () => {
       console.log("test")
       setError("Email entered is already in use")
     }
+    else if (!emailRegex.test(email))
+      setError("Improper Email formating [___@___.___]")
     else {
       setSignupData({...signupData, email, password})
       navigate("/Signup/step2")
