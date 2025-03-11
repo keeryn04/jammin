@@ -1,3 +1,7 @@
+/**
+ * This is an SVG containing the logo for the program
+ */
+
 const Logo = () => {
   return (
     <div className="mb-10">

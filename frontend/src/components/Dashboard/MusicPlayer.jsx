@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import RedPlayButton
 
-export default function MusicPlayer({ currentTime, totalDuration, onSeek }) {
+export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false); // State to track hover
   const seekBarRef = useRef(null); // Ref for the seek bar container
@@ -61,10 +61,10 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek }) {
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-center">
+    <section className="mt-10 text-center" style={style}> {/* Apply the style prop here */}
       <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
       <p className="mb-4 text-base text-zinc-400">Person's Name</p>
-      <div className="mx-auto mt-0 mb-5 w-full max-w-[400px]">
+      <div className="mx-auto mt-0 mb-5 w-full"> {/* Removed max-w-[400px] */}
         <div
           ref={seekBarRef}
           className="relative mb-2 w-full h-1 rounded-sm bg-neutral-500 cursor-pointer"

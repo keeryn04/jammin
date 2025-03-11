@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
+import mysql.connector
 import uuid
 load_dotenv()
 
@@ -29,15 +30,6 @@ sp_oauth = SpotifyOAuth(
     redirect_uri=SPOTIFY_REDIRECT_URI,
     scope=SCOPE
 )
-
-#Apply API key to backend access
-def require_api_key(f):
-    def decorated_function(*args, **kwargs):
-        api_key = request.args.get("api_key")
-        if api_key != API_ACCESS_KEY:
-            return jsonify({"error": "Unauthorized"}), 403
-        return f(*args, **kwargs)
-    return decorated_function
 
 # Spotify Authentication Routes
 @spotify_routes.route("/spotify/login")
@@ -67,8 +59,8 @@ def spotify_callback():
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
     
-    if not access_token:
-        return jsonify({"error": "No Spotify access token"}), 401
+    if access_token == None:
+        return redirect("http://localhost:5173/login"), 402
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -103,7 +95,7 @@ def fetch_spotify_data():
     try:
         conn = get_db_connection()
         if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
+            return redirect("http://localhost:5173/login"), 500
 
         #Save spotify ID
         spotify_id = spotify_data["spotify_id"]
@@ -117,7 +109,7 @@ def fetch_spotify_data():
         response = conn.table("users").select("user_data_id").eq("user_id", user_id).execute()
 
         if not response.data:
-            return jsonify({"error": "User data not found"}), 404
+            return redirect("http://localhost:5173/login"), 404
         
         user_data_id = response.data[0]["user_data_id"]
         
@@ -137,7 +129,7 @@ def fetch_spotify_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify({"message": "Spotify data added or updated successfully"}), 201
+        return redirect("http://localhost:5173/login"), 201
 
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

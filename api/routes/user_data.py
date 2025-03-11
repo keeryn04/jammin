@@ -3,6 +3,7 @@ from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
+import mysql.connector
 import os
 from dotenv import load_dotenv
 
@@ -13,7 +14,7 @@ API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 
 # -------------------- SPOTIFY DATA --------------------
 @user_data_routes.route("/api/user_data", methods=["GET"])
-def get_user_data():
+def get_users_data():
     try:
         conn = get_db_connection()
         if conn is None:
@@ -115,7 +116,7 @@ def delete_user_data(user_data_id):
     
 #For fetching data to send to ChatGPT
 @user_data_routes.route("/api/user_data/<user_id>", methods=["GET"])
-def get_user_data_by_user_id(user_id):
+def get_user_music_data_by_id(user_id):
     try:
         conn = get_db_connection()
         if conn is None:
