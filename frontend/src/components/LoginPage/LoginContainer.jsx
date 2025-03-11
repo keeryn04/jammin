@@ -29,7 +29,7 @@ const LoginContainer = () => {
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
-          fetch(loginLink + user[user_id])
+          await fetch(loginLink + user["user_id"]); //Save user_id as session variable
           return true;
         }
       }
