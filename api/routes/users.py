@@ -58,12 +58,27 @@ def add_user():
 
         cursor = conn.cursor()
 
-        query = """
-        INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, bio) 
-        VALUES (UUID(), UUID(), %s, %s, %s, %s, %s)
+        user_id = uuid.uuid4()
+        user_data_uuid = uuid.uuid4()
+
+        query_users = """
+        INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, gender, spotify_auth, bio) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
         """
-        cursor.execute(query, (data["username"], data["email"], data["password_hash"], data["age"], data.get("bio")))
-        
+
+        cursor.execute(query_users, (user_id, user_data_uuid, data["username"], data["email"], data["password_hash"], data["age"], data["gender"], data["spotify_auth"], data.get("bio")))
+
+        query_user_data = """
+        INSERT INTO user_music_data (user_data_id, spotify_id, profile_name, profile_image, 
+        top_songs, top_songs_pictures, top_artists, top_artists_pictures, top_genres, top_genres_pictures) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+        """
+
+        cursor.execute(query_user_data, (user_data_uuid, None, None, None, None, None, None, None, None, None))
+
+        #Store current user_id as session variable (Register)
+        session["current_user_id"] = user_id
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -84,10 +99,16 @@ def update_user(user_id):
 
         query = """
         UPDATE users 
-        SET username=%s, email=%s, password_hash=%s, age=%s, bio=%s 
+        SET username=%s, email=%s, password_hash=%s, age=%s, bio=%s, 
+            gender=%s, school=%s, occupation=%s, looking_for=%s, spotify_auth=%s
         WHERE user_id=%s
         """
-        cursor.execute(query, (data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"), user_id))
+        cursor.execute(query, (
+            data["username"], data["email"], data["password_hash"], data["age"], data.get("bio"),
+            data.get("gender"), data.get("school"), data.get("occupation"), data.get("looking_for"), 
+            data.get("spotify_auth", False),  #Default to False
+            user_id
+        ))
 
         conn.commit()
         cursor.close()

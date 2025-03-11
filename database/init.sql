@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS users_music_data (
     top_genres VARCHAR(300) NOT NULL,
     top_genres_pictures VARCHAR(1000) NOT NULL
 );
-
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
     user_data_id CHAR(36),
@@ -23,6 +22,11 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     age INT CHECK (age >= 13),
     bio TEXT DEFAULT NULL,
+    gender VARCHAR(10) DEFAULT NULL,
+    school VARCHAR(20) DEFAULT NULL,
+    occupation VARCHAR(20) DEFAULT NULL,
+    looking_for VARCHAR(20) DEFAULT NULL,
+    spotify_auth BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_data_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE
 );
@@ -82,10 +86,10 @@ VALUES
     'Artist4, Artist5, Artist6', 'https://example.com/artist4.jpg, https://example.com/artist5.jpg, https://example.com/artist6.jpg',
     'Metal, Blues, EDM', 'https://example.com/metal.jpg, https://example.com/blues.jpg, https://example.com/edm.jpg');
 
-INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, bio)
+INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, bio, gender, school, occupation, looking_for, spotify_auth) 
 VALUES 
-    (@user1, @user_data1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover'),
-    (@user2, @user_data2, 'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts');
+    (@user1, @user_data1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover', 'Male', 'UofC', 'Job', 'love', TRUE),
+    (@user2, @user_data2,'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE);
 
 INSERT INTO user_settings (setting_id, user_id, discoverability, notifications, theme_preference, language)
 VALUES 
