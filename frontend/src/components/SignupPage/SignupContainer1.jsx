@@ -17,9 +17,9 @@ import { useSignupContext } from "./SignupContext";
 
 const SignupContainer1 = () => {
   const {signupData, setSignupData} = useSignupContext()
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordCheck, setPasswordCheck] = useState("")
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [passwordCheck, setPasswordCheck] = useState(null)
   const [error, setError] = useState(null);
 
   const fetchLink = "http://localhost:5000/api/users"
@@ -51,15 +51,17 @@ const SignupContainer1 = () => {
 
   const handleNext = async () => {
     const emailAlreadyExists = await checkEmailAlreadyExists(email);
-    if (password != passwordCheck) {
-      setError("Passwords entered do not match")
-    }
+    if (email === null || password === null || passwordCheck === null)
+      setError("Please fill in all form inputs")
     else if (emailAlreadyExists) {
       console.log("test")
       setError("Email entered is already in use")
     }
     else if (!emailRegex.test(email))
       setError("Improper Email formating [___@___.___]")
+    else if (password != passwordCheck) {
+      setError("Passwords entered do not match")
+    }
     else {
       setSignupData({...signupData, email, password})
       navigate("/Signup/step2")

@@ -11,9 +11,9 @@ import { useSignupContext } from "./SignupContext";
 
 const SignupContainer2 = () => {
   const {signupData, setSignupData} = useSignupContext()
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("");
-  const [age, setAge] = useState("")
+  const [name, setName] = useState(null);
+  const [gender, setGender] = useState(null);
+  const [age, setAge] = useState(null)
   const [error, setError] = useState(null);
 
   const fetchLink = "http://localhost:5000/api/users";
@@ -57,10 +57,12 @@ const SignupContainer2 = () => {
 
   const handleSignup = () => {
     //Input checking
-    if (!isNumeric(age) || age <= 17 || age > 120)
-      setError("Age must be a number between 18 and 120")
+    if (name === null || age === null || gender === null)
+      setError("Please fill in all form inputs")
     else if (name.length > 40)
       setError("Name must be less than 40 characters long")
+    else if (!isNumeric(age) || age <= 17 || age > 120)
+      setError("Age must be a number between 18 and 120")
     else
       attemptUserPost(signupData, name, gender, age);
   };
@@ -75,7 +77,7 @@ const SignupContainer2 = () => {
   }
 
   const handleAgeInput = (event) => {
-    setAge(event.target.value);
+    setAge(parseInt(event.target.value));
   }
 
   const handleGenderInput = (value) => {
