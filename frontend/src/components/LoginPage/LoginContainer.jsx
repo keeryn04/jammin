@@ -20,7 +20,7 @@ const LoginContainer = () => {
   const [error, setError] = useState(null);
 
   const fetchLink = "http://localhost:5000/api/users"
-  const loginLink = "http://localhost:5000/api/login/"
+  const loginLink = "http://localhost:5000/api/login"
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
@@ -29,11 +29,14 @@ const LoginContainer = () => {
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
-          await fetch(loginLink, {
+          const loginReturn = await fetch(loginLink, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user["user_id"] }) //Send user_id to save it as session variable
+            body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
           });
+
+          const data = await loginReturn.json();
+          console.log(data)
           return true;
         }
       }
