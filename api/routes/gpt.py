@@ -27,7 +27,22 @@ def require_api_key(f):
     return decorated_function
 
 @openai_routes.route("/chattesting/<ref_user_id>", methods=["GET"])
-def run_ChatQuery(ref_user_id):    
+def run_ChatQuery(ref_user_id):
+    messages = [ #defines the role of chat 
+                {"role": "system", "content": 
+                """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
+                The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
+                The output should be in JSON format.
+                Example input:
+                [
+                {'userid':'0', 'topSongs':['SongA'], 'topArtists':['ArtistA'], 'topGenres':['GenreA']},
+                {'userid':'72', 'topSongs':['SongB'], 'topArtists':['ArtistB'], 'topGenres':['GenreB']}
+                ]
+                Example output:
+                [
+                    {'userID':'72', 'compatibility_score': 75,'reasoning':'you share favorite artists and genres, showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists based on their data: (provide recommendations ). (Keep reasoning ~30 words)'}
+                ]
+                """}]    
     try:
         conn = get_db_connection()
         if conn is None:
@@ -36,55 +51,56 @@ def run_ChatQuery(ref_user_id):
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (ref_user_id,))
         reference_user = cursor.fetchone()
-        user_ids = [reference_user["user_id"]] 
+        user_ids = [reference_user["user_id"]] #init user_ids with ref user as 1st entry
+
         if not reference_user:
             return jsonify({"error": "Could not get your Profile."}), 404
-        cursor.execute("SELECT * FROM users_music_data WHERE user_id != %s LIMIT 5",(ref_user_id,))
-        user_ids.extend([row["user_id"] for row in cursor.fetchall()])
 
-        if not user_ids:
-            return jsonify({"error": "No other users found for comparison"}), 404
-        users_data = []
+        cursor.execute("SELECT COUNT(*) AS user_count FROM users_music_data")
+        result = cursor.fetchone() 
 
-        for user_id in user_ids:
-            cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,))
-            user_row = cursor.fetchone()
-            if not user_row:
-                continue  
+        if result is None or "user_count" not in result:
+            return jsonify({"error": "Could not retrieve user count."}), 500
 
-            users_data.append({
-                "userid": user_row["user_id"],
-                "topSongs": user_row["top_songs"],
-                "topArtists": user_row["top_artists"],
-                "topGenres": user_row["top_genres"]
-            })
+        user_count = int(result["user_count"]) - 1 #gets number of users in table - ref user
+        offset = 0
+
+        while offset < user_count:
+            cursor.execute(f"SELECT * FROM users_music_data LIMIT 5 OFFSET {offset}") #gets first 5 users, then increments until end of list
+            rows = cursor.fetchall()
+            user_ids.extend([row["user_id"] for row in rows if row["user_id"] != ref_user_id]) #doesnt add ref user
+            if not user_ids:
+                return jsonify({"error": "No other users found for comparison"}), 404
+            users_data = []
+            for user_id in user_ids:
+                cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,)) 
+                user_row = cursor.fetchone()
+                if not user_row:
+                    continue  
+
+                users_data.append({ #adds song data
+                    "userid": user_row["user_id"],
+                    "topSongs": user_row["top_songs"],
+                    "topArtists": user_row["top_artists"],
+                    "topGenres": user_row["top_genres"]
+                })
+
+            offset += (len(users_data)-1) #offset for next sql query
+            message_content = json.dumps(users_data)
+            messages.append({"role": "user", "content": message_content})
+            chat = client.beta.chat.completions.parse(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+
+            reply = chat.choices[0].message.content
+            insert_response(reply,ref_user_id)
+            user_ids = [ref_user_id] #reset user_ids
+            if len(messages) > 1:
+                del messages[1]
         cursor.close()
         conn.close()
-        messages = [ #defines the role of chat 
-            {"role": "system", "content": 
-            """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-            The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
-            The output should be in JSON format.
-            Example input:
-            [
-            {'userid':'0', 'topSongs':['SongA'], 'topArtists':['ArtistA'], 'topGenres':['GenreA']},
-            {'userid':'72', 'topSongs':['SongB'], 'topArtists':['ArtistB'], 'topGenres':['GenreB']}
-            ]
-            Example output:
-            [
-                {'userID':'72', 'compatibility_score': 75,'reasoning':'They share multiple favorite artists (list artists) and have a strong overlap in their preferred music genres (list genres), indicating a high level of musical compatibility. Their listening habits suggest similar tastes and influences, making them likely to enjoy each other's playlists and discover new music together. They might like these Artists: (provide a reccomendation based on their data)'}
-            ]
-            """}]
-        
-        message_content = json.dumps(users_data)
-        messages.append({"role": "user", "content": message_content})
-        chat = client.beta.chat.completions.parse(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            response_format={"type": "json_object"}
-        )
-        reply = chat.choices[0].message.content
-        insert_response(reply,ref_user_id)
         return jsonify(json.loads(reply))
     
     except mysql.connector.Error as err:
@@ -112,12 +128,13 @@ def insert_response(reply,ref_user_id):
         for match in matches_data:
             user_id = match["userID"]
             compatibility_score = match["compatibility_score"]
+            reasoning = match["reasoning"]
 
 
             cursor.execute("""
-                INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status)
-                VALUES (UUID(), %s, %s, %s, 'pending')
-            """, (ref_user_id, user_id, compatibility_score))
+                INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status, reasoning)
+                VALUES (UUID(), %s, %s, %s, 'pending',%s)
+            """, (ref_user_id, user_id, compatibility_score,reasoning))
 
         conn.commit()
         cursor.close()
