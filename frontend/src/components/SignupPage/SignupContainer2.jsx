@@ -19,6 +19,7 @@ const SignupContainer2 = () => {
   const fetchLink = "http://localhost:5000/api/users";
 
   const attemptUserPost = async (signupData, name, gender, age) => {
+    /*
     try {
       const response = await fetch(fetchLink, {
         method: "POST",
@@ -34,7 +35,7 @@ const SignupContainer2 = () => {
         })
       });
 
-      const data = await response.json();
+      const data = await response.text();
       if (response.ok) {
         console.log("Signup Successful")
       } else {
@@ -44,7 +45,8 @@ const SignupContainer2 = () => {
     } catch (error) {
       console.error("error posting signup information", error)
       setError("Failed to signup, please try again")
-    }
+    }*/
+   console.error("NOT IMPLEMENTED YET, CHECK signupBranch FOR CURRENT CHANGES")
   }
 
   //Navigation
