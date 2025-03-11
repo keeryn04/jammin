@@ -13,15 +13,12 @@ const MediaGrid = ({ images, type, songNames = [], artistNames = [] }) => {
             />
   
             {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 flex flex-col justify-center items-center">
+            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-all duration-200 flex flex-col justify-center items-center">
               {/* Text for Top Songs */}
               {type === "songs" && (
                 <div className="text-center opacity-0 group-hover:opacity-100 transition-all duration-200">
-                  <p className="text-white text-lg font-bold">
+                  <p className="text-white text-sm font-bold">
                     {songNames[index] || "Song Name"}
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    {artistNames[index] || "Artist Name"}
                   </p>
                 </div>
               )}

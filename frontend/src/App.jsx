@@ -4,9 +4,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage/LandingPageContainer';
 import LoginContainer from './components/LoginPage/LoginContainer';
 import About from './components/About/About';
-import QuickNav from './components/QuickNav/QuickNav';
+import QuickNav from './components/ErrorPage/QuickNav';
 import Dashboard from './components/Dashboard/MainLayout';
-import Profile from './components/Profile/SpotifyProfile';
+import SpotifyProfile from './components/Profile/SpotifyProfile';
+import PublicProfile from './components/PublicProfile/ProfileLayout'
+import JamminProfile from './components/JamminProfile/ProfilePage'
 import SignupContainer1 from './components/SignupPage/SignupContainer1';
 import SignupContainer2 from './components/SignupPage/SignupContainer2';
 import { SignupProvider } from './components/SignupPage/SignupContext';
@@ -37,8 +39,12 @@ function App() {
             }/>
           <Route path="/About" element={<About />}/>
           <Route path="/QuickNav" element={<QuickNav />}/>
-          <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
-          <Route path="/Profile" element={<Profile />}/>
+          <Route path="/Matching" element={<Dashboard />}/>
+          <Route path="/PublicProfile" element={<PublicProfile />}/>
+          <Route path="/JamminProfile" element={<JamminProfile />}/>
+
+
+          <Route path="/SpotifyProfile" element={<SpotifyProfile />}/>
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
