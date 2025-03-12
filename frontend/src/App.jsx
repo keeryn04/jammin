@@ -10,6 +10,7 @@ import Profile from './components/Profile/SpotifyProfile';
 import SignupContainer1 from './components/SignupPage/SignupContainer1';
 import SignupContainer2 from './components/SignupPage/SignupContainer2';
 import { SignupProvider } from './components/SignupPage/SignupContext';
+import { GlobalDataProvider } from './components/AppContext';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -18,30 +19,32 @@ function App() {
   return (
     <BrowserRouter>
       <div>
-        <Routes>
-          {/*If logged in, go to homepage, else go to Landing page by default*/}
-          <Route path="/" element={isAuthenticated ? <LandingPage /> : <Navigate to="/" />} />
-          
+        <GlobalDataProvider>
+          <Routes>
+            {/*If logged in, go to homepage, else go to Landing page by default*/}
+            <Route path="/" element={isAuthenticated ? <LandingPage /> : <Navigate to="/" />} />
+            
 
-          {/*Simple directory page, Login, Sign-up, About*/}
-          <Route path="/Login" element={<LoginContainer />}/>
-          <Route 
-            path="/Signup/*" 
-            element={
-              <SignupProvider>
-                <Routes>
-                  <Route path="step1" element={<SignupContainer1/>}/>
-                  <Route path="step2" element={<SignupContainer2/>}/>
-                </Routes>
-              </SignupProvider>
-            }/>
-          <Route path="/About" element={<About />}/>
-          <Route path="/QuickNav" element={<QuickNav />}/>
-          <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
-          <Route path="/Profile" element={<Profile />}/>
+            {/*Simple directory page, Login, Sign-up, About*/}
+            <Route path="/Login" element={<LoginContainer />}/>
+            <Route 
+              path="/Signup/*" 
+              element={
+                <SignupProvider>
+                  <Routes>
+                    <Route path="step1" element={<SignupContainer1/>}/>
+                    <Route path="step2" element={<SignupContainer2/>}/>
+                  </Routes>
+                </SignupProvider>
+              }/>
+            <Route path="/About" element={<About />}/>
+            <Route path="/QuickNav" element={<QuickNav />}/>
+            <Route path="/MatchingPageDesktop" element={<Dashboard />}/>
+            <Route path="/Profile" element={<Profile />}/>
 
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </GlobalDataProvider>
       </div>
     </BrowserRouter>
   )

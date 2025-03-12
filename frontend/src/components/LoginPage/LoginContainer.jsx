@@ -15,6 +15,7 @@ import ActionButton from "../Generic/ActionButton";
  */
 
 const LoginContainer = () => {
+  const {globalData, setGlobalData} = useSignupContext()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -22,10 +23,10 @@ const LoginContainer = () => {
   const fetchLink = "http://localhost:5000/api/users"
   const loginLink = "http://localhost:5000/api/login"
   const redirectLink = "http://localhost:5000/spotify/login"
-
+  /*
   const backendRedirect = async () => {
     try {
-      window.location.href = "http://localhost:5000/spotify/login"; // Redirects to Flask backend
+      const response = await fetch(fetchLink);
       const data = await response.json();
       if (response.ok) {
         navigate("/MatchingPageDesktop")
@@ -36,7 +37,7 @@ const LoginContainer = () => {
       setError("Error authenticating spotify, please login and try again")
     }
   }
-
+  */
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
