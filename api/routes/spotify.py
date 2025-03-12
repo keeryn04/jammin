@@ -35,10 +35,13 @@ sp_oauth = SpotifyOAuth(
 def spotify_login():
     print("Spotify Route Accessed")
     auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
+    print(f"Redirecting to: {auth_url}")
+    return redirect(auth_url) 
+    #jsonify({"success": True, "redirect_url": auth_url})
 
 @spotify_routes.route("/api/spotify/callback")
 def spotify_callback():
+    print("Redirected to Callback")
     code = request.args.get("code")
     token_url = "https://accounts.spotify.com/api/token"
     response = requests.post(
@@ -53,11 +56,12 @@ def spotify_callback():
     )
     data = response.json()
     session["spotify_access_token"] = data.get("access_token")
-    return redirect("/fetch_spotify_data")
+    return redirect("/api/fetch_spotify_data")
 
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
+    print(session.get("spotify_access_token"))
     
     if access_token == None:
         return redirect("http://localhost:5173/login"), 402

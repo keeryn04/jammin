@@ -27,27 +27,12 @@ const LoginContainer = () => {
 
   const backendRedirect = async () => {
     try {
-      console.log(`Visiting ${redirectLink}...`)
-      const response = await fetch(redirectLink);
-
-      if (!response.ok) {
-        throw new Error("Server error, unable to authenticate: ", response.data);
-      }
-  
-      const data = await response.json();
-  
-      if (data.success) {
-        console.log("Login was successful");
-        window.location.href = data.redirect_url; 
-      } else {
-        setError("Error authenticating Spotify, please login and try again (1)");
-      }
+      window.location.href = redirectLink; 
     } catch (e) {
       console.error("Error:", e);
-      setError("Error authenticating Spotify, please login and try again (2)");
+      setError("Error authenticating Spotify, please login and try again.");
     }
   };
-
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
