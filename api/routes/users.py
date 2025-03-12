@@ -1,10 +1,12 @@
-from flask import Blueprint, Flask, jsonify, request, session
+from flask import Blueprint, Flask, jsonify, make_response, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
 import mysql.connector
 import os
 import uuid
+
+from api.jwt import generate_jwt
 
 user_routes = Blueprint("user_routes", __name__)
 
@@ -87,12 +89,14 @@ def add_user():
             "bio": data.get("bio", None)
         }).execute()
 
-        session["current_user_id"] = user_uuid #Store current user_id as session variable (Register)
-
+        jwt_token = generate_jwt(user_uuid) #Store current user_id as cookie (Register)
+        response = make_response(jsonify({"message": "Register successful", "user_id": user_uuid}))
+        response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+    
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify({"message": "User added successfully"}), 201
+        return response, 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

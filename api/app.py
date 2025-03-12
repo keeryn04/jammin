@@ -1,6 +1,6 @@
-from flask import Flask, jsonify, request, session
-from flask_session import Session
+from flask import Flask, jsonify, make_response, request, session
 from flask_cors import CORS
+from api.jwt import generate_jwt, decode_jwt
 from api.routes.spotify import spotify_routes
 from api.routes.users import user_routes
 from api.routes.user_settings import user_setting_routes
@@ -17,11 +17,9 @@ app = Flask(__name__)
 
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_COOKIE_SAMESITE"] = "None"  # Allows cross-site cookies
-app.config["SESSION_COOKIE_SECURE"] = True  # Must be True for "None", works only over HTTPS
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "key")
-Session(app)
-
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  #Allows cross-site cookies
+app.config["SESSION_COOKIE_SECURE"] = True  #Only over HTTPS
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 CORS(app, supports_credentials=True)
 
 # Register Blueprints
@@ -58,13 +56,13 @@ def login_user():
 
     if not user_id:
         return jsonify({"error": "Missing user_id"}), 400
+    
+    jwt_token = generate_jwt(user_id)
 
-    session['current_user_id'] = user_id  #Store as session variable (Login)
-    response = jsonify({"message": "Login successful", "user_id": user_id})
-    origin = request.headers.get("Origin")
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    # Set the JWT token in an HTTP-only cookie
+    response = make_response(jsonify({"message": "Login successful", "user_id": user_id}))
+    response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+    
     return response, 201
 
 if __name__ == "__main__":

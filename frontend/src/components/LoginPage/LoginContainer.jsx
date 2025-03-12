@@ -45,7 +45,7 @@ const LoginContainer = () => {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
+            body: JSON.stringify({ user_id: user['user_id'] })
           });
 
           const data = await loginReturn.json();

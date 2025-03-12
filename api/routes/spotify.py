@@ -1,20 +1,21 @@
-from flask import Blueprint, app, jsonify, request, session, redirect, url_for
+from flask import Blueprint, app, jsonify, request, session, redirect, url_for, make_response
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
-import mysql.connector
 import uuid
 load_dotenv()
 
 import logging
 
 from api.database_connector import get_db_connection
+from api.jwt import generate_jwt, decode_jwt, update_jwt
 
 spotify_routes = Blueprint("spotify_routes", __name__)
 
-API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL')
+API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
@@ -33,15 +34,11 @@ sp_oauth = SpotifyOAuth(
 # Spotify Authentication Routes
 @spotify_routes.route("/api/spotify/login")
 def spotify_login():
-    print("Spotify Route Accessed")
     auth_url = sp_oauth.get_authorize_url()
-    print(f"Redirecting to: {auth_url}")
     return redirect(auth_url) 
-    #jsonify({"success": True, "redirect_url": auth_url})
 
 @spotify_routes.route("/api/spotify/callback")
 def spotify_callback():
-    print("Redirected to Callback")
     code = request.args.get("code")
     token_url = "https://accounts.spotify.com/api/token"
     response = requests.post(
@@ -55,16 +52,21 @@ def spotify_callback():
         },
     )
     data = response.json()
-    session["spotify_access_token"] = data.get("access_token")
-    return redirect("/api/fetch_spotify_data")
+    spotify_access_token = data.get("access_token")
+    old_token = request.cookies.get("auth_token")
+
+    new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
+    response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
+    response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+    
+    return response
 
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
-    access_token = session.get("spotify_access_token")
-    print(session.get("spotify_access_token"))
+    access_token = request.cookies.get('spotify_access_token')
     
     if access_token == None:
-        return redirect("http://localhost:5173/login"), 402
+        return redirect(f"{VERCEL_URL}/Login"), 404 #Return to login page if error
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -99,21 +101,31 @@ def fetch_spotify_data():
     try:
         conn = get_db_connection()
         if conn is None:
-            return redirect("http://localhost:5173/login"), 500
+            return redirect(f"{VERCEL_URL}/Login"), 500 #Return to login page if database error
 
         #Save spotify ID
         spotify_id = spotify_data["spotify_id"]
 
-        #Check if user exists
-        user_id = session.get('current_user_id')
+        #Get user_id from cookies
+        token = request.cookies.get("auth_token")
+
+        if not token:
+            return jsonify({"error": "No authentication token found"}), 401
+    
+        decoded_token = decode_jwt(token)
+        
+        if not decoded_token:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        user_id = decoded_token.get("user_id")
 
         if not user_id:
-            return jsonify({"error": "User not logged in"}), 401
+            return jsonify({"error": "User not logged in"}), 404
         
         response = conn.table("users").select("user_data_id").eq("user_id", user_id).execute()
 
         if not response.data:
-            return redirect("http://localhost:5173/login"), 404
+            return redirect(f"{VERCEL_URL}/Login"), 404
         
         user_data_id = response.data[0]["user_data_id"]
         
@@ -133,7 +145,7 @@ def fetch_spotify_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return redirect("http://localhost:5173/login"), 201
+        return redirect(f"{VERCEL_URL}/login"), 201
 
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

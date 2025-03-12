@@ -6,3 +6,5 @@ spotipy
 dotenv
 flask-session
 supabase
+pyjwt
+datetime
