@@ -54,6 +54,7 @@ def default_api():
 def login_user():
     data = request.json
     user_id = data.get("user_id")
+    print(f"User {user_id} logged in!")
 
     if not user_id:
         return jsonify({"error": "Missing user_id"}), 400
@@ -62,10 +63,10 @@ def login_user():
     response = jsonify({"message": "Login successful", "user_id": user_id})
     origin = request.headers.get("Origin")
     if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin  # Dynamic origin matching
-    response.headers["Access-Control-Allow-Credentials"] = "true"  # Corrected placement
+        response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response, 201
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)
     app.config["DEBUG"] = True

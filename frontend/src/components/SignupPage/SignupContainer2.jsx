@@ -9,7 +9,7 @@ import ActionButton from "../Generic/ActionButton";
 import DropdownMenu from "../Generic/DropdownMenu"
 import { useSignupContext } from "./SignupContext";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
 const SignupContainer2 = () => {
   const {signupData, setSignupData} = useSignupContext()
@@ -18,7 +18,7 @@ const SignupContainer2 = () => {
   const [age, setAge] = useState(null)
   const [error, setError] = useState(null);
 
-  const fetchLink = `${SUPABASE_URL}/api/users`;
+  const fetchLink = `${VERCEL_URL}/api/users`;
 
   const attemptUserPost = async (signupData, name, gender, age) => {
     try {

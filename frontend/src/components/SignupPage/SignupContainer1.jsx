@@ -15,7 +15,7 @@ import { useSignupContext } from "./SignupContext";
  * There is error checking on the email that it doesn't already exist in the database (TO BE ADDED) and that both passwords entered match
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
 const SignupContainer1 = () => {
   const {signupData, setSignupData} = useSignupContext()
@@ -24,7 +24,7 @@ const SignupContainer1 = () => {
   const [passwordCheck, setPasswordCheck] = useState(null)
   const [error, setError] = useState(null);
 
-  const fetchLink = `${SUPABASE_URL}/api/users`
+  const fetchLink = `${VERCEL_URL}/api/users`
 
   const checkEmailAlreadyExists = async (inputEmail) => {
     try {

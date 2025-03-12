@@ -9,8 +9,6 @@ import uuid
 load_dotenv()
 
 import logging
-import json
-logging.basicConfig(level=logging.DEBUG)
 
 from api.database_connector import get_db_connection
 
@@ -28,16 +26,18 @@ sp_oauth = SpotifyOAuth(
     client_id=SPOTIFY_CLIENT_ID,
     client_secret=SPOTIFY_CLIENT_SECRET,
     redirect_uri=SPOTIFY_REDIRECT_URI,
-    scope=SCOPE
+    scope=SCOPE,
+    cache_path=None
 )
 
 # Spotify Authentication Routes
-@spotify_routes.route("/spotify/login")
+@spotify_routes.route("/api/spotify/login")
 def spotify_login():
+    print("Spotify Route Accessed")
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
-@spotify_routes.route("/spotify/callback")
+@spotify_routes.route("/api/spotify/callback")
 def spotify_callback():
     code = request.args.get("code")
     token_url = "https://accounts.spotify.com/api/token"
@@ -55,7 +55,7 @@ def spotify_callback():
     session["spotify_access_token"] = data.get("access_token")
     return redirect("/fetch_spotify_data")
 
-@spotify_routes.route("/fetch_spotify_data")
+@spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
     access_token = session.get("spotify_access_token")
     

@@ -6,7 +6,7 @@ from supabase import create_client, Client
 load_dotenv()
 
 #Get Supabase connection things from environment file
-SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
 #Test database connection

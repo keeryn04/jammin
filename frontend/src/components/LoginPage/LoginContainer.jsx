@@ -14,30 +14,39 @@ import ActionButton from "../Generic/ActionButton";
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const fetchLink = `${SUPABASE_URL}/api/users`;
-  const loginLink = `${SUPABASE_URL}/api/login`;
-  const redirectLink = `${SUPABASE_URL}/spotify/login`;
+  const fetchLink = `${VERCEL_URL}/api/users`;
+  const loginLink = `${VERCEL_URL}/api/login`;
+  const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
   const backendRedirect = async () => {
     try {
-      window.location.href = redirectLink; // Redirects to Flask backend
-      const data = await response.json();
-      if (response.ok) {
-        navigate("/MatchingPageDesktop")
-      } else {
-        setError("Error authenticating spotify, please login and try again")
+      console.log(`Visiting ${redirectLink}...`)
+      const response = await fetch(redirectLink);
+
+      if (!response.ok) {
+        throw new Error("Server error, unable to authenticate: ", response.data);
       }
-    } catch {
-      setError("Error authenticating spotify, please login and try again")
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        console.log("Login was successful");
+        window.location.href = data.redirect_url; 
+      } else {
+        setError("Error authenticating Spotify, please login and try again (1)");
+      }
+    } catch (e) {
+      console.error("Error:", e);
+      setError("Error authenticating Spotify, please login and try again (2)");
     }
-  }
+  };
 
 
   const attemptLogin = async (inputEmail, inputPassword) => {

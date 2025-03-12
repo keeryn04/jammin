@@ -5,9 +5,8 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "/api/app.py",
-      "use": "@vercel/python",
-      "config": { "pythonPath":"api" }
+      "src": "api/app.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
