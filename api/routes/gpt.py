@@ -31,7 +31,7 @@ def run_ChatQuery(ref_user_id):
     messages = [ #defines the role of chat 
                 {"role": "system", "content": 
                 """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-                The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output.
+                The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output. You Will prioritize top genres when giving a compatibility score, and be generous with scores.
                 The output should be in JSON format.
                 Example input:
                 [
@@ -40,7 +40,7 @@ def run_ChatQuery(ref_user_id):
                 ]
                 Example output:
                 [
-                    {'userID':'72', 'compatibility_score': 75,'reasoning':'you share favorite artists and genres, showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists based on their data: (provide recommendations ). (Keep reasoning ~30 words)'}
+                    {'userID':'72', 'compatibility_score': 75,'reasoning':'you share favorite artists and genres (provide example if they do), showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)'}
                 ]
                 """}]    
     try:
@@ -133,7 +133,11 @@ def insert_response(reply,ref_user_id):
 
             cursor.execute("""
                 INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status, reasoning)
-                VALUES (UUID(), %s, %s, %s, 'pending',%s)
+                VALUES (UUID(), %s, %s, %s, 'pending', %s)
+                ON DUPLICATE KEY UPDATE 
+                match_score = VALUES(match_score), 
+                status = 'pending', 
+                reasoning = VALUES(reasoning);
             """, (ref_user_id, user_id, compatibility_score,reasoning))
 
         conn.commit()

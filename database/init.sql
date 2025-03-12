@@ -51,7 +51,8 @@ CREATE TABLE IF NOT EXISTS matches (
     status VARCHAR(10) CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT NULL,
     matched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_1_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_2_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_2_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE (user_1_id, user_2_id)
 );
 
 CREATE TABLE IF NOT EXISTS swipes (
