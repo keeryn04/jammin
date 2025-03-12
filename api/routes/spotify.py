@@ -58,15 +58,26 @@ def spotify_callback():
     new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
     response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
     response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+    print(f"Response Made: {VERCEL_URL}/api/fetch_spotify_data")
     
     return response
 
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
-    access_token = request.cookies.get('spotify_access_token')
+    token = request.cookies.get("auth_token")
+
+    if not token:
+        return jsonify({"error": "No authentication token found"}), 401
+
+    decoded_token = decode_jwt(token)
+
+    if not decoded_token:
+        return jsonify({"error": "Invalid or expired token"}), 401
+
+    access_token = decoded_token.get("spotify_access_token")
     
     if access_token == None:
-        return redirect(f"{VERCEL_URL}/Login"), 404 #Return to login page if error
+        return redirect(f"{VERCEL_URL}/Login"), 401 #Return to login page if error
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -98,6 +109,8 @@ def fetch_spotify_data():
         "profile_image": profile_image,
     }
 
+    print(spotify_data)
+
     try:
         conn = get_db_connection()
         if conn is None:
@@ -120,12 +133,12 @@ def fetch_spotify_data():
         user_id = decoded_token.get("user_id")
 
         if not user_id:
-            return jsonify({"error": "User not logged in"}), 404
+            return jsonify({"error": "User not logged in"}), 401
         
         response = conn.table("users").select("user_data_id").eq("user_id", user_id).execute()
 
         if not response.data:
-            return redirect(f"{VERCEL_URL}/Login"), 404
+            return redirect(f"{VERCEL_URL}/Login"), 401
         
         user_data_id = response.data[0]["user_data_id"]
         
