@@ -41,6 +41,7 @@ const LoginContainer = () => {
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
+          //Save user_id as cookie via backend
           const loginReturn = await fetch(loginLink, {
             method: "POST",
             credentials: "include",

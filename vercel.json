@@ -15,8 +15,12 @@
       "dest": "/api/app.py"
     },
     {
-      "src": "(.*)",
-      "dest": "frontend/$1"
+      "src": "/(.*\\.js|.*\\.css|.*\\.jpg|.*\\.png|.*\\.svg|.*\\.woff2|.*\\.ttf)",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
     }
   ]
 }

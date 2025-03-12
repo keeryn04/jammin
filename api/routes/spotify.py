@@ -109,8 +109,6 @@ def fetch_spotify_data():
         "profile_image": profile_image,
     }
 
-    print(spotify_data)
-
     try:
         conn = get_db_connection()
         if conn is None:
@@ -158,7 +156,7 @@ def fetch_spotify_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return redirect(f"{VERCEL_URL}/login"), 201
+        return redirect(f"{VERCEL_URL}/MatchingPageDesktop", code=302) #Return back to homepage after saving spotify data
 
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

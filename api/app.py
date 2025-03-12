@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  #Allows cross-site cookies
+app.config["SESSION_COOKIE_SAMESITE"] = None  #Allows cross-site cookies
 app.config["SESSION_COOKIE_SECURE"] = True  #Only over HTTPS
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 CORS(app, supports_credentials=True)
