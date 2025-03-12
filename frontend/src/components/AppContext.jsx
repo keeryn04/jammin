@@ -5,9 +5,7 @@ import React, { createContext, useContext, useState } from "react";
 const GlobalContext = createContext();
 
 export const GlobalDataProvider = ({ children }) => {
-    const [globalData, setGlobalData] = useState({
-        loggedInUserID: ""
-    });
+    const [globalData, setGlobalData] = useState("");
 
     return (
         <GlobalContext.Provider value={{ globalData, setGlobalData }}>

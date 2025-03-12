@@ -1,4 +1,4 @@
-from flask import Blueprint, app, jsonify, request, session, redirect, url_for
+from flask import Blueprint, app, jsonify, request, make_response, session, redirect, url_for
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 import os
@@ -10,6 +10,7 @@ load_dotenv()
 
 import logging
 import json
+
 logging.basicConfig(level=logging.DEBUG)
 
 from database_connector import get_db_connection
@@ -34,11 +35,19 @@ sp_oauth = SpotifyOAuth(
 # Spotify Authentication Routes
 @spotify_routes.route("/spotify/login")
 def spotify_login():
+    user_id = request.args.get("user_id")
     auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
+    response = make_response(redirect(auth_url))
+    response.set_cookie("user_id", user_id, httponly=True, secure=False)
+    #return response
+    
 
 @spotify_routes.route("/spotify/callback")
 def spotify_callback():
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return "User ID missing", 400
+
     code = request.args.get("code")
     token_url = "https://accounts.spotify.com/api/token"
     response = requests.post(
@@ -57,10 +66,14 @@ def spotify_callback():
 
 @spotify_routes.route("/fetch_spotify_data")
 def fetch_spotify_data():
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return "User ID missing", 400
+
     access_token = session.get("spotify_access_token")
     
     if access_token == None:
-        return redirect("http://localhost:5173/login"), 402
+        return redirect("http://localhost:5173/login"), 401
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -101,11 +114,11 @@ def fetch_spotify_data():
     spotify_id = spotify_data["spotify_id"]
 
     #Fetch user_data_id based on current user
-    user_id = session.get('current_user_id')  # Retrieve from session
+    #user_id = session.get('current_user_id')  # Retrieve from session
     #user_id = "fad10780-fe9f-11ef-b7de-0242ac120002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
 
-    if not user_id:
-        return redirect("http://localhost:5173/login/test"), 401
+    #if not user_id:
+    #   return redirect("http://localhost:5173/login"), 401
 
     cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
     result = cursor.fetchone()

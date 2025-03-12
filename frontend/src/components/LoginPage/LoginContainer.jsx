@@ -6,6 +6,7 @@ import Logo from "../Generic/Logo";
 import Heading from "../Generic/Heading";
 import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
+import { useGlobalContext } from "../AppContext";
 
 /**
  * This is the login container. It is the page displayed for the user such that they can input their email and password and login to the system
@@ -15,18 +16,25 @@ import ActionButton from "../Generic/ActionButton";
  */
 
 const LoginContainer = () => {
-  const {globalData, setGlobalData} = useSignupContext()
+  const {globalData, setGlobalData} = useGlobalContext()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  var user_id = '';
+
   const fetchLink = "http://localhost:5000/api/users"
   const loginLink = "http://localhost:5000/api/login"
   const redirectLink = "http://localhost:5000/spotify/login"
-  /*
+  
   const backendRedirect = async () => {
     try {
-      const response = await fetch(fetchLink);
+      if (user_id != ''){
+        console.log(user_id);
+        window.location.href = `http://localhost:5000/spotify/login?user_id=${user_id}`
+      }
+
+      
       const data = await response.json();
       if (response.ok) {
         navigate("/MatchingPageDesktop")
@@ -37,7 +45,7 @@ const LoginContainer = () => {
       setError("Error authenticating spotify, please login and try again")
     }
   }
-  */
+  
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
@@ -46,15 +54,16 @@ const LoginContainer = () => {
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
-          const loginReturn = await fetch(loginLink, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
-          });
+          // const loginReturn = await fetch(loginLink, {
+          //   method: "POST",
+          //   credentials: "include",
+          //   headers: { "Content-Type": "application/json" },
+          //   body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
+          // });
 
-          const data = await loginReturn.json();
-          console.log(data)
+          // const data = await loginReturn.json();
+          console.log(user["user_id"])
+          user_id = user["user_id"]
           return true;
         }
       }
@@ -71,7 +80,7 @@ const LoginContainer = () => {
     //Check login information, then either advance the user, or display and error
     const loginSuccessful = await attemptLogin(email, password)
     if (loginSuccessful == true) {
-      backendRedirect();
+      await backendRedirect();
     }
     else {
       setError("Email or password incorrect")

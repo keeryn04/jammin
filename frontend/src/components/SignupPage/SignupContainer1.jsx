@@ -30,9 +30,7 @@ const SignupContainer1 = () => {
       const data = await response.json();
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
-        console.log(user["email"]);
         if (inputEmail === user["email"]){
-          console.log("Email found")
           return true;
         }
       }
