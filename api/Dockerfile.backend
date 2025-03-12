@@ -17,7 +17,7 @@ RUN pip install mysql-connector-python
 COPY . .
 
 # Expose Flask’s default port
-EXPOSE 5000
+EXPOSE 5001:5000
 
 # Run Flask (adjust host & port as needed)
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"]

@@ -10,6 +10,10 @@ from routes.user_data import user_data_routes
 import os
 from dotenv import load_dotenv
 
+from routes.gpt import openai_routes
+
+
+
 # Load environment variables
 load_dotenv()
 
@@ -28,6 +32,7 @@ app.register_blueprint(user_setting_routes)
 app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
+app.register_blueprint(openai_routes)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')

@@ -6,3 +6,4 @@ spotipy
 dotenv
 flask-session
 uuid
+openai

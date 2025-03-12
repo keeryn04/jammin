@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS matches (
     user_1_id CHAR(36) NOT NULL,
     user_2_id CHAR(36) NOT NULL,
     match_score FLOAT,
+    reasoning CHAR(250),
     status VARCHAR(10) CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT NULL,
     matched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_1_id) REFERENCES users(user_id) ON DELETE CASCADE,
