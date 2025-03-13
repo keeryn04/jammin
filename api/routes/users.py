@@ -136,3 +136,26 @@ def delete_user(user_id):
         return jsonify({"message": "User deleted successfully"}), 200
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
+    
+@user_routes.route("/api/users/by_user_data/<user_data_id>", methods=["GET"])
+def get_user_by_user_data(user_data_id):
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Unable to connect to the database"}), 500
+
+        cursor = conn.cursor(dictionary=True)
+        
+        # Fetch user_id from the users table using user_data_id
+        cursor.execute("SELECT * FROM users WHERE user_data_id = %s", (user_data_id,))
+        user = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if user:
+            return jsonify(user)
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {err}"}), 500

@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useState, useContext } from "react";
+import { UserContext } from "../UserContext"; // Import the context
 import ProgressBar from "./ProgressBar";
 
-const fetchLink = "http://localhost:5000/api/user_data";
-
 const ProfileSection = () => {
-  const [profileName, setProfileName] = useState("");
-  const [profileImage, setProfileImage] = useState("");
-
-  useEffect(() => {
-    // Example of fetching user data from an API (replace with your actual endpoint)
-    fetch(fetchLink)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          const user = data[0]; // Assuming the first user for now
-          setProfileName(user.profile_name || "SpotifyUser"); // Default if not found
-          setProfileImage(user.profile_image || "default-profile.png"); // Default if not found
-        }
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+  const { currentDisplayedUser } = useContext(UserContext); // Use the context
 
   const [isClicked, setIsClicked] = useState(false);
 
@@ -54,7 +39,7 @@ const ProfileSection = () => {
         }`}
       >
         <img
-          src={profileImage}
+          src={currentDisplayedUser?.profile_image || "default-profile.png"}
           alt="Profile"
           className={`shadow-sm rounded-[99px] object-cover transition-all duration-500 ${
             isClicked ? "w-20 h-20" : "w-32 h-32"
@@ -67,7 +52,7 @@ const ProfileSection = () => {
           }`}
         >
           <div className="text-[25px] font-bold leading-7 text-white">
-            {profileName || "SpotifyUser"}
+            {currentDisplayedUser?.profile_name || "SpotifyUser"}
           </div>
           <p className="text-base leading-6 text-gray-400">
             1 Followers · 1 Following

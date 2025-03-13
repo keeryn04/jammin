@@ -68,35 +68,70 @@ CREATE TABLE IF NOT EXISTS swipes (
 -- Test data, remove later
 SET @user1 = UUID();
 SET @user2 = UUID();
+SET @user3 = UUID();
+SET @user4 = UUID();
+SET @user5 = UUID();
+SET @user6 = UUID();
 
 SET @user_data1 = UUID();
 SET @user_data2 = UUID();
+SET @user_data3 = UUID();
+SET @user_data4 = UUID();
+SET @user_data5 = UUID();
+SET @user_data6 = UUID();
 
 INSERT INTO users_music_data (
     user_data_id, spotify_id, profile_name, profile_image, 
     top_songs, top_songs_pictures, top_artists, top_artists_pictures, 
     top_genres, top_genres_pictures
 ) 
+
 VALUES 
-    (@user_data1, 'spotify_12345', 'CoolUser', 'https://example.com/profile.jpg',
-    'Song1, Song2, Song3', 'https://example.com/song1.jpg, https://example.com/song2.jpg, https://example.com/song3.jpg',
-    'Artist1, Artist2, Artist3', 'https://example.com/artist1.jpg, https://example.com/artist2.jpg, https://example.com/artist3.jpg',
+    (@user_data1, 'spotify_12345', 'Tony Stark', 'https://pbs.twimg.com/profile_images/685915759055351808/ILeBa4II_400x400.png',
+    'Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
     'Rock, Jazz, Pop', 'https://example.com/rock.jpg, https://example.com/jazz.jpg, https://example.com/pop.jpg'),
 
-    (@user_data2, 'spotify_3456', 'BadUser', 'https://example.com/profile2.jpg',
-    'Song4, Song5, Song6', 'https://example.com/song4.jpg, https://example.com/song5.jpg, https://example.com/song6.jpg',
-    'Artist4, Artist5, Artist6', 'https://example.com/artist4.jpg, https://example.com/artist5.jpg, https://example.com/artist6.jpg',
+    (@user_data2, 'spotify_3456', 'Thor', 'https://upload.wikimedia.org/wikipedia/en/3/3c/Chris_Hemsworth_as_Thor.jpg',
+    'Not Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Not Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
+    'Metal, Blues, EDM', 'https://example.com/metal.jpg, https://example.com/blues.jpg, https://example.com/edm.jpg'),
+
+    (@user_data3, 'spotify_999', 'Steve Rogers', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx8tUHYT2ARBwnbBoNLLS-FGawGhHKwJFlag&s',
+    'Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
+    'Rock, Jazz, Pop', 'https://example.com/rock.jpg, https://example.com/jazz.jpg, https://example.com/pop.jpg'),
+
+    (@user_data4, 'spotify_lover6', 'Bruce Banner', 'https://www.themarysue.com/wp-content/uploads/2021/10/Mark-Ruffalo-Bruce-Banner.jpeg?fit=1200%2C742',
+    'Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
+    'Metal, Blues, EDM', 'https://example.com/metal.jpg, https://example.com/blues.jpg, https://example.com/edm.jpg'),
+
+    (@user_data5, 'spotify_666', 'Natasha Romanoff', 'https://m.media-amazon.com/images/I/81Jgy1tfvcL.jpg',
+    'Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
+    'Rock, Jazz, Pop', 'https://example.com/rock.jpg, https://example.com/jazz.jpg, https://example.com/pop.jpg'),
+
+    (@user_data6, 'spotify_lover3', 'Clint Barton', 'https://www.hollywoodreporter.com/wp-content/uploads/2021/07/MCDAVEN_EC081-H-2021.jpg?w=1296&h=730&crop=1',
+    'Igor, Flower Boy, Graduation, Lucid Dreams, Goodbye', 'https://www.billboard.com/wp-content/uploads/media/tyler-the-creator-igor-album-art-2019-billboard-embed.jpg?w=600, https://aimm.edu/hubfs/Blog%20Images/Top%2010%20Album%20Covers%20of%202017/Tyler%20the%20Creator-%20Flower%20boy.jpg, https://s.yimg.com/ny/api/res/1.2/TdT5KvjU14pp8TUgwnvMsw--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTk2MA--/https://media.zenfs.com/en/one37pm_956/72d7b3dc8acef1991bb74d8e90c9ceab, https://creativereview.imgix.net/content/uploads/2024/12/tyler-the-creator-chromakopia.jpg?auto=compress,format&q=60&w=1200&h=1189, https://miro.medium.com/v2/resize:fit:681/1*EBOL4lka5QjcYoxj6AHp-g.png',
+    'Pink Floyd, Kanye, Drake, Kendrick Lamar', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0DkvCVRV1EJo0u_8ayX_wxGNpL45T4w4GYA&s, https://www.creativeboom.com/upload/articles/db/db1a6b372e7c23636f9b8d88f879a9a815c6825c_1280.jpeg, https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq6btiFtFEfR4FWX2AxXL6iORWzSl7qPVsyg&s, https://www.sleek-mag.com/wp-content/uploads/2016/08/AlbumCovers_Blonde-1200x1200.jpg, https://www.udiscovermusic.com/wp-content/uploads/2022/04/600NWA-3000DPI300RGB1000162059.jpg',
     'Metal, Blues, EDM', 'https://example.com/metal.jpg, https://example.com/blues.jpg, https://example.com/edm.jpg');
 
 INSERT INTO users (user_id, user_data_id, username, email, password_hash, age, bio, gender, school, occupation, looking_for, spotify_auth) 
 VALUES 
     (@user1, @user_data1, 'testuser1', 'test1@example.com', 'hashedpassword1', 25, 'Music lover', 'Male', 'UofC', 'Job', 'love', TRUE),
-    (@user2, @user_data2,'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE);
+    (@user2, @user_data2,'testuser2', 'test2@example.com', 'hashedpassword2', 30, 'I enjoy live concerts', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE),
+    (@user3, @user_data3,'testuser3', 'test3@example.com', 'hashedpassword3', 26, 'I like rap', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE),
+    (@user4, @user_data4,'testuser4', 'test4@example.com', 'hashedpassword4', 26, 'I like rap', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE),
+    (@user5, @user_data5,'testuser5', 'test5@example.com', 'hashedpassword3', 26, 'I like rap', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE),
+    (@user6, @user_data6,'testuser6', 'test6@example.com', 'hashedpassword4', 26, 'I like rap', 'Female', 'MRU', 'Home Hardware', 'frnd', FALSE);
 
 INSERT INTO user_settings (setting_id, user_id, discoverability, notifications, theme_preference, language)
 VALUES 
     (UUID(), @user1, 1, 0, 'dark', 'en'),
-    (UUID(), @user2, 0, 1, 'light', 'es');
+    (UUID(), @user2, 0, 1, 'light', 'es'),
+    (UUID(), @user3, 1, 0, 'dark', 'en'),
+    (UUID(), @user4, 0, 1, 'light', 'es');
 
 INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status)
 VALUES 
