@@ -23,6 +23,8 @@ export const UserProvider = ({ children }) => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
+  
+
 
   return (
     <UserContext.Provider
@@ -31,8 +33,10 @@ export const UserProvider = ({ children }) => {
         displayedUsers,
         currentDisplayedUser,
         setCurrentDisplayedUser,
-        currentIndex, 
-        setCurrentIndex,
+        currentIndex, // Provide currentIndex
+        setCurrentIndex, // Provide setCurrentIndex
+        setActiveUser, // Make sure you have a way to set activeUser
+        setDisplayedUsers,
       }}
     >
       {children}
