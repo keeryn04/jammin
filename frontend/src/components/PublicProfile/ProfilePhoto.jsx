@@ -5,7 +5,7 @@ export const ProfilePhoto = () => {
   const [profileImage, setProfileImage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/user_data") // Replace with actual API URL
+    fetch("http://localhost:5001/api/user_data") // Replace with actual API URL
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {

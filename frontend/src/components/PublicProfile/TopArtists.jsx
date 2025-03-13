@@ -15,7 +15,7 @@ export const TopArtists = () => {
   const [artists, setArtists] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/user_data")
+    fetch("http://localhost:5001/api/user_data")
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {

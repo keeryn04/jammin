@@ -1,9 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 
-// Create the context
 export const UserContext = createContext();
 
-// Create the provider component
 export const UserProvider = ({ children }) => {
   const [activeUser, setActiveUser] = useState(null);
   const [displayedUsers, setDisplayedUsers] = useState([]);
@@ -12,7 +10,7 @@ export const UserProvider = ({ children }) => {
 
   // Fetch users from the database
   useEffect(() => {
-    fetch("http://localhost:5000/api/user_data")
+    fetch("http://localhost:5001/api/user_data")
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {
@@ -33,8 +31,8 @@ export const UserProvider = ({ children }) => {
         displayedUsers,
         currentDisplayedUser,
         setCurrentDisplayedUser,
-        currentIndex, // Provide currentIndex
-        setCurrentIndex, // Provide setCurrentIndex
+        currentIndex, 
+        setCurrentIndex,
       }}
     >
       {children}
