@@ -63,7 +63,8 @@ def add_match():
             "user_1_id": data["user_1_id"],
             "user_2_id": data["user_2_id"],
             "match_score": data["match_score"],
-            "status": data["status"]
+            "status": data["status"],
+            "reasoning":data["reasoning"]
         }).execute()
 
         if isinstance(response, dict) and "error" in response:
@@ -91,7 +92,8 @@ def update_match(match_id):
             "user_1_id": data["user_1_id"],
             "user_2_id": data["user_2_id"],
             "match_score": data["match_score"],
-            "status": data["status"]
+            "status": data["status"],
+            "reasoning": data["reasoning"]
         }).eq('match_id', str(match_uuid)).execute()
 
         if isinstance(response, dict) and "error" in response:

@@ -7,6 +7,7 @@ from api.routes.user_settings import user_setting_routes
 from api.routes.swipes import swipes_routes
 from api.routes.matches import matches_routes 
 from api.routes.user_data import user_data_routes
+from api.routes.gpt import openai_routes
 import os
 from dotenv import load_dotenv
 
@@ -29,6 +30,7 @@ app.register_blueprint(user_setting_routes)
 app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
+app.register_blueprint(openai_routes)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
@@ -59,7 +61,7 @@ def login_user():
     
     jwt_token = generate_jwt(user_id)
 
-    # Set the JWT token in an HTTP-only cookie
+    # Set the JWT token in an HTTP-only cookie, allows access of user_id elsewhere in program
     response = make_response(jsonify({"message": "Login successful", "user_id": user_id}))
     response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
     
