@@ -1,12 +1,23 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import RedPlayButton
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { UserContext } from "../UserContext"; // Import the context
+import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
 export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false); // State to track hover
-  const seekBarRef = useRef(null); // Ref for the seek bar container
+  const {
+    activeUser,
+    displayedUsers,
+    currentDisplayedUser,
+    setCurrentDisplayedUser,
+    currentIndex, // Destructure currentIndex
+    setCurrentIndex, // Destructure setCurrentIndex
+  } = useContext(UserContext); // Use the context
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
+  const seekBarRef = useRef(null);
+
+  // Format time helper
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -19,7 +30,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
     const offsetX = e.clientX - rect.left;
     const percentage = offsetX / rect.width;
     const newTime = percentage * totalDuration;
-    onSeek(newTime); // Update the scroll position
+    onSeek(newTime);
   };
 
   // Handle drag start
@@ -35,13 +46,33 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       const offsetX = e.clientX - rect.left;
       const percentage = Math.min(Math.max(offsetX / rect.width, 0), 1); // Clamp between 0 and 1
       const newTime = percentage * totalDuration;
-      onSeek(newTime); // Update the scroll position
+      onSeek(newTime);
     }
   };
 
   // Handle drag end
   const handleDragEnd = () => {
     setIsDragging(false);
+  };
+
+  const handleNextUser = () => {
+    setCurrentIndex((prevIndex) => {
+      const allUsers = [...displayedUsers];
+      let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
+      setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+      console.log(activeUser);
+      return nextIndex; // Return the new index
+    });
+  };
+  
+  const handlePreviousUser = () => {
+    setCurrentIndex((prevIndex) => {
+      const allUsers = [...displayedUsers];
+      let previousIndex = (prevIndex - 1 + allUsers.length) % allUsers.length; // Calculate previous index
+      setCurrentDisplayedUser(allUsers[previousIndex]); // Update currentDisplayedUser
+      console.log(activeUser);
+      return previousIndex; // Return the new index
+    });
   };
 
   // Add event listeners for dragging
@@ -61,10 +92,13 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-center" style={style}> {/* Apply the style prop here */}
+    <section className="mt-10 text-center" style={style}>
       <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
-      <p className="mb-4 text-base text-zinc-400">Person's Name</p>
-      <div className="mx-auto mt-0 mb-5 w-full"> {/* Removed max-w-[400px] */}
+      <p className="mb-4 text-base text-zinc-400">
+        {currentDisplayedUser?.profile_name || "Person's Name"}
+      </p>
+      <div className="mx-auto mt-0 mb-5 w-full">
+        {/* Seek bar */}
         <div
           ref={seekBarRef}
           className="relative mb-2 w-full h-1 rounded-sm bg-neutral-500 cursor-pointer"
@@ -84,47 +118,47 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[4px] h-[4px] bg-neutral-500 rounded-full" />
           </div>
         </div>
+        {/* Time display */}
         <div className="flex justify-between text-xs text-zinc-400">
           <span>{formatTime(currentTime)}</span>
           <span>-{formatTime(totalDuration - currentTime)}</span>
         </div>
       </div>
+      {/* Player controls */}
       <div className="flex gap-11 justify-center items-center max-sm:gap-8">
-        {/* Previous Track Icon (as button) */}
+        {/* Previous button */}
         <div
           className="cursor-pointer focus:outline-none hover:scale-90 transition-transform duration-200"
           aria-label="Previous track"
+          onClick={handlePreviousUser}
         >
-          <PrevButton className="w-8 h-8" /> {/* Adjust size as needed */}
+          <PrevButton className="w-8 h-8" />
         </div>
-
-        {/* Play/Pause Icon (as button) */}
+        {/* Play button */}
         <div
           className="cursor-pointer focus:outline-none relative"
           aria-label="Play"
-          onMouseEnter={() => setIsHoveringPlayButton(true)} // Set hover state to true
-          onMouseLeave={() => setIsHoveringPlayButton(false)} // Set hover state to false
+          onMouseEnter={() => setIsHoveringPlayButton(true)}
+          onMouseLeave={() => setIsHoveringPlayButton(false)}
         >
-          {/* Red circle behind the Play icon */}
           <div className="absolute inset-0 flex items-center justify-center z-0">
             <div className="w-8 h-8 bg-red-500 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-200" />
           </div>
-          {/* Play icon */}
           <div className="relative z-10">
             {isHoveringPlayButton ? (
-              <RedPlayButton className="w-10 h-10" /> // Smaller size for RedPlayButton
+              <RedPlayButton className="w-10 h-10" />
             ) : (
-              <PlayButton className="w-12 h-12" /> // Default size for PlayButton
+              <PlayButton className="w-12 h-12" />
             )}
           </div>
         </div>
-
-        {/* Next Track Icon (as button) */}
+        {/* Next button */}
         <div
           className="cursor-pointer focus:outline-none hover:scale-90 transition-transform duration-200"
           aria-label="Next track"
+          onClick={handleNextUser}
         >
-          <NextButton className="w-8 h-8" /> {/* Adjust size as needed */}
+          <NextButton className="w-8 h-8" />
         </div>
       </div>
     </section>
