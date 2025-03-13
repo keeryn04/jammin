@@ -75,6 +75,50 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
     });
   };
 
+  const handlePlay = async () => {
+    if (!activeUser || !currentDisplayedUser) return;
+  
+    try {
+      // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
+      const activeUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${activeUser.user_data_id}`);
+      const currentDisplayedUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${currentDisplayedUser.user_data_id}`);
+      
+      const activeUserData = await activeUserResponse.json();
+      const currentDisplayedUserData = await currentDisplayedUserResponse.json();
+  
+      // Check if the user data was found
+      if (!activeUserData.user_id || !currentDisplayedUserData.user_id) {
+        console.error('User data not found!');
+        return;
+      }
+  
+      // Create match data with user_id instead of user_data_id
+      const matchData = {
+        user_1_id: activeUserData.user_id,
+        user_2_id: currentDisplayedUserData.user_id,
+        match_score: 0, // Set initial score (can be modified later)
+        status: "pending", // Set match status
+      };
+  
+      // Create match request to backend
+      const response = await fetch("http://localhost:5000/api/matches", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(matchData),
+      });
+  
+      // Handle response from the backend
+      const responseData = await response.json();
+      console.log(responseData);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
+  
+
   // Add event listeners for dragging
   useEffect(() => {
     const handleMouseMove = (e) => handleDragging(e);
@@ -138,6 +182,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
         <div
           className="cursor-pointer focus:outline-none relative"
           aria-label="Play"
+          onClick={handlePlay}  // Attach the handlePlay function
           onMouseEnter={() => setIsHoveringPlayButton(true)}
           onMouseLeave={() => setIsHoveringPlayButton(false)}
         >
@@ -152,6 +197,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
             )}
           </div>
         </div>
+
         {/* Next button */}
         <div
           className="cursor-pointer focus:outline-none hover:scale-90 transition-transform duration-200"
