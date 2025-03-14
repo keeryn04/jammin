@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS matches (
     reasoning CHAR(250),
     status VARCHAR(10) CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT NULL,
     matched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_1_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_2_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_1_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_2_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE,
     UNIQUE (user_1_id, user_2_id)
 );
 
@@ -159,7 +159,7 @@ VALUES
 
 INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status)
 VALUES 
-    (UUID(), @user1, @user2, 85.5, 'accepted');
+    (UUID(), @user_data1, @user_data2, 85.5, 'accepted');
 
 INSERT INTO swipes (swipe_id, swiper_id, swiped_id, action)
 VALUES 

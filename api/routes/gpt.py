@@ -49,9 +49,9 @@ def run_ChatQuery(ref_user_id):
             return jsonify({"error": "Unable to connect to the database"}), 500
         
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (ref_user_id,))
+        cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (ref_user_id,))
         reference_user = cursor.fetchone()
-        user_ids = [reference_user["user_id"]] #init user_ids with ref user as 1st entry
+        user_ids = [reference_user["user_data_id"]] #init user_ids with ref user as 1st entry
 
         if not reference_user:
             return jsonify({"error": "Could not get your Profile."}), 404
@@ -62,30 +62,30 @@ def run_ChatQuery(ref_user_id):
         if result is None or "user_count" not in result:
             return jsonify({"error": "Could not retrieve user count."}), 500
 
-        user_count = int(result["user_count"]) - 1 #gets number of users in table - ref user
+        user_count = int(result["user_count"]) -1  #gets number of users in table
         offset = 0
 
         while offset < user_count:
             cursor.execute(f"SELECT * FROM users_music_data LIMIT 5 OFFSET {offset}") #gets first 5 users, then increments until end of list
             rows = cursor.fetchall()
-            user_ids.extend([row["user_id"] for row in rows if row["user_id"] != ref_user_id]) #doesnt add ref user
+            user_ids.extend([row["user_data_id"] for row in rows if row["user_data_id"] != ref_user_id]) #doesnt add ref user
             if not user_ids:
                 return jsonify({"error": "No other users found for comparison"}), 404
             users_data = []
             for user_id in user_ids:
-                cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,)) 
+                cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (user_id,)) 
                 user_row = cursor.fetchone()
                 if not user_row:
                     continue  
 
                 users_data.append({ #adds song data
-                    "userid": user_row["user_id"],
+                    "userid": user_row["user_data_id"],
                     "topSongs": user_row["top_songs"],
                     "topArtists": user_row["top_artists"],
                     "topGenres": user_row["top_genres"]
                 })
 
-            offset += (len(users_data)-1) #offset for next sql query
+            offset += (len(users_data)) #offset for next sql query
             message_content = json.dumps(users_data)
             messages.append({"role": "user", "content": message_content})
             chat = client.beta.chat.completions.parse(
@@ -132,8 +132,8 @@ def insert_response(reply,ref_user_id):
 
 
             cursor.execute("""
-                INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status, reasoning)
-                VALUES (UUID(), %s, %s, %s, 'pending', %s)
+                INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, reasoning, status)
+                VALUES (UUID(), %s, %s, %s, %s,'pending')
                 ON DUPLICATE KEY UPDATE 
                 match_score = VALUES(match_score), 
                 status = 'pending', 
