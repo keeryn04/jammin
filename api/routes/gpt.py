@@ -26,83 +26,108 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def find_common_elements(list1, list2):
+    """Helper function to find common elements between two lists."""
+    set1 = set(list1)
+    set2 = set(list2)
+    return list(set1.intersection(set2))
+
 @openai_routes.route("/chattesting/<ref_user_id>", methods=["GET"])
 def run_ChatQuery(ref_user_id):
-    messages = [ #defines the role of chat 
-                {"role": "system", "content": 
-                """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-                The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output. You Will prioritize top genres when giving a compatibility score, and be generous with scores.
-                The output should be in JSON format.
-                Example input:
-                [
-                {'userid':'0', 'topSongs':['SongA'], 'topArtists':['ArtistA'], 'topGenres':['GenreA']},
-                {'userid':'72', 'topSongs':['SongB'], 'topArtists':['ArtistB'], 'topGenres':['GenreB']}
-                ]
-                Example output:
-                [
-                    {'userID':'72', 'compatibility_score': 75,'reasoning':'you share favorite artists and genres (provide example if they do), showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)'}
-                ]
-                """}]    
+    messages = [
+        {"role": "system", "content": 
+         """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
+         The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output. You Will prioritize top genres when giving a compatibility score, and be generous with scores.
+         The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user.
+         Example input:
+         [
+         {'userid':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
+         {'userid':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
+         ]
+         Example output:
+         {
+           "matches": [
+             {
+               "userID": "72",
+               "profile_name": "Thor",
+               "compatibility_score": 75,
+               "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
+               "common_top_songs": ["SongB"],
+               "common_top_artists": ["ArtistB"]
+             }
+           ]
+         }
+         """}
+    ]
+
     try:
         conn = get_db_connection()
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
-        
+
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (ref_user_id,))
+        
+        # Fetch the reference user
+        cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (ref_user_id,))
         reference_user = cursor.fetchone()
-        user_ids = [reference_user["user_id"]] #init user_ids with ref user as 1st entry
 
         if not reference_user:
             return jsonify({"error": "Could not get your Profile."}), 404
 
-        cursor.execute("SELECT COUNT(*) AS user_count FROM users_music_data")
-        result = cursor.fetchone() 
+        # Fetch all users excluding the reference user
+        cursor.execute("SELECT * FROM users_music_data WHERE user_data_id != %s", (ref_user_id,))
+        rows = cursor.fetchall()
 
-        if result is None or "user_count" not in result:
-            return jsonify({"error": "Could not retrieve user count."}), 500
+        if not rows:
+            return jsonify({"error": "No other users found for comparison"}), 404
 
-        user_count = int(result["user_count"]) - 1 #gets number of users in table - ref user
-        offset = 0
+        # Prepare the data for the LLM
+        users_data = []
+        for row in rows:
+            # Calculate common songs and artists
+            common_top_songs = find_common_elements(reference_user["top_songs"].split(", "), row["top_songs"].split(", "))
+            common_top_artists = find_common_elements(reference_user["top_artists"].split(", "), row["top_artists"].split(", "))
 
-        while offset < user_count:
-            cursor.execute(f"SELECT * FROM users_music_data LIMIT 5 OFFSET {offset}") #gets first 5 users, then increments until end of list
-            rows = cursor.fetchall()
-            user_ids.extend([row["user_id"] for row in rows if row["user_id"] != ref_user_id]) #doesnt add ref user
-            if not user_ids:
-                return jsonify({"error": "No other users found for comparison"}), 404
-            users_data = []
-            for user_id in user_ids:
-                cursor.execute("SELECT * FROM users_music_data WHERE user_id = %s", (user_id,)) 
-                user_row = cursor.fetchone()
-                if not user_row:
-                    continue  
+            users_data.append({
+                "userid": row["user_data_id"],
+                "profile_name": row["profile_name"],  # Include profile_name
+                "topSongs": row["top_songs"],
+                "topArtists": row["top_artists"],
+                "topGenres": row["top_genres"],
+                "common_top_songs": common_top_songs,  # Include common songs
+                "common_top_artists": common_top_artists  # Include common artists
+            })
 
-                users_data.append({ #adds song data
-                    "userid": user_row["user_id"],
-                    "topSongs": user_row["top_songs"],
-                    "topArtists": user_row["top_artists"],
-                    "topGenres": user_row["top_genres"]
-                })
+        # Include the reference user in the data sent to the LLM
+        users_data.insert(0, {
+            "userid": reference_user["user_data_id"],
+            "profile_name": reference_user["profile_name"],  # Include profile_name
+            "topSongs": reference_user["top_songs"],
+            "topArtists": reference_user["top_artists"],
+            "topGenres": reference_user["top_genres"]
+        })
 
-            offset += (len(users_data)-1) #offset for next sql query
-            message_content = json.dumps(users_data)
-            messages.append({"role": "user", "content": message_content})
-            chat = client.beta.chat.completions.parse(
-                model="gpt-3.5-turbo",
-                messages=messages,
-                response_format={"type": "json_object"}
-            )
+        print("Users Data Sent to LLM:", users_data)  # Log input data
 
-            reply = chat.choices[0].message.content
-            insert_response(reply,ref_user_id)
-            user_ids = [ref_user_id] #reset user_ids
-            if len(messages) > 1:
-                del messages[1]
+        message_content = json.dumps(users_data)
+        messages.append({"role": "user", "content": message_content})
+
+        # Call the LLM
+        chat = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            response_format={"type": "json_object"}
+        )
+
+        reply = chat.choices[0].message.content
+        print("LLM Response:", reply)  # Log the LLM's response
+
+        insert_response(reply, ref_user_id)
+
         cursor.close()
         conn.close()
         return jsonify(json.loads(reply))
-    
+
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
 
@@ -110,9 +135,11 @@ def run_ChatQuery(ref_user_id):
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
-def insert_response(reply,ref_user_id):
+def insert_response(reply, ref_user_id):
     try:
+        print("LLM Response:", reply)  # Log the LLM's response
         matches_data = json.loads(reply).get("matches", [])
+        print(f"Number of matches returned by LLM: {len(matches_data)}")  # Log the number of matches
 
         if not matches_data:
             print("No matches found.")
@@ -124,28 +151,44 @@ def insert_response(reply,ref_user_id):
             return
 
         cursor = conn.cursor()
+        inserted_count = 0
+        skipped_count = 0
 
         for match in matches_data:
-            user_id = match["userID"]
-            compatibility_score = match["compatibility_score"]
-            reasoning = match["reasoning"]
+            user_id = match.get("userID")
+            compatibility_score = match.get("compatibility_score")
+            reasoning = match.get("reasoning")
 
+            # Validate data
+            if not all([user_id, compatibility_score, reasoning]):
+                print(f"Skipping invalid match data: {match}")
+                skipped_count += 1
+                continue
 
-            cursor.execute("""
-                INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, status, reasoning)
-                VALUES (UUID(), %s, %s, %s, 'pending', %s)
-                ON DUPLICATE KEY UPDATE 
-                match_score = VALUES(match_score), 
-                status = 'pending', 
-                reasoning = VALUES(reasoning);
-            """, (ref_user_id, user_id, compatibility_score,reasoning))
+            # Log the data being inserted
+            print(f"Inserting match: user_1_id={ref_user_id}, user_2_id={user_id}, match_score={compatibility_score}, reasoning={reasoning}")
+
+            try:
+                cursor.execute("""
+                    INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, reasoning, status)
+                    VALUES (UUID(), %s, %s, %s, %s, 'pending')
+                    ON DUPLICATE KEY UPDATE 
+                    match_score = VALUES(match_score), 
+                    status = 'pending', 
+                    reasoning = VALUES(reasoning);
+                """, (ref_user_id, user_id, compatibility_score, reasoning))
+                inserted_count += 1
+            except mysql.connector.Error as err:
+                print(f"Database error for match {user_id}: {err}")
+                skipped_count += 1
 
         conn.commit()
         cursor.close()
         conn.close()
 
-    except mysql.connector.Error as err:
-        print(f"Database error: {err}")
+        print(f"Inserted {inserted_count} matches, skipped {skipped_count} matches.")
 
     except json.JSONDecodeError as err:
         print(f"JSON parsing error: {err}")
+    except Exception as e:
+        print(f"Unexpected error in insert_response: {str(e)}")
