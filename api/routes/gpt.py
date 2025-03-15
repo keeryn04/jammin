@@ -37,8 +37,8 @@ def run_ChatQuery(ref_user_id):
     messages = [
         {"role": "system", "content": 
          """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-         The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output. You Will prioritize top genres when giving a compatibility score, and be generous with scores.
-         The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user.
+         The first user in the list is the REFERENCE user. You will match them with ALL others (not self!) and EXCLUDE the user themselves from the output. You will identify common top songs and artists between the reference user and each other user, and prioritize top genres when giving a compatibility score. Be generous with scores.
+         The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every user you receive. Additionally, do not lie about commonalities, if a user has nothing in common with another, do not hallucinate a relationship, however do not miss commonalities either. Also try to use some modern, younger, natural tone in the reasoning.
          Example input:
          [
          {'userid':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
@@ -51,7 +51,7 @@ def run_ChatQuery(ref_user_id):
                "userID": "72",
                "profile_name": "Thor",
                "compatibility_score": 75,
-               "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
+               "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
                "common_top_songs": ["SongB"],
                "common_top_artists": ["ArtistB"]
              }
@@ -84,27 +84,21 @@ def run_ChatQuery(ref_user_id):
         # Prepare the data for the LLM
         users_data = []
         for row in rows:
-            # Calculate common songs and artists
-            common_top_songs = find_common_elements(reference_user["top_songs"].split(", "), row["top_songs"].split(", "))
-            common_top_artists = find_common_elements(reference_user["top_artists"].split(", "), row["top_artists"].split(", "))
-
             users_data.append({
                 "userid": row["user_data_id"],
-                "profile_name": row["profile_name"],  # Include profile_name
-                "topSongs": row["top_songs"],
-                "topArtists": row["top_artists"],
-                "topGenres": row["top_genres"],
-                "common_top_songs": common_top_songs,  # Include common songs
-                "common_top_artists": common_top_artists  # Include common artists
+                "profile_name": row["profile_name"],
+                "topSongs": row["top_songs"].split(", "),  # Pass raw data
+                "topArtists": row["top_artists"].split(", "),  # Pass raw data
+                "topGenres": row["top_genres"].split(", ")  # Pass raw data
             })
 
         # Include the reference user in the data sent to the LLM
         users_data.insert(0, {
             "userid": reference_user["user_data_id"],
-            "profile_name": reference_user["profile_name"],  # Include profile_name
-            "topSongs": reference_user["top_songs"],
-            "topArtists": reference_user["top_artists"],
-            "topGenres": reference_user["top_genres"]
+            "profile_name": reference_user["profile_name"],
+            "topSongs": reference_user["top_songs"].split(", "),  # Pass raw data
+            "topArtists": reference_user["top_artists"].split(", "),  # Pass raw data
+            "topGenres": reference_user["top_genres"].split(", ")  # Pass raw data
         })
 
         print("Users Data Sent to LLM:", users_data)  # Log input data
