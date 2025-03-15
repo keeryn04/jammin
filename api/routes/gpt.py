@@ -36,8 +36,11 @@ def run_ChatQuery(ref_user_id):
     messages = [
          {"role": "system", "content": 
           """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-          The first user in the list is the REFERENCE user. You will match them with all others and EXCLUDE them from the output. You Will prioritize top genres when giving a compatibility score, and be generous with scores.
-          The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user.
+          The first user in the list is the REFERENCE user. You will match them with ALL others (not self!) and EXCLUDE the user themselves from the output. You will identify 
+          common top songs and artists between the reference user and each other user, and prioritize top genres when giving a compatibility score. Be generous with scores.
+          The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every 
+          user you receive. Additionally, do not lie about commonalities, if a user has nothing in common with another, do not hallucinate a relationship, however do not miss 
+          commonalities either. Also try to use some modern, younger, natural tone in the reasoning.
           Example input:
           [
           {'user_data_id':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
@@ -50,7 +53,8 @@ def run_ChatQuery(ref_user_id):
                 "user_data_id": "72",
                 "profile_name": "Thor",
                 "compatibility_score": 75,
-                "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
+                "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each 
+                other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
                 "common_top_songs": ["SongB"],
                 "common_top_artists": ["ArtistB"]
               }
@@ -85,26 +89,22 @@ def run_ChatQuery(ref_user_id):
 
         users_data = []
         for user in other_users:
-            common_top_songs = find_common_elements(reference_user["top_songs"].split(", "), user["top_songs"].split(", "))
-            common_top_artists = find_common_elements(reference_user["top_artists"].split(", "), user["top_artists"].split(", "))
- 
             users_data.append({
                 "user_data_id": user["user_data_id"],
-                "profile_name": user["profile_name"],  # Include profile_name
-                "topSongs": user["top_songs"],
-                "topArtists": user["top_artists"],
-                "topGenres": user["top_genres"],
-                "common_top_songs": common_top_songs,  # Include common songs
-                "common_top_artists": common_top_artists  # Include common artists
+                "profile_name": user["profile_name"],
+                "topSongs": user["top_songs"].split(", "),
+                "topArtists": user["top_artists"].split(", "),
+                "topGenres": user["top_genres"].split(", ")
             })
         
         # Include the reference user in the data sent to the LLM
         users_data.insert(0, {
             "user_data_id": reference_user["user_data_id"],
-            "profile_name": reference_user["profile_name"],  # Include profile_name
-            "topSongs": reference_user["top_songs"],
-            "topArtists": reference_user["top_artists"],
-            "topGenres": reference_user["top_genres"]
+            "profile_name": reference_user["profile_name"],
+            "profile_name": reference_user["profile_name"],
+             "topSongs": reference_user["top_songs"].split(", "),
+             "topArtists": reference_user["top_artists"].split(", "),
+             "topGenres": reference_user["top_genres"].split(", ")
         })
 
         print("Users Data Sent to LLM:", users_data)
@@ -145,46 +145,64 @@ def insert_response(reply, ref_user_data_id):
             print("Unable to connect to the database.")
             return
 
+        #Fetch user IDs for all matches in one query
+        user_data_ids = [match["user_data_id"] for match in matches_data]
+        user_data_ids.append(ref_user_data_id)  #Include reference user
+
+        response = conn.table("users").select("user_id", "user_data_id").in_("user_data_id", user_data_ids).execute()
+        user_id_map = {row["user_data_id"]: row["user_id"] for row in response.data}
+
+        ref_user_id = user_id_map.get(ref_user_data_id)
+        if not ref_user_id:
+            print("Reference user ID not found.")
+            return
+
+        #Fetch all existing matches in one query
+        match_ids = conn.table("matches").select("match_id", "user_1_id", "user_2_id").or_(
+            f"user_1_id.eq.{ref_user_id}, user_2_id.eq.{ref_user_id}"
+        ).execute()
+
+        existing_matches = {(row["user_1_id"], row["user_2_id"]): row["match_id"] for row in match_ids.data}
+
+        upsert_data = []
         for match in matches_data:
-            matched_user_id = get_user_id_by_user_data_id(match["user_data_id"])
-            ref_user_id = get_user_id_by_user_data_id(ref_user_data_id)
+            matched_user_id = user_id_map.get(match["user_data_id"])
+            if not matched_user_id:
+                continue  #Skip if no user ID found
+
             compatibility_score = match["compatibility_score"]
             reasoning = match["reasoning"]
 
-            match_id = str(uuid.uuid4())
+            #Check if a match already exists
+            existing_match_id = existing_matches.get((ref_user_id, matched_user_id)) or existing_matches.get((matched_user_id, ref_user_id))
 
-            # Check if a match already exists between these two users
-            existing_match = conn.table("matches").select("match_id").eq("user_1_id", ref_user_id).eq("user_2_id", matched_user_id).execute()
-
-            # If no match exists, insert the new match
-            if not existing_match.data:
-                data = {
-                    "match_id": match_id,
+            if existing_match_id: # Update existing match
+                upsert_data.append({
+                    "match_id": existing_match_id,
+                    "match_score": compatibility_score,
+                    "reasoning": reasoning
+                })
+            else: #Insert new match
+                upsert_data.append({
+                    "match_id": str(uuid.uuid4()),
                     "user_1_id": ref_user_id,
                     "user_2_id": matched_user_id,
                     "match_score": compatibility_score,
                     "status": "pending",
                     "reasoning": reasoning
-                }
+                })
 
-                # Insert into the table
-                response = conn.table("matches").upsert(data, on_conflict=["match_id"]).execute()
-
-                print(f"Response from upsert: {response}")  # Log full response object
-
-                if response.data:  # Check if data was returned
-                    print(f"Match inserted/updated for match_id {match_id}")
-                else:
-                    print(f"Failed to insert match for {matched_user_id} with match_id {match_id}.")
-                    return jsonify({"error": f"Failed to insert or update match for {match_id}."}), 500
-            else:
-                print(f"Match already exists between {ref_user_id} and {matched_user_id}, skipping insertion.")
+        if upsert_data:
+            #Perform batch upsert
+            response = conn.table("matches").upsert(upsert_data, on_conflict=["match_id"]).execute()
+            print(f"Upsert response: {response}")
 
     except Exception as err:
         print(f"Database error: {err}")
 
     except json.JSONDecodeError as err:
         print(f"JSON parsing error: {err}")
+
 
 def get_user_data_id_by_user_id(user_uuid):
     try:
