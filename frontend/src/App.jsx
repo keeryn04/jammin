@@ -13,6 +13,7 @@ import SignupContainer1 from './components/SignupPage/SignupContainer1';
 import SignupContainer2 from './components/SignupPage/SignupContainer2';
 import { SignupProvider } from './components/SignupPage/SignupContext';
 import Matches from './components/Matches/MainDashboard';
+import { UserProvider } from './components/UserContext';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -20,6 +21,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <UserProvider>
       <div>
         <Routes>
           {/*If logged in, go to homepage, else go to Landing page by default*/}
@@ -51,6 +53,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
+      </UserProvider>
     </BrowserRouter>
   )
 }
