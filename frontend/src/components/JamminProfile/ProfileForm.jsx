@@ -1,37 +1,49 @@
 import React, { useState, useEffect } from "react";
 
-const UserProfileForm = () => {
-  const userId = "2b77e1f5-fec0-11ef-85bd-0242ac120002"; // Hardcoded for testing
+const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/users/${userId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
+    const fetchUserData = async () => {
+      try {
+        // Step 1: Fetch all users
+        const usersResponse = await fetch("http://localhost:5001/api/users");
+        if (!usersResponse.ok) {
+          throw new Error("Failed to fetch users");
         }
-        return response.json();
-      })
-      .then((data) => {
+        const users = await usersResponse.json();
+
+        // Step 2: Find the user with the matching user_data_id
+        const activeUserData = users.find(
+          (user) => user.user_data_id === activeUser.user_data_id
+        );
+
+        if (!activeUserData) {
+          throw new Error("Active user not found in the users list");
+        }
+
+        // Step 3: Set form data
         setFormData({
-          username: data.username || "",
-          email: data.email || "",
+          username: activeUserData.username || "",
+          email: activeUserData.email || "",
           password_hash: "",
-          age: data.age || "",
-          bio: data.bio || "",
-          gender: data.gender || "",
-          school: data.school || "",
-          occupation: data.occupation || "",
-          looking_for: data.looking_for || "",
-          spotify_auth: data.spotify_auth || false,
+          age: activeUserData.age || "",
+          bio: activeUserData.bio || "",
+          gender: activeUserData.gender || "",
+          school: activeUserData.school || "",
+          occupation: activeUserData.occupation || "",
+          looking_for: activeUserData.looking_for || "",
+          spotify_auth: activeUserData.spotify_auth || false,
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Could not load user data.");
-      });
-  }, []);
+      }
+    };
+
+    fetchUserData();
+  }, [activeUser.user_data_id]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!formData) return <p className="text-white">Loading user data...</p>;
@@ -46,7 +58,7 @@ const UserProfileForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://localhost:5000/api/users/${userId}`, {
+    fetch(`http://localhost:5000/api/users/${activeUser.user_data_id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

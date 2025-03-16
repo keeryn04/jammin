@@ -34,34 +34,30 @@ def find_common_elements(list1, list2):
 @openai_routes.route("/api/chattesting/<ref_user_id>", methods=["GET"])
 def run_ChatQuery(ref_user_id):
     messages = [
-         {"role": "system", "content": 
-          """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
-          The first user in the list is the REFERENCE user. You will match them with ALL others (not self!) and EXCLUDE the user themselves from the output. You will identify 
-          common top songs and artists between the reference user and each other user, and prioritize top genres when giving a compatibility score. Be generous with scores.
-          The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every 
-          user you receive. Additionally, do not lie about commonalities, if a user has nothing in common with another, do not hallucinate a relationship, however do not miss 
-          commonalities either. Also try to use some modern, younger, natural tone in the reasoning.
-          Example input:
-          [
-          {'user_data_id':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
-          {'user_data_id':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
-          ]
-          Example output:
-          {
-            "matches": [
-              {
-                "user_data_id": "72",
-                "profile_name": "Thor",
-                "compatibility_score": 75,
-                "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each 
-                other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
-                "common_top_songs": ["SongB"],
-                "common_top_artists": ["ArtistB"]
-              }
-            ]
-          }
-          """}
-     ]
+        {"role": "system", "content": 
+         """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
+         The first user in the list is the REFERENCE user. You will match them with ALL others (not self!) and EXCLUDE the user themselves from the output. You will identify common top songs and artists between the reference user and each other user, and prioritize top genres when giving a compatibility score. Be generous with scores.
+         The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every user you receive.
+         Example input:
+         [
+         {'userid':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
+         {'userid':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
+         ]
+         Example output:
+         {
+           "matches": [
+             {
+               "userID": "72",
+               "profile_name": "Thor",
+               "compatibility_score": 75,
+               "reasoning": "You and *insert profile_name* share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
+               "common_top_songs": ["SongB"],
+               "common_top_artists": ["ArtistB"]
+             }
+           ]
+         }
+         """}
+    ]
 
     try:
         conn = get_db_connection()

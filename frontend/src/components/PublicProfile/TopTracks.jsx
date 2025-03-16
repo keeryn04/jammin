@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const SongItem = ({ image, name }) => {
   return (
@@ -11,29 +11,15 @@ const SongItem = ({ image, name }) => {
   );
 };
 
-export const TopTracks = () => {
-  const [songs, setSongs] = useState([]);
+export const TopTracks = ({ activeUser }) => {
+  const songNames = activeUser?.top_songs ? activeUser.top_songs.split(", ") : [];
+  const songImages = activeUser?.top_songs_pictures ? activeUser.top_songs_pictures.split(", ") : [];
 
-  useEffect(() => {
-    fetch("http://localhost:5001/api/user_data")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          const user = data[0]; // Assuming the first user for now
-          const songNames = user.top_songs ? user.top_songs.split(", ") : [];
-          const songImages = user.top_songs_pictures ? user.top_songs_pictures.split(", ") : [];
-
-          // Combine names and images into song objects
-          const songList = songNames.map((name, index) => ({
-            name,
-            image: songImages[index] || "https://via.placeholder.com/50", // Fallback image if missing
-          }));
-
-          setSongs(songList.slice(0, 5)); // Limit to top 5 songs
-        }
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+  // Combine names and images into song objects
+  const songs = songNames.map((name, index) => ({
+    name,
+    image: songImages[index] || "https://via.placeholder.com/50", // Fallback image if missing
+  }));
 
   return (
     <section className="flex flex-col gap-5">
@@ -41,7 +27,7 @@ export const TopTracks = () => {
         Top 5 Songs
       </h2>
       <div className="flex flex-col gap-5">
-        {songs.map((song, index) => (
+        {songs.slice(0, 5).map((song, index) => (
           <SongItem key={index} {...song} />
         ))}
       </div>
