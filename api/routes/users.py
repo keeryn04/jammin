@@ -157,24 +157,49 @@ def delete_user(user_id):
         return jsonify({"error": f"Database error: {err}"}), 500
     
 @user_routes.route("/api/users/by_user_data/<user_data_id>", methods=["GET"])
-def get_user_by_user_data(user_data_id):
+def get_user_id_by_user_data_id(user_data_uuid):
     try:
         conn = get_db_connection()
         if conn is None:
-            return jsonify({"error": "Unable to connect to the database"}), 500
+            print("Connection Error")
+            return None
 
-        cursor = conn.cursor(dictionary=True)
-        
-        # Fetch user_id from the users table using user_data_id
-        cursor.execute("SELECT * FROM users WHERE user_data_id = %s", (user_data_id,))
-        user = cursor.fetchone()
+        try:
+            user_data_uuid = uuid.UUID(user_data_uuid)
+        except ValueError:
+            print("ID Error")
+            return None  # Invalid format
 
-        cursor.close()
-        conn.close()
+        response = conn.table("users").select("user_id").eq('user_data_id', str(user_data_uuid)).execute()
 
-        if user:
-            return jsonify(user)
-        else:
-            return jsonify({"error": "User not found"}), 404
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
+        if not response.data:
+            print("No user found with the provided user_data_id")
+            return None  # No user found
+
+        return response.data[0]["user_id"]  # Return the user_id
+    except Exception as err:
+        return None
+    
+@user_routes.route("/api/user_data/by_user/<user_id>", methods=["GET"])
+def get_user_data_id_by_user_id(user_uuid):
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            print("Connection Error")
+            return None
+
+        try:
+            user_uuid = uuid.UUID(user_uuid)
+        except ValueError:
+            print("ID Error")
+            return None  # Invalid format
+
+        response = conn.table("users").select("user_data_id").eq('user_id', str(user_uuid)).execute()
+
+        if not response.data:
+            print("Connection Error")
+            return None  # No user found
+
+        return response.data[0]["user_data_id"]
+    except Exception as err:
+        return None
