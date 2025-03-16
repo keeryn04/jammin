@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Navbar from "../Dashboard/navbar";
+import Heading from "../Generic/Heading";
 
 
 const SettingsContainer = () => {
@@ -10,6 +11,7 @@ const SettingsContainer = () => {
         <img className="w-[115px] h-[115px] m-4 mb-25" src="/icons/FlattenedLogo.svg" />
         <Navbar />
       </div>
+      <Heading text="Settings"/>
     </main>
   );
 };
