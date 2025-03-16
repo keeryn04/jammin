@@ -58,14 +58,13 @@ def spotify_callback():
     new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
     response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
     response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
-    print(f"Response Made: {VERCEL_URL}/api/fetch_spotify_data")
     
     return response
 
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
     token = request.cookies.get("auth_token")
-
+    
     if not token:
         return jsonify({"error": "No authentication token found"}), 401
 

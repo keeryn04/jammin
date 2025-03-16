@@ -11,10 +11,6 @@ from api.routes.gpt import openai_routes
 import os
 from dotenv import load_dotenv
 
-from routes.gpt import openai_routes
-
-
-
 # Load environment variables
 load_dotenv()
 
