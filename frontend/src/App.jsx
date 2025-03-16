@@ -14,6 +14,7 @@ import SignupContainer2 from './components/SignupPage/SignupContainer2';
 import { SignupProvider } from './components/SignupPage/SignupContext';
 import Matches from './components/Matches/MainDashboard';
 import { UserProvider } from './components/UserContext';
+import SettingsContainer from './components/Settings page/SettingsContainer';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -46,7 +47,7 @@ function App() {
           <Route path="/PublicProfile" element={<PublicProfile />}/>
           <Route path="/JamminProfile" element={<JamminProfile />}/>
           <Route path="/Matches" element={<Matches />}/>
-
+          <Route path="/Settings" element={<SettingsContainer />}/>
 
           <Route path="/SpotifyProfile" element={<SpotifyProfile />}/>
 
