@@ -7,14 +7,16 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
   const {
     activeUser,
     displayedUsers,
+    setDisplayedUsers,
     currentDisplayedUser,
     setCurrentDisplayedUser,
-    currentIndex, // Destructure currentIndex
-    setCurrentIndex, // Destructure setCurrentIndex
-  } = useContext(UserContext); // Use the context
+    currentIndex,
+    setCurrentIndex,
+  } = useContext(UserContext);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
+  const [showHeart, setShowHeart] = useState(false); // State to control heart animation
   const seekBarRef = useRef(null);
 
   // Format time helper
@@ -64,7 +66,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       return nextIndex; // Return the new index
     });
   };
-  
+
   const handlePreviousUser = () => {
     setCurrentIndex((prevIndex) => {
       const allUsers = [...displayedUsers];
@@ -77,47 +79,70 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   const handlePlay = async () => {
     if (!activeUser || !currentDisplayedUser) return;
-  
+
     try {
-      // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
-      const activeUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${activeUser.user_data_id}`);
-      const currentDisplayedUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${currentDisplayedUser.user_data_id}`);
-      
-      const activeUserData = await activeUserResponse.json();
-      const currentDisplayedUserData = await currentDisplayedUserResponse.json();
-  
-      // Check if the user data was found
-      if (!activeUserData.user_id || !currentDisplayedUserData.user_id) {
-        console.error('User data not found!');
+      // Fetch all matches from the backend
+      const matchesResponse = await fetch("http://localhost:5001/api/matches");
+      const matchesData = await matchesResponse.json();
+
+      // Find the match where user_1_id matches activeUser.user_data_id and user_2_id matches currentDisplayedUser.user_data_id
+      const match = matchesData.find(
+        (match) =>
+          match.user_1_id === activeUser.user_data_id &&
+          match.user_2_id === currentDisplayedUser.user_data_id
+      );
+
+      // If no match is found, log an error and return
+      if (!match) {
+        console.error("Match not found!");
         return;
       }
-  
-      // Create match data with user_id instead of user_data_id
-      const matchData = {
-        user_1_id: activeUserData.user_id,
-        user_2_id: currentDisplayedUserData.user_id,
-        match_score: 0, // Set initial score (can be modified later)
-        status: "pending", // Set match status
-      };
-  
-      // Create match request to backend
-      const response = await fetch("http://localhost:5000/api/matches", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(matchData),
-      });
-  
+
+      // Update the match status to 'accepted'
+      const updateResponse = await fetch(
+        `http://localhost:5001/api/matches/${match.match_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_1_id: match.user_1_id,
+            user_2_id: match.user_2_id,
+            match_score: match.match_score, // Keep the existing score
+            status: "accepted", // Update the status to 'accepted'
+          }),
+        }
+      );
+
       // Handle response from the backend
-      const responseData = await response.json();
-      console.log(responseData);
+      const updateData = await updateResponse.json();
+      console.log(updateData);
+
+      // Trigger the heart animation
+      setShowHeart(true);
+
+      // Remove the current user from the displayedUsers list
+      setDisplayedUsers((prevUsers) =>
+        prevUsers.filter((user) => user.user_data_id !== currentDisplayedUser.user_data_id)
+      );
+
+      // Navigate to the next user
+      setCurrentIndex((prevIndex) => {
+        const allUsers = [...displayedUsers];
+        let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
+        setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+        return nextIndex; // Return the new index
+      });
+
+      // Hide the heart after the animation completes
+      setTimeout(() => {
+        setShowHeart(false);
+      }, 1000); // Adjust the timeout to match the animation duration
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
-  
 
   // Add event listeners for dragging
   useEffect(() => {
@@ -137,6 +162,13 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   return (
     <section className="mt-10 text-center" style={style}>
+      {/* Heart Animation */}
+      {showHeart && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="heart-animation">😍</div>
+        </div>
+      )}
+
       <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
       <p className="mb-4 text-base text-zinc-400">
         {currentDisplayedUser?.profile_name || "Person's Name"}

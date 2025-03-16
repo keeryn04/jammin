@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "df3d8dca-01e8-11f0-9689-0242ac120002"; // Replace with your desired user_data_id
+  const activeUserId = "06763178-0299-11f0-aac6-0242ac120002"; // Replace with your desired user_data_id
 
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
@@ -41,39 +41,107 @@ export const UserProvider = ({ children }) => {
           return;
         }
 
-        // Fetch compatibility matches for the active user
+        // Fetch ALL matches from the matches endpoint
         const matchesResponse = await fetch(
-          `http://localhost:5001/chattesting/${activeUserData.user_data_id}`,
+          `http://localhost:5001/api/matches`,
           { signal: abortController.signal } // Pass the abort signal
         );
         const matchesData = await matchesResponse.json();
-        console.log("Matches Data:", matchesData); // Log matches data
+        console.log("All Matches Data:", matchesData); // Log all matches data
 
-        if (matchesData.matches) {
-          // Store compatibility data
-          setDisplayedUsersChat(matchesData.matches);
+        // Filter out the active user from the list of all users
+        const otherUsers = allUsersData.filter(
+          (user) => user.user_data_id !== activeUserId
+        );
+        console.log("Other Users:", otherUsers); // Log other users
 
-          // Extract user IDs from the matches
-          const userIds = matchesData.matches.map((match) => match.userID);
-          console.log("User IDs from Matches:", userIds); // Log user IDs from matches
+        // Call the LLM to generate compatibility data
+        const llmResponse = await fetch(
+          `http://localhost:5001/chattesting/${activeUserId}`,
+          { signal: abortController.signal } // Pass the abort signal
+        );
+        const llmData = await llmResponse.json();
+        console.log("LLM Response:", llmData); // Log the LLM response
 
-          // Find additional profile data for each matched user from the allUsersData
-          const profiles = userIds.map((userId) =>
-            allUsersData.find((user) => user.user_data_id === userId)
-          );
-          console.log("Profiles Data:", profiles); // Log profiles data
-          setDisplayedUserProfile(profiles);
+        // Prepare the list of users to display
+        const usersToDisplay = [];
+        const compatibilityData = [];
 
-          // Set displayedUsers to the profiles
-          setDisplayedUsers(profiles);
-          console.log("Displayed Users Set:", profiles); // Log displayed users
+        if (llmData.matches) {
+          for (const match of llmData.matches) {
+            const user_id = match.userID;
+            const compatibility_score = match.compatibility_score;
+            const reasoning = match.reasoning;
 
-          // Set the first profile as the initial displayed user
-          setCurrentDisplayedUser(profiles[0]);
-          console.log("Current Displayed User Set:", profiles[0]); // Log current displayed user
+            // Find the user in the otherUsers list
+            const user = otherUsers.find((u) => u.user_data_id === user_id);
+
+            if (user) {
+              // Add the user to the display list
+              usersToDisplay.push(user);
+              compatibilityData.push({
+                userID: user_id,
+                compatibility_score,
+                reasoning,
+              });
+
+              // Check if a match exists for this user
+              const existingMatch = matchesData.find(
+                (m) =>
+                  m.user_1_id === activeUserId &&
+                  m.user_2_id === user_id &&
+                  m.status === "pending"
+              );
+
+              if (existingMatch) {
+                // Update the match with LLM data
+                await fetch(
+                  `http://localhost:5001/api/matches/${existingMatch.match_id}`,
+                  {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      user_1_id: existingMatch.user_1_id,
+                      user_2_id: existingMatch.user_2_id,
+                      match_score: compatibility_score,
+                      reasoning: reasoning,
+                      status: "pending", // Keep status as pending
+                    }),
+                    signal: abortController.signal,
+                  }
+                );
+                console.log("Updated match:", existingMatch.match_id);
+              } else {
+                // Create a new match with LLM data
+                await fetch(`http://localhost:5001/api/matches`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    user_1_id: activeUserId,
+                    user_2_id: user_id,
+                    match_score: compatibility_score,
+                    reasoning: reasoning,
+                    status: "pending",
+                  }),
+                  signal: abortController.signal,
+                });
+                console.log("Created new match for user:", user_id);
+              }
+            }
+          }
+        }
+
+        // Set the displayed users and compatibility data
+        setDisplayedUsers(usersToDisplay);
+        setDisplayedUsersChat(compatibilityData);
+        setDisplayedUserProfile(usersToDisplay);
+
+        // Set the first profile as the initial displayed user
+        if (usersToDisplay.length > 0) {
+          setCurrentDisplayedUser(usersToDisplay[0]);
           setCurrentIndex(0);
         } else {
-          console.error("No matches found in the response.");
+          console.error("No users to display.");
         }
       } catch (error) {
         if (error.name !== "AbortError") {
@@ -96,7 +164,7 @@ export const UserProvider = ({ children }) => {
         activeUser,
         displayedUsers,
         displayedUsersChat, // Provide compatibility data
-        displayedUserProfile, // Provide additional profile data
+        displayedUserProfile, // Provide additional user profile data
         currentDisplayedUser,
         setCurrentDisplayedUser,
         currentIndex,

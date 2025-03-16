@@ -81,16 +81,28 @@ def run_ChatQuery(ref_user_id):
         if not rows:
             return jsonify({"error": "No other users found for comparison"}), 404
 
+        # Fetch ALL matches from the matches table
+        cursor.execute("SELECT * FROM matches")
+        matches_data = cursor.fetchall()
+
         # Prepare the data for the LLM
         users_data = []
         for row in rows:
-            users_data.append({
-                "userid": row["user_data_id"],
-                "profile_name": row["profile_name"],
-                "topSongs": row["top_songs"].split(", "),  # Pass raw data
-                "topArtists": row["top_artists"].split(", "),  # Pass raw data
-                "topGenres": row["top_genres"].split(", ")  # Pass raw data
-            })
+            # Check if a match exists for this user
+            existing_match = next(
+                (match for match in matches_data if match["user_1_id"] == ref_user_id and match["user_2_id"] == row["user_data_id"]),
+                None
+            )
+
+            # Only include users with 'pending' status or no match
+            if not existing_match or existing_match["status"] == "pending":
+                users_data.append({
+                    "userid": row["user_data_id"],
+                    "profile_name": row["profile_name"],
+                    "topSongs": row["top_songs"].split(", "),  # Pass raw data
+                    "topArtists": row["top_artists"].split(", "),  # Pass raw data
+                    "topGenres": row["top_genres"].split(", ")  # Pass raw data
+                })
 
         # Include the reference user in the data sent to the LLM
         users_data.insert(0, {
@@ -114,13 +126,21 @@ def run_ChatQuery(ref_user_id):
         )
 
         reply = chat.choices[0].message.content
-        print("LLM Response:", reply)  # Log the LLM's response
+        print("LLM Raw Response:", reply)  # Log the raw LLM response
 
-        insert_response(reply, ref_user_id)
+        # Parse the LLM's response
+        try:
+            parsed_reply = json.loads(reply)
+            print("Parsed LLM Response:", parsed_reply)  # Log the parsed LLM response
+        except json.JSONDecodeError as err:
+            print("Failed to parse LLM response as JSON:", err)
+            return jsonify({"error": "LLM response is not valid JSON"}), 500
+
+        insert_response(parsed_reply, ref_user_id)
 
         cursor.close()
         conn.close()
-        return jsonify(json.loads(reply))
+        return jsonify(parsed_reply)
 
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
@@ -131,8 +151,8 @@ def run_ChatQuery(ref_user_id):
 
 def insert_response(reply, ref_user_id):
     try:
-        print("LLM Response:", reply)  # Log the LLM's response
-        matches_data = json.loads(reply).get("matches", [])
+        print("LLM Response (insert_response):", reply)  # Log the LLM's response
+        matches_data = reply.get("matches", [])
         print(f"Number of matches returned by LLM: {len(matches_data)}")  # Log the number of matches
 
         if not matches_data:
@@ -153,6 +173,9 @@ def insert_response(reply, ref_user_id):
             compatibility_score = match.get("compatibility_score")
             reasoning = match.get("reasoning")
 
+            # Log the extracted data for debugging
+            print(f"Extracted Match Data - userID: {user_id}, compatibility_score: {compatibility_score}, reasoning: {reasoning}")
+
             # Validate data
             if not all([user_id, compatibility_score, reasoning]):
                 print(f"Skipping invalid match data: {match}")
@@ -163,12 +186,26 @@ def insert_response(reply, ref_user_id):
             print(f"Inserting match: user_1_id={ref_user_id}, user_2_id={user_id}, match_score={compatibility_score}, reasoning={reasoning}")
 
             try:
+                # Check if the match already exists and has a status of 'accepted'
+                cursor.execute("""
+                    SELECT status 
+                    FROM matches 
+                    WHERE user_1_id = %s AND user_2_id = %s
+                """, (ref_user_id, user_id))
+                existing_match = cursor.fetchone()
+
+                if existing_match and existing_match["status"] == 'accepted':
+                    print(f"Skipping update for match {user_id} because it is already 'accepted'.")
+                    skipped_count += 1
+                    continue
+
+                # Insert or update the match
                 cursor.execute("""
                     INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, reasoning, status)
                     VALUES (UUID(), %s, %s, %s, %s, 'pending')
                     ON DUPLICATE KEY UPDATE 
                     match_score = VALUES(match_score), 
-                    status = 'pending', 
+                    status = VALUES(status), 
                     reasoning = VALUES(reasoning);
                 """, (ref_user_id, user_id, compatibility_score, reasoning))
                 inserted_count += 1
