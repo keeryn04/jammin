@@ -14,7 +14,6 @@ API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 client = openai.OpenAI(api_key=openai.api_key)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
-
 openai_routes = Blueprint("openai_routes", __name__)
 
 def require_api_key(f):

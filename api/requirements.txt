@@ -8,4 +8,5 @@ flask-session
 supabase
 pyjwt
 datetime
+uuid
 openai

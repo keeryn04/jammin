@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import GenreCard from "./GenreCard";
 
-const genres = ["Pop", "Indie", "Hip Hop", "Rap", "Country", "Metal"];
-
 const GenreSection = () => {
+  const [genres, setGenres] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5001/api/user_data")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length > 0) {
+          const user = data[0]; // Assuming the first user for now
+          const topGenres = user.top_genres ? user.top_genres.split(", ") : [];
+          setGenres(topGenres);
+        }
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
   return (
     <section className="px-0 py-4 w-[400px] max-md:w-full">
       <h2 className="mb-12 text-base leading-6 text-center text-white">
