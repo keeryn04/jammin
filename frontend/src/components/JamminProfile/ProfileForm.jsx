@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const usersLink = `${VERCEL_URL}/api/users`;
+const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
+
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
@@ -8,7 +12,7 @@ const UserProfileForm = ({ activeUser }) => {
     const fetchUserData = async () => {
       try {
         // Step 1: Fetch all users
-        const usersResponse = await fetch("http://localhost:5001/api/users");
+        const usersResponse = await fetch(usersLink);
         if (!usersResponse.ok) {
           throw new Error("Failed to fetch users");
         }
@@ -56,26 +60,45 @@ const UserProfileForm = ({ activeUser }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch(`http://localhost:5000/api/users/${activeUser.user_data_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to update profile");
-        }
-        return response.json();
+    try {
+      const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
+      
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error fetching user data:', response.status, errorText);
+          return; // Exit the function early if the fetch fails
+      }
+  
+      // Parse the JSON response
+      const data = await response.json();
+      console.log('User data:', data);
+  
+      const userId = data.user_id;
+      console.log('User ID:', userId);
+  
+      fetch(`${usersLink}/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-      .then(() => alert("Profile updated successfully!"))
-      .catch((error) => {
-        console.error("Error updating profile:", error);
-        alert("Error updating profile. Please try again.");
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to update profile");
+          }
+          return response.json();
+        })
+        .then(() => alert("Profile updated successfully!"))
+        .catch((error) => {
+          console.error("Error updating profile:", error);
+          alert("Error updating profile. Please try again.");
+        });
+    } catch (error) {
+      console.error('Network or unexpected error:', error);
+    }
   };
 
   return (

@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../UserContext"; // Adjust the import path as necessary
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
+
 const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) => {
   const { allUsersData } = useContext(UserContext);
   const [matchedUser, setMatchedUser] = useState(null);
@@ -12,9 +15,7 @@ const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) 
     const fetchUserData = async () => {
       try {
         // Fetch user info from the users table using user_data_id
-        const userResponse = await fetch(
-          `http://localhost:5001/api/users/by_user_data/${user_2_id}`
-        );
+        const userResponse = await fetch(`${userIdLink}/${user_2_id}`);
         if (!userResponse.ok) {
           throw new Error("Failed to fetch user info");
         }

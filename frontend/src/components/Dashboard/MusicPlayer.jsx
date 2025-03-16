@@ -3,6 +3,10 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
+const matchesLink = `${VERCEL_URL}/api/matches`;
+
 export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
   const {
     activeUser,
@@ -60,7 +64,6 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       const allUsers = [...displayedUsers];
       let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
       setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
-      console.log(activeUser);
       return nextIndex; // Return the new index
     });
   };
@@ -70,7 +73,6 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       const allUsers = [...displayedUsers];
       let previousIndex = (prevIndex - 1 + allUsers.length) % allUsers.length; // Calculate previous index
       setCurrentDisplayedUser(allUsers[previousIndex]); // Update currentDisplayedUser
-      console.log(activeUser);
       return previousIndex; // Return the new index
     });
   };
@@ -80,8 +82,8 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
   
     try {
       // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
-      const activeUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${activeUser.user_data_id}`);
-      const currentDisplayedUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${currentDisplayedUser.user_data_id}`);
+      const activeUserResponse = await fetch(`${userIdLink}/${activeUser.user_data_id}`);
+      const currentDisplayedUserResponse = await fetch(`${userIdLink}/${currentDisplayedUser.user_data_id}`);
       
       const activeUserData = await activeUserResponse.json();
       const currentDisplayedUserData = await currentDisplayedUserResponse.json();
@@ -101,7 +103,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       };
   
       // Create match request to backend
-      const response = await fetch("http://localhost:5000/api/matches", {
+      const response = await fetch(`${matchesLink}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

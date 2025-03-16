@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, make_response, request, session
 from flask_cors import CORS
-from api.jwt import generate_jwt, decode_jwt
+from api.jwt import generate_jwt
 from api.routes.spotify import spotify_routes
 from api.routes.users import user_routes
 from api.routes.user_settings import user_setting_routes
@@ -8,6 +8,8 @@ from api.routes.swipes import swipes_routes
 from api.routes.matches import matches_routes 
 from api.routes.user_data import user_data_routes
 from api.routes.gpt import openai_routes
+from api.jwt import jwt_routes
+from api.routes.users import get_user_data_id_by_user_id
 import os
 from dotenv import load_dotenv
 
@@ -31,6 +33,7 @@ app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
 app.register_blueprint(openai_routes)
+app.register_blueprint(jwt_routes)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
@@ -59,7 +62,8 @@ def login_user():
     if not user_id:
         return jsonify({"error": "Missing user_id"}), 400
     
-    jwt_token = generate_jwt(user_id)
+    user_data_id = get_user_data_id_by_user_id(user_id)
+    jwt_token = generate_jwt(user_id, user_data_id)
 
     # Set the JWT token in an HTTP-only cookie, allows access of user_id elsewhere in program
     response = make_response(jsonify({"message": "Login successful", "user_id": user_id}))

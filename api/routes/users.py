@@ -89,7 +89,8 @@ def add_user():
             "bio": data.get("bio", None)
         }).execute()
 
-        jwt_token = generate_jwt(user_uuid) #Store current user_id as cookie (Register)
+        user_data_id = get_user_data_id_by_user_id(user_uuid)
+        jwt_token = generate_jwt(user_uuid,user_data_id) #Store current user_id and user_data_id as cookie (Register)
         response = make_response(jsonify({"message": "Register successful", "user_id": user_uuid}))
         response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
     
@@ -157,31 +158,28 @@ def delete_user(user_id):
         return jsonify({"error": f"Database error: {err}"}), 500
     
 @user_routes.route("/api/users/by_user_data/<user_data_id>", methods=["GET"])
-def get_user_id_by_user_data_id(user_data_uuid):
+def get_user_id_by_user_data_id(user_data_id):
     try:
         conn = get_db_connection()
         if conn is None:
-            print("Connection Error")
-            return None
+            return jsonify({"error": "Connection Error"}), 500
 
         try:
-            user_data_uuid = uuid.UUID(user_data_uuid)
+            user_data_uuid = uuid.UUID(user_data_id)
         except ValueError:
-            print("ID Error")
-            return None  # Invalid format
+            return jsonify({"error": "ID Error"}), 400  # Invalid format
 
         response = conn.table("users").select("user_id").eq('user_data_id', str(user_data_uuid)).execute()
 
         if not response.data:
-            print("No user found with the provided user_data_id")
-            return None  # No user found
+            return jsonify({"error": "No user found with the provided user_data_id"}), 404
 
-        return response.data[0]["user_id"]  # Return the user_id
+        return jsonify({"user_id": response.data[0]["user_id"]})
     except Exception as err:
-        return None
+        return jsonify({"error": str(err)}), 500
     
 @user_routes.route("/api/user_data/by_user/<user_id>", methods=["GET"])
-def get_user_data_id_by_user_id(user_uuid):
+def get_user_data_id_by_user_id(user_id):
     try:
         conn = get_db_connection()
         if conn is None:
@@ -189,7 +187,7 @@ def get_user_data_id_by_user_id(user_uuid):
             return None
 
         try:
-            user_uuid = uuid.UUID(user_uuid)
+            user_uuid = uuid.UUID(user_id)
         except ValueError:
             print("ID Error")
             return None  # Invalid format

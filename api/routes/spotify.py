@@ -64,7 +64,7 @@ def spotify_callback():
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
     token = request.cookies.get("auth_token")
-    
+
     if not token:
         return jsonify({"error": "No authentication token found"}), 401
 
@@ -155,7 +155,7 @@ def fetch_spotify_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return redirect(f"{VERCEL_URL}/MatchingPageDesktop", code=302) #Return back to homepage after saving spotify data
+        return redirect(f"{VERCEL_URL}/Matching", code=302) #Return back to homepage after saving spotify data
 
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

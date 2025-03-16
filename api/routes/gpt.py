@@ -9,7 +9,6 @@ import json
 
 load_dotenv()
 from api.database_connector import get_db_connection
-from api.routes.users import get_user_data_id_by_user_id
 
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -31,8 +30,8 @@ def find_common_elements(list1, list2):
      set2 = set(list2)
      return list(set1.intersection(set2))
 
-@openai_routes.route("/api/chattesting/<ref_user_id>", methods=["GET"])
-def run_ChatQuery(ref_user_id):
+@openai_routes.route("/api/chattesting/<ref_user_data_id>", methods=["GET"])
+def run_ChatQuery(ref_user_data_id):
     messages = [
         {"role": "system", "content": 
          """You are a matchmaking compatibility score generator for music preferences. You will be given a list of users, each with their favorite songs, artists, and genres. 
@@ -40,14 +39,14 @@ def run_ChatQuery(ref_user_id):
          The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every user you receive.
          Example input:
          [
-         {'userid':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
-         {'userid':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
+         {'user_data_id':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
+         {'user_data_id':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
          ]
          Example output:
          {
            "matches": [
              {
-               "userID": "72",
+               "user_data_id": "72",
                "profile_name": "Thor",
                "compatibility_score": 75,
                "reasoning": "You and *insert profile_name* share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
@@ -65,7 +64,6 @@ def run_ChatQuery(ref_user_id):
             return jsonify({"error": "Unable to connect to the database"}), 500
 
         # Grab first user as reference user
-        ref_user_data_id = get_user_data_id_by_user_id(ref_user_id)
         response = conn.table("users_music_data").select("*").eq("user_data_id", ref_user_data_id).execute()
 
         if not response.data:

@@ -1,9 +1,7 @@
 import uuid
 from flask import Blueprint, Flask, jsonify, request, session
-from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
-import mysql.connector
 import os
 from dotenv import load_dotenv
 
@@ -25,6 +23,7 @@ def get_users_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
         
+        print(response.data)
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

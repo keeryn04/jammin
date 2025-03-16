@@ -5,35 +5,41 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [activeUser, setActiveUser] = useState(null);
   const [displayedUsers, setDisplayedUsers] = useState([]);
-  const [displayedUsersChat, setDisplayedUsersChat] = useState([]); // For compatibility data
-  const [displayedUserProfile, setDisplayedUserProfile] = useState([]); // For additional user profile data
+  const [displayedUsersChat, setDisplayedUsersChat] = useState([]); 
+  const [displayedUserProfile, setDisplayedUserProfile] = useState([]); 
   const [currentDisplayedUser, setCurrentDisplayedUser] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
+  const [allUsersData, setAllUsersData] = useState([]);  // State to store all user data from users_music_data
 
-  // Specify the user_data_id of the active user manually
-  const activeUserId = "df3d8dca-01e8-11f0-9689-0242ac120002"; // Replace with your desired user_data_id
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+  const userDataLink = `${VERCEL_URL}/api/user_data`;
+  const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
 
-  // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
-    const abortController = new AbortController(); // Create an AbortController
-
-    const fetchAllUsersData = async () => {
+  const fetchData = async () => {
       try {
-        // Fetch all users from the users_music_data endpoint
-        const allUsersDataResponse = await fetch(
-          `http://localhost:5001/api/user_data`,
-          { signal: abortController.signal } // Pass the abort signal
-        );
+        // Fetch the active user ID
+        const res = await fetch(cookieFetchLink, { credentials: "include" });
+        const data = await res.json();
+        const userDataId = data.user.user_data_id
+        console.log(data)
+        
+        if (!userDataId) {
+          console.error("No active user data_id found");
+          return;
+        }
+
+        // Fetch all user data from users_music_data
+        const allUsersDataResponse = await fetch(userDataLink);
         const allUsersData = await allUsersDataResponse.json();
-        console.log("All Users Data (from users_music_data):", allUsersData); // Log all users data
+        console.log("All Users Data:", allUsersData);
         setAllUsersData(allUsersData);
 
-        // Find the active user from the fetched data
+        // Find the active user from all users data
         const activeUserData = allUsersData.find(
-          (user) => user.user_data_id === activeUserId
+          (user) => user.user_data_id === userDataId
         );
-        console.log("Active User Data:", activeUserData); // Log active user data
+        console.log("Active User Data:", activeUserData);
         setActiveUser(activeUserData);
 
         if (!activeUserData) {
@@ -43,52 +49,37 @@ export const UserProvider = ({ children }) => {
 
         // Fetch compatibility matches for the active user
         const matchesResponse = await fetch(
-          `http://localhost:5001/chattesting/${activeUserData.user_data_id}`,
-          { signal: abortController.signal } // Pass the abort signal
+          `${VERCEL_URL}/api/chattesting/${activeUserData.user_data_id}`
         );
         const matchesData = await matchesResponse.json();
-        console.log("Matches Data:", matchesData); // Log matches data
+        console.log("Matches Data:", matchesData);
 
         if (matchesData.matches) {
-          // Store compatibility data
           setDisplayedUsersChat(matchesData.matches);
 
           // Extract user IDs from the matches
-          const userIds = matchesData.matches.map((match) => match.userID);
-          console.log("User IDs from Matches:", userIds); // Log user IDs from matches
+          const userDataIDs = matchesData.matches.map((match) => match.user_data_id);
+          console.log("User IDs from Matches:", userDataIDs);
 
-          // Find additional profile data for each matched user from the allUsersData
-          const profiles = userIds.map((userId) =>
-            allUsersData.find((user) => user.user_data_id === userId)
+          // Find additional profile data for each matched user
+          const profiles = userDataIDs.map((userDataId) =>
+            allUsersData.find((user) => user.user_data_id === userDataId)
           );
-          console.log("Profiles Data:", profiles); // Log profiles data
+          console.log("Profiles Data:", profiles);
           setDisplayedUserProfile(profiles);
-
-          // Set displayedUsers to the profiles
           setDisplayedUsers(profiles);
-          console.log("Displayed Users Set:", profiles); // Log displayed users
-
-          // Set the first profile as the initial displayed user
           setCurrentDisplayedUser(profiles[0]);
-          console.log("Current Displayed User Set:", profiles[0]); // Log current displayed user
           setCurrentIndex(0);
         } else {
           console.error("No matches found in the response.");
         }
       } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Error fetching data:", error);
-        }
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchAllUsersData();
-
-    // Cleanup function to abort the fetch request
-    return () => {
-      abortController.abort();
-    };
-  }, [activeUserId]); // Re-run effect when activeUserId changes
+    fetchData();
+  }, []); // Re-run effect when activeUserId changes
 
   return (
     <UserContext.Provider
