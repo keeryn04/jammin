@@ -25,6 +25,7 @@ export default function MusicPlayer({
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
+  const [userBio, setUserBio] = useState(""); // State to store the user's bio
   const seekBarRef = useRef(null);
 
   // Array of emojis to choose from
@@ -42,6 +43,29 @@ export default function MusicPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Fetch user bio when currentDisplayedUser changes
+  useEffect(() => {
+    const fetchUserBio = async () => {
+      if (!currentDisplayedUser) return;
+
+      try {
+        const response = await fetch(
+          `http://localhost:5001/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData = await response.json();
+        setUserBio(userData.bio || ""); // Set the user's bio
+      } catch (error) {
+        console.error("Error fetching user bio:", error);
+        setUserBio(""); // Reset bio on error
+      }
+    };
+
+    fetchUserBio();
+  }, [currentDisplayedUser]);
 
   // Handle seek bar interaction (click)
   const handleSeek = (e) => {
@@ -230,7 +254,7 @@ export default function MusicPlayer({
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-center" style={style}>
+    <section className="mt-10 text-left" style={style}>
       {/* Emoji Animation */}
       {showHeart && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -238,9 +262,10 @@ export default function MusicPlayer({
         </div>
       )}
 
-      <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
+      {/* Display the user's bio */}
+      <h2 className="text-2xl font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
       <p className="mb-4 text-base text-zinc-400">
-        {currentDisplayedUser?.profile_name || "Person's Name"}
+        {userBio || "A Display Caption?"}
       </p>
       <div className="mx-auto mt-0 mb-5 w-full">
         {/* Seek bar */}
