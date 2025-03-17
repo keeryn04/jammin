@@ -7,7 +7,7 @@ const Heading = ({text}) => {
     return (
       <h1 className="   mb-5 text-4xl 
                         font-bold text-center 
-                        text-white sm:max-w-[866px] 
+                        text-white sm:w-[866px] 
                       
                         sm:mb-10 
                         sm:text-6xl">

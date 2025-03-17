@@ -84,7 +84,14 @@ const SignupContainer2 = () => {
   }
 
   return (
-    <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
+    <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800
+      overflow-y-auto [&::-webkit-scrollbar]:w-2
+      [&::-webkit-scrollbar-track]:rounded-full
+      [&::-webkit-scrollbar-track]:bg-gray-100
+      [&::-webkit-scrollbar-thumb]:rounded-full
+      [&::-webkit-scrollbar-thumb]:bg-gray-300
+      dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+      dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       <Logo />
 
       <Heading text="Just a bit more"/>
@@ -115,7 +122,7 @@ const SignupContainer2 = () => {
           </p>
         )}
 
-        <div className="flex gap-10 justify-center max-sm:flex-col max-sm:gap-4 max-sm:items-center">
+        <div className="flex mt-3 justify-center gap-4 items-center">
           <ActionButton variant="secondary" onClick={handleBack}>
             Back
           </ActionButton>
