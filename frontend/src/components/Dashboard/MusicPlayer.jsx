@@ -7,10 +7,6 @@ const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
 const matchesLink = `${VERCEL_URL}/api/matches`;
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
-const matchesLink = `${VERCEL_URL}/api/matches`;
-
 export default function MusicPlayer({
   currentTime,
   totalDuration,
