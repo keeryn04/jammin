@@ -31,7 +31,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="flex flex-row items-center bg-neutral-800 w-full h-full
+    <nav className="flex flex-row items-center bg-neutral-900 w-full h-full
                     sm:flex-col sm:w-[80%] sm:rounded-full sm:h-5/7 sm:m-4">
       <div className="flex flex-row sm:flex-col h-full justify-betweem items-center">
         <NavItem icon={"/icons/MatchesIcon.png"} clickFunction={handleMatchesClick} />
