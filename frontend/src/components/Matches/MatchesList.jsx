@@ -31,7 +31,7 @@ const MatchesList = () => {
         // Filter matches where user_1_id matches the active user's ID and status is "pending"
         const filteredMatches = matches.filter(
           (match) =>
-            match.user_1_id === activeUser.user_data_id && match.status === "pending"
+            match.user_1_id === activeUser.user_data_id && match.status === "accepted"
         );
 
         // Debug: Log the filtered matches
@@ -57,23 +57,23 @@ const MatchesList = () => {
   }
 
   return (
-    <section className="flex-1 p-8 max-sm:p-4 overflow-y-auto max-h-[800px] p-4 [&::-webkit-scrollbar]:w-2
+    <section className="flex-1 p-8 max-sm:p-4">
+      <h1 className="mb-10 text-4xl font-bold text-white max-sm:mb-5 max-sm:text-3xl">
+        Your Matches
+      </h1>
+      <div className="flex flex-col gap-4 overflow-y-auto max-h-[600px] p-4 [&::-webkit-scrollbar]:w-2
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-thumb]:rounded-full
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
   dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-      <h1 className="mb-10 text-4xl font-bold text-white max-sm:mb-5 max-sm:text-3xl">
-        Your Matches
-      </h1>
-      <div className="flex flex-col gap-4">
         {acceptedMatches.length > 0 ? (
           acceptedMatches.map((match) => (
             <MatchCard key={match.match_id} {...match} />
           ))
         ) : (
-          <p className="text-white">No pending matches found.</p>
+          <p className="text-white">Nobody is Jammin' with you quite yet...</p>
         )}
       </div>
     </section>

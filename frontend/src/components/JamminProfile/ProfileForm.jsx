@@ -31,7 +31,7 @@ const UserProfileForm = ({ activeUser }) => {
         setFormData({
           username: activeUserData.username || "",
           email: activeUserData.email || "",
-          password_hash: "",
+          password_hash: activeUserData.password_hash || "",
           age: activeUserData.age || "",
           bio: activeUserData.bio || "",
           gender: activeUserData.gender || "",
@@ -62,49 +62,69 @@ const UserProfileForm = ({ activeUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      // Fetch the user ID based on user_data_id
       const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
-      
+
       if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error fetching user data:', response.status, errorText);
-          return; // Exit the function early if the fetch fails
+        const errorText = await response.text();
+        console.error('Error fetching user data:', response.status, errorText);
+        return; // Exit the function early if the fetch fails
       }
-  
+
       // Parse the JSON response
       const data = await response.json();
       console.log('User data:', data);
-  
+
       const userId = data.user_id;
       console.log('User ID:', userId);
-  
-      fetch(`${usersLink}/${userId}`, {
+
+      // Filter out empty fields from formData
+      const updatedData = Object.keys(formData).reduce((acc, key) => {
+        if (key === "password_hash") {
+          // Only include password_hash if it's not empty
+          if (formData[key] !== "") {
+            acc[key] = formData[key];
+          } else {
+            // Explicitly set password_hash to null if it's empty
+            acc[key] = null;
+          }
+        } else {
+          // Include other fields if they are not empty
+          if (formData[key] !== "" && formData[key] !== null && formData[key] !== undefined) {
+            acc[key] = formData[key];
+          }
+        }
+        return acc;
+      }, {});
+
+      console.log('Updated Data:', updatedData);
+
+      // Send the PUT request with only non-empty fields
+      const updateResponse = await fetch(`${usersLink}/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to update profile");
-          }
-          return response.json();
-        })
-        .then(() => alert("Profile updated successfully!"))
-        .catch((error) => {
-          console.error("Error updating profile:", error);
-          alert("Error updating profile. Please try again.");
-        });
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Failed to update profile");
+      }
+
+      alert("Profile updated successfully!");
     } catch (error) {
-      console.error('Network or unexpected error:', error);
+      console.error("Error updating profile:", error);
+      alert("Error updating profile. Please try again.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-lg shadow-md">
       <label className="text-white">
-        Username:
+        Full Name:
         <input
           type="text"
           name="username"
@@ -130,7 +150,7 @@ const UserProfileForm = ({ activeUser }) => {
         <input
           type="password"
           name="password_hash"
-          placeholder="Enter new password"
+          placeholder="Enter new password (leave empty to not change)"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />

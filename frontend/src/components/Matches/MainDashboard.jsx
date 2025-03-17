@@ -5,10 +5,19 @@ import MatchesList from "./MatchesList";
 
 const MainDashboard = () => {
   return (
-    <main className="flex w-full bg-neutral-800 min-h-[screen] ">
-      <Sidebar />
-      <MatchesList />
-    </main>
+    <div className="fixed inset-0 flex flex-col text-white bg-neutral-800 overflow-hidden">
+      {/* Full-height container */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="flex-shrink-0">
+          <Sidebar />
+        </div>
+        {/* Main content area */}
+        <main className="flex-1 overflow-y-auto">
+          <MatchesList />
+        </main>
+      </div>
+    </div>
   );
 };
 

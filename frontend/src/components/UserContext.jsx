@@ -47,31 +47,64 @@ export const UserProvider = ({ children }) => {
           return;
         }
 
-        // Fetch compatibility matches for the active user
+        // Fetch ALL matches from the matches endpoint
         const matchesResponse = await fetch(
-          `${VERCEL_URL}/api/chattesting/${activeUserData.user_data_id}`
+          `${VERCEL_URL}/api/matches`,
+          { signal: abortController.signal } // Pass the abort signal
         );
         const matchesData = await matchesResponse.json();
-        console.log("Matches Data:", matchesData);
+        console.log("All Matches Data:", matchesData); // Log all matches data
 
-        if (matchesData.matches) {
-          setDisplayedUsersChat(matchesData.matches);
+        // Filter out the active user from the list of all users
+        const otherUsers = allUsersData.filter(
+          (user) => user.user_data_id !== activeUserId
+        );
+        console.log("Other Users:", otherUsers); // Log other users
 
-          // Extract user IDs from the matches
-          const userDataIDs = matchesData.matches.map((match) => match.user_data_id);
-          console.log("User IDs from Matches:", userDataIDs);
+        // Prepare the list of users to display
+        const usersToDisplay = [];
+        const compatibilityData = [];
 
-          // Find additional profile data for each matched user
-          const profiles = userDataIDs.map((userDataId) =>
-            allUsersData.find((user) => user.user_data_id === userDataId)
-          );
-          console.log("Profiles Data:", profiles);
-          setDisplayedUserProfile(profiles);
-          setDisplayedUsers(profiles);
-          setCurrentDisplayedUser(profiles[0]);
+        // Call the LLM to generate compatibility data
+        const llmResponse = await fetch(
+          `${VERCEL_URL}/api/chattesting/${activeUserData.user_data_id}`,
+          { signal: abortController.signal } // Pass the abort signal
+        );
+        const llmData = await llmResponse.json();
+        console.log("LLM Response:", llmData); // Log the LLM response
+
+        if (llmData.matches) {
+          for (const match of llmData.matches) {
+            const user_id = match.userID;
+            const compatibility_score = match.compatibility_score;
+            const reasoning = match.reasoning;
+
+            // Find the user in the otherUsers list
+            const user = otherUsers.find((u) => u.user_data_id === user_id);
+
+            if (user) {
+              // Add the user to the display list
+              usersToDisplay.push(user);
+              compatibilityData.push({
+                userID: user_id,
+                compatibility_score,
+                reasoning,
+              });
+            }
+          }
+        }
+
+        // Set the displayed users and compatibility data
+        setDisplayedUsers(usersToDisplay);
+        setDisplayedUsersChat(compatibilityData);
+        setDisplayedUserProfile(usersToDisplay);
+
+        // Set the first profile as the initial displayed user
+        if (usersToDisplay.length > 0) {
+          setCurrentDisplayedUser(usersToDisplay[0]);
           setCurrentIndex(0);
         } else {
-          console.error("No matches found in the response.");
+          console.error("No users to display.");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -87,7 +120,7 @@ export const UserProvider = ({ children }) => {
         activeUser,
         displayedUsers,
         displayedUsersChat, // Provide compatibility data
-        displayedUserProfile, // Provide additional profile data
+        displayedUserProfile, // Provide additional user profile data
         currentDisplayedUser,
         setCurrentDisplayedUser,
         currentIndex,

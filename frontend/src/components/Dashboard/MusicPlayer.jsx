@@ -7,19 +7,42 @@ const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
 const matchesLink = `${VERCEL_URL}/api/matches`;
 
-export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
+const matchesLink = `${VERCEL_URL}/api/matches`;
+
+export default function MusicPlayer({
+  currentTime,
+  totalDuration,
+  onSeek,
+  style,
+  showHeart,
+  setShowHeart,
+  randomEmoji,
+  setRandomEmoji,
+}) {
   const {
     activeUser,
     displayedUsers,
+    setDisplayedUsers,
     currentDisplayedUser,
     setCurrentDisplayedUser,
-    currentIndex, // Destructure currentIndex
-    setCurrentIndex, // Destructure setCurrentIndex
-  } = useContext(UserContext); // Use the context
+    currentIndex,
+    setCurrentIndex,
+  } = useContext(UserContext);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
   const seekBarRef = useRef(null);
+
+  // Array of emojis to choose from
+  const emojis = ["😍", "❤️", "🔥", "💖", "🥰", "😘", "💕"];
+
+  // Function to get a random emoji
+  const getRandomEmoji = () => {
+    const randomIndex = Math.floor(Math.random() * emojis.length);
+    return emojis[randomIndex];
+  };
 
   // Format time helper
   const formatTime = (seconds) => {
@@ -67,7 +90,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       return nextIndex; // Return the new index
     });
   };
-  
+
   const handlePreviousUser = () => {
     setCurrentIndex((prevIndex) => {
       const allUsers = [...displayedUsers];
@@ -79,7 +102,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   const handlePlay = async () => {
     if (!activeUser || !currentDisplayedUser) return;
-  
+
     try {
       // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
       const activeUserResponse = await fetch(`${userIdLink}/${activeUser.user_data_id}`);
@@ -103,7 +126,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       };
   
       // Create match request to backend
-      const response = await fetch(`${matchesLink}`, {
+      const response = await fetch("http://localhost:5000/api/matches", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,14 +135,85 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       });
   
       // Handle response from the backend
-      const responseData = await response.json();
-      console.log(responseData);
+      const updateData = await updateResponse.json();
+      console.log(updateData);
+
+      // Check for the opposite match
+      const oppositeMatch = matchesData.find(
+        (m) =>
+          m.user_1_id === currentDisplayedUser.user_data_id &&
+          m.user_2_id === activeUser.user_data_id
+      );
+
+      if (oppositeMatch && oppositeMatch.status === "waiting") {
+        // If both matches are in 'waiting' status, update both to 'accepted'
+        const updateOppositeMatchResponse = await fetch(
+          `http://localhost:5001/api/matches/${oppositeMatch.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: oppositeMatch.user_1_id,
+              user_2_id: oppositeMatch.user_2_id,
+              match_score: oppositeMatch.match_score,
+              status: "accepted", // Update the status to 'accepted'
+            }),
+          }
+        );
+
+        const updateOppositeMatchData = await updateOppositeMatchResponse.json();
+        console.log(updateOppositeMatchData);
+
+        // Update the original match to 'accepted' as well
+        const updateOriginalMatchResponse = await fetch(
+          `http://localhost:5001/api/matches/${match.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: match.user_1_id,
+              user_2_id: match.user_2_id,
+              match_score: match.match_score,
+              status: "accepted", // Update the status to 'accepted'
+            }),
+          }
+        );
+
+        const updateOriginalMatchData = await updateOriginalMatchResponse.json();
+        console.log(updateOriginalMatchData);
+      }
+
+      // Set a random emoji
+      setRandomEmoji(getRandomEmoji());
+
+      // Trigger the heart animation
+      setShowHeart(true);
+
+      // Remove the current user from the displayedUsers list
+      setDisplayedUsers((prevUsers) =>
+        prevUsers.filter((user) => user.user_data_id !== currentDisplayedUser.user_data_id)
+      );
+
+      // Navigate to the next user
+      setCurrentIndex((prevIndex) => {
+        const allUsers = [...displayedUsers];
+        let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
+        setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+        return nextIndex; // Return the new index
+      });
+
+      // Hide the heart after the animation completes
+      setTimeout(() => {
+        setShowHeart(false);
+      }, 1000); // Adjust the timeout to match the animation duration
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
-  
 
   // Add event listeners for dragging
   useEffect(() => {
@@ -139,6 +233,13 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   return (
     <section className="mt-10 text-center" style={style}>
+      {/* Emoji Animation */}
+      {showHeart && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="heart-animation">{randomEmoji}</div>
+        </div>
+      )}
+
       <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
       <p className="mb-4 text-base text-zinc-400">
         {currentDisplayedUser?.profile_name || "Person's Name"}
