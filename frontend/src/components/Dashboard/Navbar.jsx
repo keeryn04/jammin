@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const NavItem = ({ icon, clickFunction }) => (
-  <button onClick = {clickFunction} className="group flex justify-center items-center cursor-pointer lg:h-[100%] lg:w-[100%] md:h-[90%] md:w-[90%] sm:h-[80%] sm:w-[80%] ">
+  <button onClick = {clickFunction} className="group flex justify-center items-center cursor-pointer sm:h-[100%] sm:w-[100%] h-[20%] w-[20%]">
     <img className="hover:brightness-200" src={`${icon}`} />
   </button>
 );
@@ -31,8 +31,9 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="flex flex-col lg:w-[80%] md:w-[70%] sm:w-[60%] items-center bg-neutral-800 rounded-full h-2/3 m-4">
-      <div className="flex flex-col flex-1 justify-evenly items-center">
+    <nav className="flex flex-row items-center bg-neutral-800 w-full h-full
+                    sm:flex-col sm:w-[80%] sm:rounded-full sm:h-5/7 sm:m-4">
+      <div className="flex flex-row sm:flex-col h-full justify-betweem items-center">
         <NavItem icon={"/icons/MatchesIcon.png"} clickFunction={handleMatchesClick} />
         <NavItem icon={"/icons/ProfileIcon.png"} clickFunction={handleProfileClick} />
         <NavItem icon={"/icons/AIIcon.png"} clickFunction={handleAIClick}/>
