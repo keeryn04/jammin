@@ -9,6 +9,7 @@ import json
 
 load_dotenv()
 from api.database_connector import get_db_connection
+from api.routes.users import get_user_id_by_user_data_id
 
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -39,13 +40,14 @@ def run_ChatQuery(ref_user_data_id):
          The output should be in JSON format and include the profile_name, common_top_songs, and common_top_artists of the matched user. Make sure to return JSONs for every user you receive.
          Example input:
          [
-         {'user_data_id':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
-         {'user_data_id':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
+         {'user_id':'126', 'user_data_id':'0', 'profile_name': 'Tony Stark', 'topSongs':['SongA', 'SongB'], 'topArtists':['ArtistA', 'ArtistB'], 'topGenres':['GenreA']},
+         {'user_id':'130', 'user_data_id':'72', 'profile_name': 'Thor', 'topSongs':['SongB', 'SongC'], 'topArtists':['ArtistB', 'ArtistC'], 'topGenres':['GenreB']}
          ]
          Example output:
          {
            "matches": [
              {
+               "user_id": "130",
                "user_data_id": "72",
                "profile_name": "Thor",
                "compatibility_score": 75,
@@ -63,7 +65,7 @@ def run_ChatQuery(ref_user_data_id):
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
 
-        # Grab first user as reference user
+        #Grab user with user_data_id as reference user
         response = conn.table("users_music_data").select("*").eq("user_data_id", ref_user_data_id).execute()
 
         if not response.data:
@@ -71,63 +73,79 @@ def run_ChatQuery(ref_user_data_id):
         
         reference_user = response.data[0]
 
-        print("Returned Reference User:", reference_user)
+        response = conn.table("users_music_data").select("*").neq("user_data_id", ref_user_data_id).execute()
+        other_users = response.data
 
-        rows = conn.table("users_music_data").select("*").neq("user_data_id", ref_user_data_id).execute()
-
-        if not rows:
+        if not other_users:
              return jsonify({"error": "No other users found for comparison"}), 404
         
-        other_users = rows.data
-        print("Other Users:", other_users)
+        #Fetch all matches
+        matches_response = conn.table("matches").select("*").execute()
+        matches_data = matches_response.data
+
+        #Fetch reference users ID
+        ref_user_id_response = get_user_id_by_user_data_id(ref_user_data_id)
+        ref_user_id_json = ref_user_id_response.get_json()
+        ref_user_id = ref_user_id_json.get("user_id")
 
         users_data = []
         for user in other_users:
-            users_data.append({
-                "user_data_id": user["user_data_id"],
-                "profile_name": user["profile_name"],
-                "topSongs": user["top_songs"].split(", "),
-                "topArtists": user["top_artists"].split(", "),
-                "topGenres": user["top_genres"].split(", ")
-            })
+            #Fetch 2nd user's ID, and check if a match between reference and new user exists
+            user_2_id_response = get_user_id_by_user_data_id(user["user_data_id"])
+            user_2_id_json = user_2_id_response.get_json()
+            user_2_id = user_2_id_json.get("user_id")
+
+            existing_match = next(
+                (match for match in matches_data if 
+                    ((match.get("user_1_id") == ref_user_id and match.get("user_2_id") == user_2_id) or
+                    (match.get("user_1_id") == user_2_id and match.get("user_2_id") == ref_user_id))),
+                None
+            )
+
+            #Match doesn't exist, create a new entry
+            if not existing_match or existing_match["status"] == "pending":
+                users_data.append({
+                    "user_id": user_2_id,
+                    "user_data_id": user["user_data_id"],
+                    "profile_name": user["profile_name"],
+                    "topSongs": user["top_songs"].split(", "),
+                    "topArtists": user["top_artists"].split(", "),
+                    "topGenres": user["top_genres"].split(", ")
+                })
         
-        # Include the reference user in the data sent to the LLM
+        #Include the reference user in the data sent to the LLM
         users_data.insert(0, {
+            "user_id": ref_user_id,
             "user_data_id": reference_user["user_data_id"],
-            "profile_name": reference_user["profile_name"],
             "profile_name": reference_user["profile_name"],
              "topSongs": reference_user["top_songs"].split(", "),
              "topArtists": reference_user["top_artists"].split(", "),
              "topGenres": reference_user["top_genres"].split(", ")
         })
 
-        print("Users Data Sent to LLM:", users_data)
-
+        #Create info to send to LLM
         message_content = json.dumps(users_data)
         messages.append({"role": "user", "content": message_content})
 
-        # Call the LLM
+        #Call the LLM
         chat = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             response_format={"type": "json_object"}
         )
 
+        #Receive reply and update database
         reply = chat.choices[0].message.content
-        print("LLM Response:", reply)  # Log the LLM's response
-
-        insert_response(reply, ref_user_data_id)
+        insert_response(reply, ref_user_id)
 
         return jsonify(json.loads(reply))
-
-    except Exception as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
 
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-def insert_response(reply, ref_user_data_id):
+def insert_response(reply, ref_user_id):
     try:
+        #Retrieve data from LLM
         matches_data = json.loads(reply).get("matches", [])
 
         if not matches_data:
@@ -138,58 +156,51 @@ def insert_response(reply, ref_user_data_id):
         if conn is None:
             print("Unable to connect to the database.")
             return
+        
+        inserted_count = 0
+        skipped_count = 0
 
-        #Fetch user IDs for all matches in one query
-        user_data_ids = [match["user_data_id"] for match in matches_data]
-        user_data_ids.append(ref_user_data_id)  #Include reference user
-
-        response = conn.table("users").select("user_id", "user_data_id").in_("user_data_id", user_data_ids).execute()
-        user_id_map = {row["user_data_id"]: row["user_id"] for row in response.data}
-
-        ref_user_id = user_id_map.get(ref_user_data_id)
-        if not ref_user_id:
-            print("Reference user ID not found.")
-            return
-
-        #Fetch all existing matches in one query
-        match_ids = conn.table("matches").select("match_id", "user_1_id", "user_2_id").or_(
-            f"user_1_id.eq.{ref_user_id}, user_2_id.eq.{ref_user_id}"
-        ).execute()
-
-        existing_matches = {(row["user_1_id"], row["user_2_id"]): row["match_id"] for row in match_ids.data}
-
-        upsert_data = []
+        #Loop through returned LLM matches, update matches table
         for match in matches_data:
-            matched_user_id = user_id_map.get(match["user_data_id"])
-            if not matched_user_id:
-                continue  #Skip if no user ID found
+            user_2_id = match.get("user_id")
+            compatibility_score = match.get("compatibility_score")
+            reasoning = match.get("reasoning")
 
-            compatibility_score = match["compatibility_score"]
-            reasoning = match["reasoning"]
+            if not all([ref_user_id, compatibility_score, reasoning]):
+                print(f"Skipping invalid match data: {match}")
+                skipped_count += 1
+                continue
+        
+            try:
+                # Check if the match already exists and has a status of 'accepted'
+                existing_match_response = conn.table("matches").select("status").or_(
+                    f"(user_1_id.eq.{ref_user_id},user_2_id.eq.{user_2_id})",
+                    f"(user_1_id.eq.{user_2_id},user_2_id.eq.{ref_user_id})"
+                ).execute()
 
-            #Check if a match already exists
-            existing_match_id = existing_matches.get((ref_user_id, matched_user_id)) or existing_matches.get((matched_user_id, ref_user_id))
+                existing_match_json = existing_match_response.get_json()
+                status = existing_match_json.get("status")
 
-            if existing_match_id: # Update existing match
-                upsert_data.append({
-                    "match_id": existing_match_id,
-                    "match_score": compatibility_score,
-                    "reasoning": reasoning
-                })
-            else: #Insert new match
-                upsert_data.append({
-                    "match_id": str(uuid.uuid4()),
+                if existing_match_json and status == 'accepted':
+                    print(f"Skipping update for match {ref_user_id} because it is already 'accepted'.")
+                    skipped_count += 1
+                    continue
+
+                match_uuid = uuid.uuid4()
+
+                #Make new match entry with returned data
+                conn.table("matches").upsert({
+                    "match_id": str(match_uuid),
                     "user_1_id": ref_user_id,
-                    "user_2_id": matched_user_id,
+                    "user_2_id": user_2_id,
                     "match_score": compatibility_score,
-                    "status": "pending",
+                    "status": 'pending',
                     "reasoning": reasoning
-                })
-
-        if upsert_data:
-            #Perform batch upsert
-            response = conn.table("matches").upsert(upsert_data, on_conflict=["match_id"]).execute()
-            print(f"Upsert response: {response}")
+                }).execute()
+                inserted_count += 1
+            except Exception as err:
+                print(f"Database error for match {str(match_uuid)}: {err}")
+                skipped_count += 1
 
     except Exception as err:
         print(f"Database error: {err}")
