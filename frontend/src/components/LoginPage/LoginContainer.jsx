@@ -73,8 +73,8 @@ const LoginContainer = () => {
   };
 
   return (
-    <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
-      <Logo />
+    <main className="flex flex-col h-screen w-screen justify-center items-center bg-neutral-800">
+      <Logo/>
 
       <Heading text="Glad you have you back!" />
 
@@ -99,14 +99,16 @@ const LoginContainer = () => {
           </p>
         )}
 
-        <div className="flex gap-10 justify-center max-sm:flex-col max-sm:gap-4 max-sm:items-center">
+        <div className="flex m-6 gap-10 justify-center max-sm:gap-4 max-sm:items-center">
+
           <ActionButton variant="secondary" onClick={handleBack}>
             Back
           </ActionButton>
 
-          <ActionButton variant="primary" onClick={handleLogin}>
-            Log In
+          <ActionButton variant="primary" onClick={handleBack}>
+            Login
           </ActionButton>
+
         </div>
       </div>
     </main>
