@@ -1,11 +1,6 @@
 import React from "react";
+import { NavItem, LogOutNavItem } from "./NavItem";
 import { useNavigate } from "react-router-dom";
-
-const NavItem = ({ icon, clickFunction }) => (
-  <button onClick = {clickFunction} className="group flex justify-center items-center cursor-pointer sm:h-[80%] sm:w-[80%] h-[20%] w-[20%]">
-    <img className="hover:brightness-200" src={`${icon}`} />
-  </button>
-);
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -22,13 +17,15 @@ export default function Navbar() {
     navigate("/Matching");
   }
   
-  const handleSettingsClick = () => {
-    navigate("/Settings");
-  }
-  
   const handleInfoClick = () => {
     navigate("/Info");
   }
+
+  const handleLogOutClick = () => {
+    
+  }
+  
+  
 
   return (
     <nav className="flex flex-row items-center bg-neutral-900 w-full h-full
@@ -37,8 +34,8 @@ export default function Navbar() {
         <NavItem icon={"/icons/MatchesIcon.png"} clickFunction={handleMatchesClick} />
         <NavItem icon={"/icons/ProfileIcon.png"} clickFunction={handleProfileClick} />
         <NavItem icon={"/icons/AIIcon.png"} clickFunction={handleAIClick}/>
-        <NavItem icon={"/icons/SettingsIcon.png"} clickFunction={handleSettingsClick}/>
         <NavItem icon={"/icons/InfoIcon.png"} clickFunction={handleInfoClick}/>
+        <LogOutNavItem logout_icon={"/icons/LogOutIcon.png"} red_logout_icon={"/icons/LogOutIconRed.png"} clickFunction={handleLogOutClick}/>
       </div>
     </nav>
   );
