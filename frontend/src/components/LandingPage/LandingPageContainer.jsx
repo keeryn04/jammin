@@ -11,7 +11,7 @@ import CTASection from "./CTASection";
 
   const LandingPageContainer = () => {
     return (
-      <main className="fixed inset-0 flex flex-col h-screen w-screen overflow-hidden justify-center items-center bg-neutral-800">
+      <main className="flex flex-col p-10 h-screen w-screen justify-center items-center bg-neutral-800">
         <header>
           <Logo />
         </header>

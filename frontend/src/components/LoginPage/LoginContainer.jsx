@@ -73,7 +73,7 @@ const LoginContainer = () => {
   };
 
   return (
-    <main className="flex flex-col h-screen w-screen justify-center items-center bg-neutral-800">
+    <main className="flex flex-col p-10 h-screen w-screen justify-center items-center bg-neutral-800">
       <Logo/>
 
       <Heading text="Glad you have you back!" />
