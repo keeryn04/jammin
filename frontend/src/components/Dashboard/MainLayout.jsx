@@ -1,15 +1,60 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import Sidebar from "./Sidebar";
 import SpotifyProfile from "../Profile/SpotifyProfile";
 import MusicPlayer from "./MusicPlayer";
-import { UserProvider } from "../UserContext"; // Import the provider
+import { UserContext } from "../UserContext"; // Import the context
 
 export default function MainLayout() {
   const [currentTime, setCurrentTime] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const totalDuration = 260; // 4:20 in seconds
   const profileContainerRef = useRef(null);
+  const [currentMatch, setCurrentMatch] = useState(null); // State to store the current match
+  const [showHeart, setShowHeart] = useState(false); // State to control heart animation
+  const [randomEmoji, setRandomEmoji] = useState(""); // State to store the random emoji
+
+  // Access context values
+  const {
+    activeUser,
+    displayedUsers,
+    setDisplayedUsers,
+    currentDisplayedUser,
+    setCurrentDisplayedUser,
+    currentIndex,
+    setCurrentIndex,
+  } = useContext(UserContext);
+
+  // Fetch all matches and find the desired match based on user IDs
+  useEffect(() => {
+    const fetchMatches = async () => {
+      if (!activeUser || !currentDisplayedUser) return;
+
+      try {
+        const response = await fetch("http://localhost:5001/api/matches");
+        if (response.ok) {
+          const matches = await response.json();
+
+          // Find the match where user_1_id and user_2_id match the active and displayed users
+          const match = matches.find(
+            (m) =>
+              (m.user_1_id === activeUser.user_data_id &&
+                m.user_2_id === currentDisplayedUser.user_data_id) ||
+              (m.user_1_id === currentDisplayedUser.user_data_id &&
+                m.user_2_id === activeUser.user_data_id)
+          );
+
+          setCurrentMatch(match); // Set the found match
+        } else {
+          console.error("Failed to fetch matches");
+        }
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+      }
+    };
+
+    fetchMatches();
+  }, [activeUser, currentDisplayedUser]); // Re-fetch when activeUser or currentDisplayedUser changes
 
   // Handle seek bar interaction
   const handleSeek = (time) => {
@@ -49,62 +94,125 @@ export default function MainLayout() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // Handle "Remove" button click
+  const handleRemove = async () => {
+    if (!currentMatch) {
+      console.error("No match data available");
+      return;
+    }
+
+    try {
+      const updateResponse = await fetch(
+        `http://localhost:5001/api/matches/${currentMatch.match_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_1_id: currentMatch.user_1_id,
+            user_2_id: currentMatch.user_2_id,
+            match_score: currentMatch.match_score, // Keep the existing score
+            status: "rejected", // Update the status to 'rejected'
+          }),
+        }
+      );
+
+      if (updateResponse.ok) {
+        console.log("Match status updated to 'rejected'");
+
+        // Trigger the "X" emoji animation and navigate to the next user
+        setRandomEmoji("❌"); // Set the "X" emoji
+        setShowHeart(true); // Trigger the animation
+
+        // Remove the current user from the displayedUsers list
+        setDisplayedUsers((prevUsers) =>
+          prevUsers.filter((user) => user.user_data_id !== currentDisplayedUser.user_data_id)
+        );
+
+        // Navigate to the next user
+        setCurrentIndex((prevIndex) => {
+          const allUsers = [...displayedUsers];
+          let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
+          setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+          return nextIndex; // Return the new index
+        });
+
+        // Hide the "X" emoji after the animation completes
+        setTimeout(() => {
+          setShowHeart(false);
+        }, 1000); // Adjust the timeout to match the animation duration
+      } else {
+        console.error("Failed to update match status");
+      }
+    } catch (error) {
+      console.error("Error updating match status:", error);
+    }
+  };
+
   return (
-    <UserProvider>
-      <div className="fixed inset-0 flex flex-col text-white bg-neutral-800 overflow-hidden">
-        {/* Full-height container */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar */}
-          <div className="flex-shrink-0">
-            <Sidebar />
-          </div>
-          {/* Main content area */}
-          <main className="flex-1 flex justify-center items-center overflow-hidden">
-            {/* Centered content */}
-            <div className="flex flex-col items-center gap-2"> {/* Reduced gap to gap-2 */}
-              {/* Header with "Jammin'" text and three-dot dropdown */}
-              <div className="w-[400px] flex justify-between items-center mb-1"> {/* Adjusted margin-bottom */}
-                <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
-                <div className="relative">
-                  <button onClick={toggleDropdown} className="text-white focus:outline-none">
-                    &#8942; {/* Three dots */}
-                  </button>
-                  {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
-                      <ul>
-                        <li className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md">Remove</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* SpotifyProfile container */}
-              <div
-                ref={profileContainerRef}
-                className="w-[400px] h-[400px] bg-neutral-700 rounded-lg shadow-lg overflow-x-auto overflow-y-hidden"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                <SpotifyProfile />
-                <style>
-                  {`
-                    .overflow-x-auto::-webkit-scrollbar {
-                      display: none;
-                    }
-                  `}
-                </style>
-              </div>
-
-              {/* MusicPlayer */}
-              <MusicPlayer
-                currentTime={currentTime}
-                totalDuration={totalDuration}
-                onSeek={handleSeek}
-                style={{ width: "400px" }}
-              />
-            </div>
-          </main>
+    <div className="fixed inset-0 flex flex-col text-white bg-neutral-800 overflow-hidden">
+      {/* Full-height container */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="flex-shrink-0">
+          <Sidebar />
         </div>
+        {/* Main content area */}
+        <main className="flex-1 flex justify-center items-center overflow-hidden">
+          {/* Centered content */}
+          <div className="flex flex-col items-center gap-2"> {/* Reduced gap to gap-2 */}
+            {/* Header with "Jammin'" text and three-dot dropdown */}
+            <div className="w-[400px] flex justify-between items-center mb-1"> {/* Adjusted margin-bottom */}
+              <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
+              <div className="relative">
+                <button onClick={toggleDropdown} className="text-white focus:outline-none">
+                  &#8942; {/* Three dots */}
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
+                    <ul>
+                      <li
+                        className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md"
+                        onClick={handleRemove} // Add click handler for "Remove"
+                      >
+                        Remove
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SpotifyProfile container */}
+            <div
+              ref={profileContainerRef}
+              className="w-[400px] h-[400px] bg-neutral-700 rounded-lg shadow-lg overflow-x-auto overflow-y-hidden"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              <SpotifyProfile />
+              <style>
+                {`
+                  .overflow-x-auto::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}
+              </style>
+            </div>
+
+            {/* MusicPlayer */}
+            <MusicPlayer
+              currentTime={currentTime}
+              totalDuration={totalDuration}
+              onSeek={handleSeek}
+              style={{ width: "400px" }}
+              showHeart={showHeart}
+              setShowHeart={setShowHeart}
+              randomEmoji={randomEmoji}
+              setRandomEmoji={setRandomEmoji}
+            />
+          </div>
+        </main>
       </div>
 
       {/* Add Afacad font */}
@@ -122,6 +230,6 @@ export default function MainLayout() {
           }
         `}
       </style>
-    </UserProvider>
+    </div>
   );
 }

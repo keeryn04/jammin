@@ -3,7 +3,16 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
-export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
+export default function MusicPlayer({
+  currentTime,
+  totalDuration,
+  onSeek,
+  style,
+  showHeart,
+  setShowHeart,
+  randomEmoji,
+  setRandomEmoji,
+}) {
   const {
     activeUser,
     displayedUsers,
@@ -16,8 +25,16 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
-  const [showHeart, setShowHeart] = useState(false); // State to control heart animation
   const seekBarRef = useRef(null);
+
+  // Array of emojis to choose from
+  const emojis = ["😍", "❤️", "🔥", "💖", "🥰", "😘", "💕"];
+
+  // Function to get a random emoji
+  const getRandomEmoji = () => {
+    const randomIndex = Math.floor(Math.random() * emojis.length);
+    return emojis[randomIndex];
+  };
 
   // Format time helper
   const formatTime = (seconds) => {
@@ -98,7 +115,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
         return;
       }
 
-      // Update the match status to 'accepted'
+      // Update the match status to 'waiting'
       const updateResponse = await fetch(
         `http://localhost:5001/api/matches/${match.match_id}`,
         {
@@ -110,7 +127,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
             user_1_id: match.user_1_id,
             user_2_id: match.user_2_id,
             match_score: match.match_score, // Keep the existing score
-            status: "accepted", // Update the status to 'accepted'
+            status: "waiting", // Update the status to 'waiting'
           }),
         }
       );
@@ -118,6 +135,58 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       // Handle response from the backend
       const updateData = await updateResponse.json();
       console.log(updateData);
+
+      // Check for the opposite match
+      const oppositeMatch = matchesData.find(
+        (m) =>
+          m.user_1_id === currentDisplayedUser.user_data_id &&
+          m.user_2_id === activeUser.user_data_id
+      );
+
+      if (oppositeMatch && oppositeMatch.status === "waiting") {
+        // If both matches are in 'waiting' status, update both to 'accepted'
+        const updateOppositeMatchResponse = await fetch(
+          `http://localhost:5001/api/matches/${oppositeMatch.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: oppositeMatch.user_1_id,
+              user_2_id: oppositeMatch.user_2_id,
+              match_score: oppositeMatch.match_score,
+              status: "accepted", // Update the status to 'accepted'
+            }),
+          }
+        );
+
+        const updateOppositeMatchData = await updateOppositeMatchResponse.json();
+        console.log(updateOppositeMatchData);
+
+        // Update the original match to 'accepted' as well
+        const updateOriginalMatchResponse = await fetch(
+          `http://localhost:5001/api/matches/${match.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: match.user_1_id,
+              user_2_id: match.user_2_id,
+              match_score: match.match_score,
+              status: "accepted", // Update the status to 'accepted'
+            }),
+          }
+        );
+
+        const updateOriginalMatchData = await updateOriginalMatchResponse.json();
+        console.log(updateOriginalMatchData);
+      }
+
+      // Set a random emoji
+      setRandomEmoji(getRandomEmoji());
 
       // Trigger the heart animation
       setShowHeart(true);
@@ -162,10 +231,10 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   return (
     <section className="mt-10 text-center" style={style}>
-      {/* Heart Animation */}
+      {/* Emoji Animation */}
       {showHeart && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="heart-animation">😍</div>
+          <div className="heart-animation">{randomEmoji}</div>
         </div>
       )}
 

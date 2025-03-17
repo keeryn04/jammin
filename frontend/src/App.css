@@ -45,13 +45,13 @@ html, body {
 
 /* Heart Animation */
 .heart-animation {
-  font-size: 10rem; /* Large heart size */
+  font-size: 20rem; /* Large heart size */
   color: red; /* Heart color */
   animation: heart-pop 1s ease-out; /* Animation duration and timing */
 
   position: fixed; /* Fixed positioning */
-  top: 90%; /* Center vertically */
-  left: 50%; /* Center horizontally */
+  top: 7%; /* Center vertically */
+  left: 40%; /* Center horizontally */
 
 }
 

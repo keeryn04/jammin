@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS matches (
     user_2_id CHAR(36) NOT NULL,
     match_score FLOAT,
     reasoning CHAR(250),
-    status VARCHAR(10) CHECK (status IN ('pending', 'accepted', 'rejected')) DEFAULT NULL,
+    status VARCHAR(10) CHECK (status IN ('pending', 'waiting', 'accepted', 'rejected')) DEFAULT NULL,
     matched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_1_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE,
     FOREIGN KEY (user_2_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE,
