@@ -101,12 +101,12 @@ const LoginContainer = () => {
         />
         {/*If error != null, error message will be displayed on screen*/}
         {error && (
-          <p className="mx-0 my-5 text-2xl text-center text-red-500 max-sm:text-xl">
+          <p className="mx-0 my-0.5 text-lg text-center text-red-500">
             {error}
           </p>
         )}
 
-        <div className="flex mt-3 justify-center gap-4 items-center">
+        <div className="flex mt-1.5 justify-center gap-4 items-center">
 
           <ActionButton variant="secondary" onClick={handleBack}>
             Back

@@ -53,7 +53,7 @@ const DropdownMenu = ( {setValue} ) => {
   return (
   
       <div ref={dropdownRef} className="flex flex-col relative w-full text-left justify-center">
-        <label className="mb-2 text-2xl font-bold text-white max-sm:text-xl">
+        <label className="mb-1 text-2xl font-bold text-white max-sm:text-xl">
           Gender
         </label>
         <DropdownButton

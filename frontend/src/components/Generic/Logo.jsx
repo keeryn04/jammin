@@ -5,7 +5,7 @@
 const Logo = () => {
   return (
     <div className="m-6">
-        <img className="w-[175px] h-[175px] sm:w-[210px] sm:h-[210px]" src="/icons/Flattened Logo.png"/>
+        <img className="w-[140px] h-[140px] sm:w-[165px] sm:h-[165px]" src="/icons/Flattened Logo.png"/>
     </div>
   );
 };

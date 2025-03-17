@@ -10,7 +10,7 @@ const DropdownButton = ({ isOpen, onClick, itemSelectedText, variant="placeHolde
   return (
     <button
       id="dropdown-button"
-      className="flex relative size-full items-center justify-left rounded-md bg-stone-500 h-[50px] sm:h-[59px]"
+      className="flex relative size-full mb-2 items-center justify-left rounded-md bg-stone-500 h-[50px]"
       onClick={onClick}
       aria-expanded={isOpen}
       aria-haspopup="true"

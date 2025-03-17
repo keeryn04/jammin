@@ -21,23 +21,16 @@ const CTASection = () => {
   }
 
   return (
-    <section className="flex flex-col items-center">
+    <section className="flex flex-col items-center my-2">
       <ActionButton onClick={signupRedirect} variant="primaryLandingPage">Sign up for Free</ActionButton>
       <div className="flex items-center text-2xl font-bold text-white sm:flex-row gap-1">
 
         <button 
-          className="p-2.5 hover:underline cursor-pointer max-sm:text-xl"
+          className="my-2 hover:underline cursor-pointer max-sm:text-xl"
           onClick={loginRedirect}
         >
           Log In
         </button>
-
-        <div className="w-0.5 bg-white h-[35px] sm:h-[45px] rotate-[30deg]" />
-
-        <button className="p-2.5 hover:underline cursor-pointer max-sm:text-xl">
-          Continue as Guest
-        </button>
-
       </div>
     </section>
   );

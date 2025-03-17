@@ -6,7 +6,7 @@
 
 const ActionButton = ({ variant = "primary", onClick, children }) => {
     const baseStyles =
-      "font-bold cursor-pointer border-[none] h-[60px] rounded-[1000px] text-neutral-900 sm:h-[70px]";
+      "font-bold cursor-pointer border-[none] h-[60px] rounded-[1000px] text-neutral-900 sm:h-[60px]";
     const variantStyles = {
       primary: "text-xl sm:text-2xl bg-teal-400 hover:bg-teal-300 w-[130px] sm:w-[170px]",
       primaryLandingPage:  "text-xl sm:text-2xl bg-teal-400 hover:bg-teal-300 w-[270px] sm:w-[370px]",

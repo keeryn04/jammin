@@ -7,11 +7,11 @@
 
 const FormInput = ({ label, type, placeholder, inputHandler }) => {
     return (
-      <div className="mb-4 sm:mb-5 justify-items-start">
-        <label className="mb-2 text-xl font-bold text-white sm:text-2xl">
+      <div className="mb-1 sm:mb-2 justify-items-start">
+        <label className="mb-1 text-xl font-bold text-white sm:text-2xl">
           {label}
         </label>
-        <div className="relative w-full rounded-md bg-stone-500 h-[50px] sm:h-[59px]">
+        <div className="w-full rounded-md mt-1 bg-stone-500 h-[50px] sm:h-[50px]">
           <input
             type={type}
             placeholder={placeholder}

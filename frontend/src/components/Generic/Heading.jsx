@@ -5,12 +5,12 @@
 
 const Heading = ({text}) => {
     return (
-      <h1 className="   mb-5 text-4xl 
+      <h1 className="   mb-3 text-4xl 
                         font-bold text-center 
                         text-white sm:w-[866px] 
                       
-                        sm:mb-10 
-                        sm:text-6xl">
+                        sm:mb-5 
+                        sm:text-5xl">
         {text}
       </h1>
     );
