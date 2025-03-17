@@ -48,9 +48,11 @@ const SpotifyProfile = () => {
       </div>
 
       {/* Common Artists Section */}
+      {/*
       <div className="flex-shrink-0 w-[400px] h-full">
         <CommonArtistsSection />
       </div>
+      */}
     </div>
   );
 };

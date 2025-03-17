@@ -159,3 +159,48 @@ def get_user_by_user_data(user_data_id):
             return jsonify({"error": "User not found"}), 404
     except mysql.connector.Error as err:
         return jsonify({"error": f"Database error: {err}"}), 500
+
+@user_routes.route("/api/users/by_user_data/<user_data_id>", methods=["GET"])
+def get_user_id_by_user_data_id(user_data_id):
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Connection Error"}), 500
+
+        try:
+            user_data_uuid = uuid.UUID(user_data_id)
+        except ValueError:
+            return jsonify({"error": "ID Error"}), 400  # Invalid format
+
+        response = conn.table("users").select("user_id").eq('user_data_id', str(user_data_uuid)).execute()
+
+        if not response.data:
+            return jsonify({"error": "No user found with the provided user_data_id"}), 404
+
+        return jsonify({"user_id": response.data[0]["user_id"]})
+    except Exception as err:
+        return jsonify({"error": str(err)}), 500
+    
+@user_routes.route("/api/user_data/by_user/<user_id>", methods=["GET"])
+def get_user_data_id_by_user_id(user_id):
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            print("Connection Error")
+            return None
+
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            print("ID Error")
+            return None  # Invalid format
+
+        response = conn.table("users").select("user_data_id").eq('user_id', str(user_uuid)).execute()
+
+        if not response.data:
+            print("Connection Error")
+            return None  # No user found
+
+        return response.data[0]["user_data_id"]
+    except Exception as err:
+        return None

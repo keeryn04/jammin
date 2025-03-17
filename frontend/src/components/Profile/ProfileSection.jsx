@@ -67,9 +67,13 @@ const ProfileSection = () => {
           <div className="text-[25px] font-bold leading-7 text-white">
             {profileName}
           </div>
+          
+          {/*
           <p className="text-base leading-6 text-gray-400">
             1 Followers · 1 Following
           </p>
+          */}
+
           {/* Compatibility Text (Visible Only After Click) */}
           {isClicked && (
             <p className="mt-2 text-sm text-gray-300">
