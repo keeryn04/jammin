@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext } from "react";
-import { Sidebar } from "../Dashboard/Sidebar";
+import Sidebar from "../Dashboard/Sidebar";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfilePhoto } from "./ProfilePhoto";
 import { TopTracks } from "./TopTracks";

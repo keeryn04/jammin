@@ -18,7 +18,7 @@ export default function Navbar() {
   }
   
   const handleInfoClick = () => {
-    navigate("/Info");
+    navigate("/About");
   }
 
   const handleLogOutClick = () => {
