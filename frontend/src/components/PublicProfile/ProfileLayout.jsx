@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext } from "react";
-import NavigationBar from "../Dashboard/Sidebar";
+import { Sidebar } from "../Dashboard/Sidebar";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfilePhoto } from "./ProfilePhoto";
 import { TopTracks } from "./TopTracks";
@@ -17,9 +17,9 @@ const ProfileLayout = () => {
   return (
     <div className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
       {/* Navigation Bar (Fixed to the Left) */}
-      <div className="h-full w-[152px] flex-none max-md:w-20 max-sm:w-[60px]">
-        <NavigationBar />
-      </div>
+
+      <Sidebar />
+
 
       {/* Main Content (Flexible and Scrollable) */}
       <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
