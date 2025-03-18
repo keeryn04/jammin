@@ -3,19 +3,41 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
-export default function MusicPlayer({ currentTime, totalDuration, onSeek, style }) {
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+
+export default function MusicPlayer({
+  currentTime,
+  totalDuration,
+  onSeek,
+  style,
+  showHeart,
+  setShowHeart,
+  randomEmoji,
+  setRandomEmoji,
+}) {
   const {
     activeUser,
     displayedUsers,
+    setDisplayedUsers,
     currentDisplayedUser,
     setCurrentDisplayedUser,
-    currentIndex, // Destructure currentIndex
-    setCurrentIndex, // Destructure setCurrentIndex
-  } = useContext(UserContext); // Use the context
+    currentIndex,
+    setCurrentIndex,
+  } = useContext(UserContext);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
+  const [userBio, setUserBio] = useState(""); // State to store the user's bio
   const seekBarRef = useRef(null);
+
+  // Array of emojis to choose from
+  const emojis = ["😍", "❤️", "🔥", "💖", "🥰", "😘", "💕"];
+
+  // Function to get a random emoji
+  const getRandomEmoji = () => {
+    const randomIndex = Math.floor(Math.random() * emojis.length);
+    return emojis[randomIndex];
+  };
 
   // Format time helper
   const formatTime = (seconds) => {
@@ -23,6 +45,29 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Fetch user bio when currentDisplayedUser changes
+  useEffect(() => {
+    const fetchUserBio = async () => {
+      if (!currentDisplayedUser) return;
+
+      try {
+        const response = await fetch(
+          `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData = await response.json();
+        setUserBio(userData.bio || ""); // Set the user's bio
+      } catch (error) {
+        console.error("Error fetching user bio:", error);
+        setUserBio(""); // Reset bio on error
+      }
+    };
+
+    fetchUserBio();
+  }, [currentDisplayedUser]);
 
   // Handle seek bar interaction (click)
   const handleSeek = (e) => {
@@ -64,7 +109,7 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
       return nextIndex; // Return the new index
     });
   };
-  
+
   const handlePreviousUser = () => {
     setCurrentIndex((prevIndex) => {
       const allUsers = [...displayedUsers];
@@ -77,47 +122,125 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
 
   const handlePlay = async () => {
     if (!activeUser || !currentDisplayedUser) return;
-  
+
     try {
-      // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
-      const activeUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${activeUser.user_data_id}`);
-      const currentDisplayedUserResponse = await fetch(`http://localhost:5000/api/users/by_user_data/${currentDisplayedUser.user_data_id}`);
-      
-      const activeUserData = await activeUserResponse.json();
-      const currentDisplayedUserData = await currentDisplayedUserResponse.json();
-  
-      // Check if the user data was found
-      if (!activeUserData.user_id || !currentDisplayedUserData.user_id) {
-        console.error('User data not found!');
+      // Fetch all matches from the backen
+      const matchesResponse = await fetch(`${VERCEL_URL}/api/matches`);
+      const matchesData = await matchesResponse.json();
+
+      // Find the match where user_1_id matches activeUser.user_data_id and user_2_id matches currentDisplayedUser.user_data_id
+      const match = matchesData.find(
+        (match) =>
+          match.user_1_data_id === activeUser.user_data_id &&
+          match.user_2_data_id === currentDisplayedUser.user_data_id
+      );
+
+      // If no match is found, log an error and return
+      if (!match) {
+        console.error("Match not found!");
         return;
       }
-  
-      // Create match data with user_id instead of user_data_id
-      const matchData = {
-        user_1_id: activeUserData.user_id,
-        user_2_id: currentDisplayedUserData.user_id,
-        match_score: 0, // Set initial score (can be modified later)
-        status: "pending", // Set match status
-      };
-  
-      // Create match request to backend
-      const response = await fetch("http://localhost:5000/api/matches", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(matchData),
-      });
-  
+
+      // Update the match status to 'waiting'
+      const updateResponse = await fetch(
+        `${VERCEL_URL}/api/matches/${match.match_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_1_id: match.user_1_data_id,
+            user_2_id: match.user_2_data_id,
+            match_score: match.match_score, // Keep the existing score
+            status: "waiting", // Update the status to 'waiting'
+            reasoning: match.reasoning,
+          }),
+        }
+      );
+
       // Handle response from the backend
-      const responseData = await response.json();
-      console.log(responseData);
+      const updateData = await updateResponse.json();
+      console.log(updateData);
+
+      // Check for the opposite match
+      const oppositeMatch = matchesData.find(
+        (m) =>
+          m.user_1_data_id === currentDisplayedUser.user_data_id &&
+          m.user_2_data_id === activeUser.user_data_id
+      );
+
+      if (oppositeMatch && oppositeMatch.status === "waiting") {
+        // If both matches are in 'waiting' status, update both to 'accepted'
+        const updateOppositeMatchResponse = await fetch(
+          `${VERCEL_URL}/api/matches/${oppositeMatch.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: oppositeMatch.user_1_data_id,
+              user_2_id: oppositeMatch.user_2_data_id,
+              match_score: oppositeMatch.match_score,
+              status: "accepted", // Update the status to 'accepted'
+              reasoning: oppositeMatch.reasoning,
+            }),
+          }
+        );
+
+        const updateOppositeMatchData = await updateOppositeMatchResponse.json();
+        console.log(updateOppositeMatchData);
+
+        // Update the original match to 'accepted' as well
+        const updateOriginalMatchResponse = await fetch(
+          `${VERCEL_URL}/api/matches/${match.match_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_1_id: match.user_1_data_id,
+              user_2_id: match.user_2_data_id,
+              match_score: match.match_score,
+              status: "accepted", // Update the status to 'accepted'
+              reasoning: match.reasoning,
+            }),
+          }
+        );
+
+        const updateOriginalMatchData = await updateOriginalMatchResponse.json();
+        console.log(updateOriginalMatchData);
+      }
+
+      // Set a random emoji
+      setRandomEmoji(getRandomEmoji());
+
+      // Trigger the heart animation
+      setShowHeart(true);
+
+      // Remove the current user from the displayedUsers list
+      setDisplayedUsers((prevUsers) =>
+        prevUsers.filter((user) => user.user_data_id !== currentDisplayedUser.user_data_id)
+      );
+
+      // Navigate to the next user
+      setCurrentIndex((prevIndex) => {
+        const allUsers = [...displayedUsers];
+        let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
+        setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+        return nextIndex; // Return the new index
+      });
+
+      // Hide the heart after the animation completes
+      setTimeout(() => {
+        setShowHeart(false);
+      }, 1000); // Adjust the timeout to match the animation duration
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
-  
 
   // Add event listeners for dragging
   useEffect(() => {
@@ -136,10 +259,18 @@ export default function MusicPlayer({ currentTime, totalDuration, onSeek, style 
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-center" style={style}>
-      <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
+    <section className="mt-10 text-left" style={style}>
+      {/* Emoji Animation */}
+      {showHeart && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="heart-animation">{randomEmoji}</div>
+        </div>
+      )}
+
+      {/* Display the user's bio */}
+      <h2 className="text-2xl font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
       <p className="mb-4 text-base text-zinc-400">
-        {currentDisplayedUser?.profile_name || "Person's Name"}
+        {userBio || "A Display Caption?"}
       </p>
       <div className="mx-auto mt-0 mb-5 w-full">
         {/* Seek bar */}

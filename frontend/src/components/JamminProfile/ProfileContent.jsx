@@ -3,7 +3,7 @@ import PhotoSection from "./PhotoSection";
 import ProfileForm from "./ProfileForm";
 import { ProfileHeader } from "./ProfileHeader";
 
-const ProfileContent = () => {
+const ProfileContent = ({ activeUser }) => {
   return (
     <div className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
       {/* Main Content (Flexible and Scrollable) */}
@@ -22,8 +22,8 @@ const ProfileContent = () => {
         dark:[&::-webkit-scrollbar-track]:bg-neutral-700
         dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <div className="max-w-[800px] w-full flex flex-col gap-10">
-            <PhotoSection />
-            <ProfileForm />
+            <PhotoSection activeUser={activeUser} /> {/* Pass activeUser */}
+            <ProfileForm activeUser={activeUser} /> {/* Pass activeUser */}
           </div>
         </div>
       </main>

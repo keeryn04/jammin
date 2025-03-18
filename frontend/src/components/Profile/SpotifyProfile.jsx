@@ -1,33 +1,58 @@
 "use client";
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../UserContext"; // Import the context
 import ProfileSection from "./ProfileSection";
 import MediaSectionContainer from "./MediaSectionContainer";
 import GenreSection from "./GenreSection";
 import CommonArtistsSection from "./CommonArtistsSection";
 
-const SpotifyProfile = ({ activeUser, displayedUsers }) => {
+const SpotifyProfile = () => {
+  // Consume the UserContext to get the necessary data
+  const {
+    activeUser,
+    displayedUsers,
+    displayedUsersChat,
+    currentDisplayedUser,
+  } = useContext(UserContext);
+
   return (
     <div className="flex space-x-4 p-4 w-max h-[400px] -ml-3">
       {/* Profile Section */}
       <div className="flex-shrink-0 w-[400px] h-full">
-        <ProfileSection activeUser={activeUser} displayedUsers={displayedUsers} />
+        <ProfileSection />
       </div>
 
       {/* Media Section - Top Songs */}
-      <MediaSectionContainer type="songs" title="Top Songs" activeUser={activeUser} displayedUsers={displayedUsers} />
+      <MediaSectionContainer
+        type="songs"
+        title="Top Songs"
+        activeUser={activeUser}
+        displayedUsers={displayedUsers}
+        displayedUsersChat={displayedUsersChat}
+        currentDisplayedUser={currentDisplayedUser}
+      />
 
       {/* Media Section - Top Artists */}
-      <MediaSectionContainer type="artists" title="Top Artists" activeUser={activeUser} displayedUsers={displayedUsers} />
+      <MediaSectionContainer
+        type="artists"
+        title="Top Artists"
+        activeUser={activeUser}
+        displayedUsers={displayedUsers}
+        displayedUsersChat={displayedUsersChat}
+        currentDisplayedUser={currentDisplayedUser}
+      />
 
       {/* Genre Section */}
       <div className="flex-shrink-0 w-[400px] h-full">
-        <GenreSection activeUser={activeUser} displayedUsers={displayedUsers} />
+        <GenreSection />
       </div>
 
       {/* Common Artists Section */}
+      {/*
       <div className="flex-shrink-0 w-[400px] h-full">
-        <CommonArtistsSection activeUser={activeUser} displayedUsers={displayedUsers} />
+        <CommonArtistsSection />
       </div>
+      */}
     </div>
   );
 };

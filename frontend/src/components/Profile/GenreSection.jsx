@@ -3,9 +3,10 @@ import GenreCard from "./GenreCard";
 
 const GenreSection = () => {
   const [genres, setGenres] = useState([]);
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/user_data")
+    fetch(`${VERCEL_URL}/api/user_data`)
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {

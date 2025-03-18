@@ -1,21 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-export const ProfilePhoto = () => {
-  const [profileName, setProfileName] = useState("");
-  const [profileImage, setProfileImage] = useState("");
-
-  useEffect(() => {
-    fetch("http://localhost:5001/api/user_data") // Replace with actual API URL
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          const user = data[0]; // Assuming first user
-          setProfileName(user.profile_name || "SpotifyUser"); // Default if not found
-          setProfileImage(user.profile_image || "default-profile.png"); // Default if not found
-        }
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+export const ProfilePhoto = ({ activeUser }) => {
+  const profileName = activeUser?.profile_name || "SpotifyUser"; // Fallback if not found
+  const profileImage = activeUser?.profile_image || "default-profile.png"; // Fallback if not found
 
   return (
     <section className="flex flex-col items-center gap-3">

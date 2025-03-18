@@ -1,37 +1,53 @@
 import React, { useState, useEffect } from "react";
 
-const UserProfileForm = () => {
-  const userId = "2b77e1f5-fec0-11ef-85bd-0242ac120002"; // Hardcoded for testing
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const usersLink = `${VERCEL_URL}/api/users`;
+const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
+
+const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/users/${userId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
+    const fetchUserData = async () => {
+      try {
+        // Step 1: Fetch all users
+        const usersResponse = await fetch(usersLink);
+        if (!usersResponse.ok) {
+          throw new Error("Failed to fetch users");
         }
-        return response.json();
-      })
-      .then((data) => {
+        const users = await usersResponse.json();
+
+        // Step 2: Find the user with the matching user_data_id
+        const activeUserData = users.find(
+          (user) => user.user_data_id === activeUser.user_data_id
+        );
+
+        if (!activeUserData) {
+          throw new Error("Active user not found in the users list");
+        }
+
+        // Step 3: Set form data
         setFormData({
-          username: data.username || "",
-          email: data.email || "",
-          password_hash: "",
-          age: data.age || "",
-          bio: data.bio || "",
-          gender: data.gender || "",
-          school: data.school || "",
-          occupation: data.occupation || "",
-          looking_for: data.looking_for || "",
-          spotify_auth: data.spotify_auth || false,
+          username: activeUserData.username || "",
+          email: activeUserData.email || "",
+          password_hash: activeUserData.password_hash || "",
+          age: activeUserData.age || "",
+          bio: activeUserData.bio || "",
+          gender: activeUserData.gender || "",
+          school: activeUserData.school || "",
+          occupation: activeUserData.occupation || "",
+          looking_for: activeUserData.looking_for || "",
+          spotify_auth: activeUserData.spotify_auth || false,
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Could not load user data.");
-      });
-  }, []);
+      }
+    };
+
+    fetchUserData();
+  }, [activeUser.user_data_id]);
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!formData) return <p className="text-white">Loading user data...</p>;
@@ -44,32 +60,71 @@ const UserProfileForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch(`http://localhost:5000/api/users/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to update profile");
+
+    try {
+      // Fetch the user ID based on user_data_id
+      const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error fetching user data:', response.status, errorText);
+        return; // Exit the function early if the fetch fails
+      }
+
+      // Parse the JSON response
+      const data = await response.json();
+      console.log('User data:', data);
+
+      const userId = data.user_id;
+      console.log('User ID:', userId);
+
+      // Filter out empty fields from formData
+      const updatedData = Object.keys(formData).reduce((acc, key) => {
+        if (key === "password_hash") {
+          // Only include password_hash if it's not empty
+          if (formData[key] !== "") {
+            acc[key] = formData[key];
+          } else {
+            // Explicitly set password_hash to null if it's empty
+            acc[key] = null;
+          }
+        } else {
+          // Include other fields if they are not empty
+          if (formData[key] !== "" && formData[key] !== null && formData[key] !== undefined) {
+            acc[key] = formData[key];
+          }
         }
-        return response.json();
-      })
-      .then(() => alert("Profile updated successfully!"))
-      .catch((error) => {
-        console.error("Error updating profile:", error);
-        alert("Error updating profile. Please try again.");
+        return acc;
+      }, {});
+
+      console.log('Updated Data:', updatedData);
+
+      // Send the PUT request with only non-empty fields
+      const updateResponse = await fetch(`${usersLink}/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
       });
+
+      if (!updateResponse.ok) {
+        throw new Error("Failed to update profile");
+      }
+
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Error updating profile. Please try again.");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-lg shadow-md">
       <label className="text-white">
-        Username:
+        Full Name:
         <input
           type="text"
           name="username"
@@ -95,7 +150,7 @@ const UserProfileForm = () => {
         <input
           type="password"
           name="password_hash"
-          placeholder="Enter new password"
+          placeholder="Enter new password (leave empty to not change)"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />

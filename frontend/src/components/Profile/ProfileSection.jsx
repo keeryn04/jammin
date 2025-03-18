@@ -4,13 +4,26 @@ import { UserContext } from "../UserContext"; // Import the context
 import ProgressBar from "./ProgressBar";
 
 const ProfileSection = () => {
-  const { currentDisplayedUser } = useContext(UserContext); // Use the context
+  const { currentDisplayedUser, displayedUsersChat } = useContext(UserContext); // Use the context
 
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = () => {
     setIsClicked(!isClicked);
   };
+
+  // Find the match data for the currently displayed user
+  const currentMatch = displayedUsersChat.find(
+    (match) => match.userID === currentDisplayedUser?.user_data_id
+  );
+
+  // Extract compatibility score and reasoning
+  const compatibilityScore = currentMatch?.compatibility_score || 0;
+  const reasoning = currentMatch?.reasoning || "No compatibility data available.";
+
+  // Fallback values for missing data
+  const profileImage = currentDisplayedUser?.profile_image || "default-profile.png";
+  const profileName = currentDisplayedUser?.profile_name || "SpotifyUser";
 
   return (
     <section className="flex flex-col items-center p-4 w-[400px] max-md:w-full relative overflow-hidden min-h-[400px]">
@@ -25,9 +38,9 @@ const ProfileSection = () => {
       >
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-base font-medium text-white">Compatibility Score</h2>
-          <span className="text-sm text-white">85%</span>
+          <span className="text-sm text-white">{compatibilityScore}%</span>
         </div>
-        <ProgressBar progress={85} />
+        <ProgressBar progress={compatibilityScore} />
       </div>
 
       {/* Profile Content */}
@@ -39,7 +52,7 @@ const ProfileSection = () => {
         }`}
       >
         <img
-          src={currentDisplayedUser?.profile_image || "default-profile.png"}
+          src={profileImage}
           alt="Profile"
           className={`shadow-sm rounded-[99px] object-cover transition-all duration-500 ${
             isClicked ? "w-20 h-20" : "w-32 h-32"
@@ -52,17 +65,19 @@ const ProfileSection = () => {
           }`}
         >
           <div className="text-[25px] font-bold leading-7 text-white">
-            {currentDisplayedUser?.profile_name || "SpotifyUser"}
+            {profileName}
           </div>
+          
+          {/*
           <p className="text-base leading-6 text-gray-400">
             1 Followers · 1 Following
           </p>
+          */}
+
           {/* Compatibility Text (Visible Only After Click) */}
           {isClicked && (
             <p className="mt-2 text-sm text-gray-300">
-              Your compatibility score is based on shared music tastes, favorite
-              artists, and listening habits. You both love indie rock and have
-              similar top tracks!
+              {reasoning}
             </p>
           )}
         </div>
