@@ -23,7 +23,6 @@ def get_users_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
         
-        print(response.data)
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500

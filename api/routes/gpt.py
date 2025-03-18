@@ -172,7 +172,7 @@ def insert_response(reply, ref_user_id):
             try:
                 # Check if the match already exists and has a status of 'accepted'
                 existing_match_response = conn.table("matches") \
-                    .select("status") \
+                    .select("*") \
                     .filter("user_1_data_id", "eq", ref_user_id) \
                     .filter("user_2_data_id", "eq", user_id) \
                     .execute()
@@ -214,3 +214,5 @@ def insert_response(reply, ref_user_id):
         print(f"JSON parsing error: {err}")
     except Exception as e:
         print(f"Unexpected error in insert_response: {str(e)}")
+
+

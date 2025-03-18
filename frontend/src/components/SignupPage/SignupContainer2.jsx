@@ -39,6 +39,7 @@ const SignupContainer2 = () => {
       const data = await response.text();
       if (response.ok) {
         console.log("Signup Successful")
+        navigate("/Matching");
       } else {
         setError(data.error)
       }

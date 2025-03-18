@@ -57,7 +57,6 @@ def default_api():
 def login_user():
     data = request.json
     user_id = data.get("user_id")
-    print(f"User {user_id} logged in!")
 
     if not user_id:
         return jsonify({"error": "Missing user_id"}), 400
