@@ -17,7 +17,7 @@ const MenuItems = ({ isOpen, activeIndex, onItemClick }) => {
       {menuItems.map((item, index) => (
         <li key={item} role="none">
           <button
-            className={`w-full text-left rounded-md px-4 py-3 text-2xl text-white hover:bg-stone-400 focus:bg-stone-300 focus:outline-none transition-colors ${
+            className={`w-full text-left rounded-md px-4 py-3 text-2xl font-bold text-white hover:bg-stone-400 focus:bg-stone-300 focus:outline-none transition-colors ${
               activeIndex === index ? "bg-stone-300" : ""
             }`}
             role="menuitem"

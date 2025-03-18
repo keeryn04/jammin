@@ -12,8 +12,10 @@ export const UserProvider = ({ children }) => {
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
   // Specify the user_data_id of the active user manually
+
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
   const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
+
 
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {

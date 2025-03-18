@@ -10,13 +10,13 @@ const DropdownButton = ({ isOpen, onClick, itemSelectedText, variant="placeHolde
   return (
     <button
       id="dropdown-button"
-      className="relative w-full rounded-md bg-stone-500 h-[59px] max-sm:h-[50px]"
+      className="flex relative size-full mb-2 items-center justify-left rounded-md bg-stone-500 h-[50px]"
       onClick={onClick}
       aria-expanded={isOpen}
       aria-haspopup="true"
       aria-controls="dropdown-menu"
     >
-      <span className={`px-4 text-left block my-auto text-2xl font-bold ${variantStyles[variant]}`}>
+      <span className={`flex px-4 py-0 justify-left items-center size-full text-xl sm:text-2xl font-bold ${variantStyles[variant]}`}>
         {itemSelectedText}
       </span>
       <DropdownIcon />

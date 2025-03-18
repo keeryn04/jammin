@@ -6,10 +6,11 @@
 
 const ActionButton = ({ variant = "primary", onClick, children }) => {
     const baseStyles =
-      "text-2xl font-bold cursor-pointer border-[none] h-[70px] rounded-[1000px] text-neutral-900 w-[170px] max-sm:w-full max-sm:text-xl max-sm:h-[60px]";
+      "font-bold cursor-pointer border-[none] h-[60px] rounded-[1000px] text-neutral-900 sm:h-[60px]";
     const variantStyles = {
-      primary: "bg-teal-400 hover:bg-teal-300",
-      secondary: "bg-neutral-400 hover:bg-neutral-300",
+      primary: "text-xl sm:text-2xl bg-teal-400 hover:bg-teal-300 w-[130px] sm:w-[170px]",
+      primaryLandingPage:  "text-xl sm:text-2xl bg-teal-400 hover:bg-teal-300 w-[270px] sm:w-[370px]",
+      secondary: "text-xl sm:text-2xl bg-neutral-400 hover:bg-neutral-300 w-[130px] sm:w-[170px]",
     };
   
     return (
