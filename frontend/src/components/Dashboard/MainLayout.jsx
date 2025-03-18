@@ -14,6 +14,8 @@ export default function MainLayout() {
   const [showHeart, setShowHeart] = useState(false); // State to control heart animation
   const [randomEmoji, setRandomEmoji] = useState(""); // State to store the random emoji
 
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+
   // Access context values
   const {
     activeUser,
@@ -31,7 +33,7 @@ export default function MainLayout() {
       if (!activeUser || !currentDisplayedUser) return;
 
       try {
-        const response = await fetch("http://localhost:5001/api/matches");
+        const response = await fetch(`${VERCEL_URL}/api/matches`);
         if (response.ok) {
           const matches = await response.json();
 
@@ -103,7 +105,7 @@ export default function MainLayout() {
 
     try {
       const updateResponse = await fetch(
-        `http://localhost:5001/api/matches/${currentMatch.match_id}`,
+        `${VERCEL_URL}/api/matches/${currentMatch.match_id}`,
         {
           method: "PUT",
           headers: {

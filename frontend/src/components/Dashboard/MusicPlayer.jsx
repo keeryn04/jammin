@@ -4,8 +4,6 @@ import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-const userIdLink = `${VERCEL_URL}/api/users/by_user_data`;
-const matchesLink = `${VERCEL_URL}/api/matches`;
 
 export default function MusicPlayer({
   currentTime,
@@ -29,6 +27,7 @@ export default function MusicPlayer({
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
+  const [userBio, setUserBio] = useState(""); // State to store the user's bio
   const seekBarRef = useRef(null);
 
   // Array of emojis to choose from
@@ -46,6 +45,29 @@ export default function MusicPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Fetch user bio when currentDisplayedUser changes
+  useEffect(() => {
+    const fetchUserBio = async () => {
+      if (!currentDisplayedUser) return;
+
+      try {
+        const response = await fetch(
+          `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData = await response.json();
+        setUserBio(userData.bio || ""); // Set the user's bio
+      } catch (error) {
+        console.error("Error fetching user bio:", error);
+        setUserBio(""); // Reset bio on error
+      }
+    };
+
+    fetchUserBio();
+  }, [currentDisplayedUser]);
 
   // Handle seek bar interaction (click)
   const handleSeek = (e) => {
@@ -83,6 +105,7 @@ export default function MusicPlayer({
       const allUsers = [...displayedUsers];
       let nextIndex = (prevIndex + 1) % allUsers.length; // Calculate next index
       setCurrentDisplayedUser(allUsers[nextIndex]); // Update currentDisplayedUser
+      console.log(activeUser);
       return nextIndex; // Return the new index
     });
   };
@@ -92,6 +115,7 @@ export default function MusicPlayer({
       const allUsers = [...displayedUsers];
       let previousIndex = (prevIndex - 1 + allUsers.length) % allUsers.length; // Calculate previous index
       setCurrentDisplayedUser(allUsers[previousIndex]); // Update currentDisplayedUser
+      console.log(activeUser);
       return previousIndex; // Return the new index
     });
   };
@@ -100,36 +124,40 @@ export default function MusicPlayer({
     if (!activeUser || !currentDisplayedUser) return;
 
     try {
-      // Fetch user_id for activeUser and currentDisplayedUser based on their user_data_id
-      const activeUserResponse = await fetch(`${userIdLink}/${activeUser.user_data_id}`);
-      const currentDisplayedUserResponse = await fetch(`${userIdLink}/${currentDisplayedUser.user_data_id}`);
-      
-      const activeUserData = await activeUserResponse.json();
-      const currentDisplayedUserData = await currentDisplayedUserResponse.json();
-  
-      // Check if the user data was found
-      if (!activeUserData.user_id || !currentDisplayedUserData.user_id) {
-        console.error('User data not found!');
+      // Fetch all matches from the backen
+      const matchesResponse = await fetch(`${VERCEL_URL}/api/matches`);
+      const matchesData = await matchesResponse.json();
+
+      // Find the match where user_1_id matches activeUser.user_data_id and user_2_id matches currentDisplayedUser.user_data_id
+      const match = matchesData.find(
+        (match) =>
+          match.user_1_id === activeUser.user_data_id &&
+          match.user_2_id === currentDisplayedUser.user_data_id
+      );
+
+      // If no match is found, log an error and return
+      if (!match) {
+        console.error("Match not found!");
         return;
       }
-  
-      // Create match data with user_id instead of user_data_id
-      const matchData = {
-        user_1_id: activeUserData.user_id,
-        user_2_id: currentDisplayedUserData.user_id,
-        match_score: 0, // Set initial score (can be modified later)
-        status: "pending", // Set match status
-      };
-  
-      // Create match request to backend
-      const response = await fetch("http://localhost:5000/api/matches", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(matchData),
-      });
-  
+
+      // Update the match status to 'waiting'
+      const updateResponse = await fetch(
+        `${VERCEL_URL}/api/matches/${match.match_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_1_id: match.user_1_id,
+            user_2_id: match.user_2_id,
+            match_score: match.match_score, // Keep the existing score
+            status: "waiting", // Update the status to 'waiting'
+          }),
+        }
+      );
+
       // Handle response from the backend
       const updateData = await updateResponse.json();
       console.log(updateData);
@@ -144,7 +172,7 @@ export default function MusicPlayer({
       if (oppositeMatch && oppositeMatch.status === "waiting") {
         // If both matches are in 'waiting' status, update both to 'accepted'
         const updateOppositeMatchResponse = await fetch(
-          `http://localhost:5001/api/matches/${oppositeMatch.match_id}`,
+          `${VERCEL_URL}/api/matches/${oppositeMatch.match_id}`,
           {
             method: "PUT",
             headers: {
@@ -164,7 +192,7 @@ export default function MusicPlayer({
 
         // Update the original match to 'accepted' as well
         const updateOriginalMatchResponse = await fetch(
-          `http://localhost:5001/api/matches/${match.match_id}`,
+          `${VERCEL_URL}/api/matches/${match.match_id}`,
           {
             method: "PUT",
             headers: {
@@ -228,7 +256,7 @@ export default function MusicPlayer({
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-center" style={style}>
+    <section className="mt-10 text-left" style={style}>
       {/* Emoji Animation */}
       {showHeart && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -236,9 +264,10 @@ export default function MusicPlayer({
         </div>
       )}
 
-      <h2 className="mb-2 text-2xl font-semibold">A Display Caption?</h2>
+      {/* Display the user's bio */}
+      <h2 className="text-2xl font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
       <p className="mb-4 text-base text-zinc-400">
-        {currentDisplayedUser?.profile_name || "Person's Name"}
+        {userBio || "A Display Caption?"}
       </p>
       <div className="mx-auto mt-0 mb-5 w-full">
         {/* Seek bar */}

@@ -2,7 +2,6 @@ from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
 from api.database_connector import get_db_connection
-import mysql.connector
 import os
 import uuid
 from dotenv import load_dotenv
@@ -60,8 +59,8 @@ def add_match():
 
         response = conn.table("matches").upsert({
             "match_id": match_id,
-            "user_1_id": data["user_1_id"],
-            "user_2_id": data["user_2_id"],
+            "user_1_data_id": data["user_1_data_id"],
+            "user_2_data_id": data["user_2_data_id"],
             "match_score": data["match_score"],
             "status": data["status"],
             "reasoning":data["reasoning"]

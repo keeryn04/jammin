@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import GenreCard from "./GenreCard";
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-const userDataLink = `${VERCEL_URL}/api/user_data`;
-
 const GenreSection = () => {
   const [genres, setGenres] = useState([]);
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   useEffect(() => {
-    fetch(userDataLink)
+    fetch(`${VERCEL_URL}/api/user_data`)
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {

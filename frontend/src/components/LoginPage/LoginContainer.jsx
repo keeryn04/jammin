@@ -15,15 +15,14 @@ import ActionButton from "../Generic/ActionButton";
  */
 
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const fetchLink = `${VERCEL_URL}/api/users`;
+const loginLink = `${VERCEL_URL}/api/login`;
+const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
-  const fetchLink = `${VERCEL_URL}/api/users`;
-  const loginLink = `${VERCEL_URL}/api/login`;
-  const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
   const backendRedirect = async () => {
     try {

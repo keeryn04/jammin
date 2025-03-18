@@ -5,41 +5,45 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [activeUser, setActiveUser] = useState(null);
   const [displayedUsers, setDisplayedUsers] = useState([]);
-  const [displayedUsersChat, setDisplayedUsersChat] = useState([]); 
-  const [displayedUserProfile, setDisplayedUserProfile] = useState([]); 
+  const [displayedUsersChat, setDisplayedUsersChat] = useState([]); // For compatibility data
+  const [displayedUserProfile, setDisplayedUserProfile] = useState([]); // For additional user profile data
   const [currentDisplayedUser, setCurrentDisplayedUser] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [allUsersData, setAllUsersData] = useState([]);  // State to store all user data from users_music_data
+  const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
+  // Specify the user_data_id of the active user manually
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-  const userDataLink = `${VERCEL_URL}/api/user_data`;
   const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
 
+  // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
-  const fetchData = async () => {
+    const abortController = new AbortController(); // Create an AbortController
+
+    const fetchAllUsersData = async () => {
       try {
         // Fetch the active user ID
         const res = await fetch(cookieFetchLink, { credentials: "include" });
         const data = await res.json();
-        const userDataId = data.user.user_data_id
-        console.log(data)
-        
-        if (!userDataId) {
+        const activeUserId = data.user.user_data_id
+
+        if (!activeUserId) {
           console.error("No active user data_id found");
           return;
         }
-
-        // Fetch all user data from users_music_data
-        const allUsersDataResponse = await fetch(userDataLink);
+        // Fetch all users from the users_music_data endpoint
+        const allUsersDataResponse = await fetch(
+          `${VERCEL_URL}/api/user_data`,
+          { signal: abortController.signal } // Pass the abort signal
+        );
         const allUsersData = await allUsersDataResponse.json();
-        console.log("All Users Data:", allUsersData);
+        console.log("All Users Data (from users_music_data):", allUsersData); // Log all users data
         setAllUsersData(allUsersData);
 
-        // Find the active user from all users data
+        // Find the active user from the fetched data
         const activeUserData = allUsersData.find(
-          (user) => user.user_data_id === userDataId
+          (user) => user.user_data_id === activeUserId
         );
-        console.log("Active User Data:", activeUserData);
+        console.log("Active User Data:", activeUserData); // Log active user data
         setActiveUser(activeUserData);
 
         if (!activeUserData) {
@@ -67,7 +71,7 @@ export const UserProvider = ({ children }) => {
 
         // Call the LLM to generate compatibility data
         const llmResponse = await fetch(
-          `${VERCEL_URL}/api/chattesting/${activeUserData.user_data_id}`,
+          `${VERCEL_URL}/api/chattesting/${activeUserId}`,
           { signal: abortController.signal } // Pass the abort signal
         );
         const llmData = await llmResponse.json();
@@ -107,11 +111,18 @@ export const UserProvider = ({ children }) => {
           console.error("No users to display.");
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        if (error.name !== "AbortError") {
+          console.error("Error fetching data:", error);
+        }
       }
     };
 
-    fetchData();
+    fetchAllUsersData();
+
+    // Cleanup function to abort the fetch request
+    return () => {
+      abortController.abort();
+    };
   }, []); // Re-run effect when activeUserId changes
 
   return (

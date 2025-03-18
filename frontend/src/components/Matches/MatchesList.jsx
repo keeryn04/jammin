@@ -2,13 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import MatchCard from "./MatchCard";
 import { UserContext } from "../UserContext"; // Adjust the import path as necessary
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-const matchesLink = `${VERCEL_URL}/api/matches`;
-
 const MatchesList = () => {
   const { activeUser } = useContext(UserContext);
   const [acceptedMatches, setAcceptedMatches] = useState([]);
   const [loading, setLoading] = useState(true); // Add a loading state
+
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -19,7 +18,7 @@ const MatchesList = () => {
 
       try {
         // Fetch matches from the API
-        const response = await fetch(matchesLink);
+        const response = await fetch(`${VERCEL_URL}/api/matches`);
         if (!response.ok) {
           throw new Error("Failed to fetch matches");
         }

@@ -16,6 +16,7 @@ import { useSignupContext } from "./SignupContext";
  */
 
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const fetchLink = `${VERCEL_URL}/api/users`
 
 const SignupContainer1 = () => {
   const {signupData, setSignupData} = useSignupContext()
@@ -23,8 +24,6 @@ const SignupContainer1 = () => {
   const [password, setPassword] = useState(null);
   const [passwordCheck, setPasswordCheck] = useState(null)
   const [error, setError] = useState(null);
-
-  const fetchLink = `${VERCEL_URL}/api/users`
 
   const checkEmailAlreadyExists = async (inputEmail) => {
     try {
