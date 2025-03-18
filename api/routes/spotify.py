@@ -1,22 +1,21 @@
-from flask import Blueprint, app, jsonify, request, session, redirect, url_for
+from flask import Blueprint, app, jsonify, request, session, redirect, url_for, make_response
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
-import mysql.connector
 import uuid
 load_dotenv()
 
 import logging
-import json
-logging.basicConfig(level=logging.DEBUG)
 
-from database_connector import get_db_connection
+from api.database_connector import get_db_connection
+from api.jwt import generate_jwt, decode_jwt, update_jwt
 
 spotify_routes = Blueprint("spotify_routes", __name__)
 
-API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL')
+API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
@@ -28,16 +27,17 @@ sp_oauth = SpotifyOAuth(
     client_id=SPOTIFY_CLIENT_ID,
     client_secret=SPOTIFY_CLIENT_SECRET,
     redirect_uri=SPOTIFY_REDIRECT_URI,
-    scope=SCOPE
+    scope=SCOPE,
+    cache_path=None
 )
 
 # Spotify Authentication Routes
-@spotify_routes.route("/spotify/login")
+@spotify_routes.route("/api/spotify/login")
 def spotify_login():
     auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
+    return redirect(auth_url) 
 
-@spotify_routes.route("/spotify/callback")
+@spotify_routes.route("/api/spotify/callback")
 def spotify_callback():
     code = request.args.get("code")
     token_url = "https://accounts.spotify.com/api/token"
@@ -52,15 +52,31 @@ def spotify_callback():
         },
     )
     data = response.json()
-    session["spotify_access_token"] = data.get("access_token")
-    return redirect("/fetch_spotify_data")
+    spotify_access_token = data.get("access_token")
+    old_token = request.cookies.get("auth_token")
 
-@spotify_routes.route("/fetch_spotify_data")
-def fetch_spotify_data():
-    access_token = session.get("spotify_access_token")
+    new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
+    response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
+    response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
     
-    if not access_token:
-        return jsonify({"error": "No Spotify access token"}), 401
+    return response
+
+@spotify_routes.route("/api/fetch_spotify_data")
+def fetch_spotify_data():
+    token = request.cookies.get("auth_token")
+
+    if not token:
+        return jsonify({"error": "No authentication token found"}), 401
+
+    decoded_token = decode_jwt(token)
+
+    if not decoded_token:
+        return jsonify({"error": "Invalid or expired token"}), 401
+
+    access_token = decoded_token.get("spotify_access_token")
+    
+    if access_token == None:
+        return redirect(f"{VERCEL_URL}/Login"), 401 #Return to login page if error
     
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get("https://api.spotify.com/v1/me", headers=headers)
@@ -92,60 +108,54 @@ def fetch_spotify_data():
         "profile_image": profile_image,
     }
 
-    conn = get_db_connection()
-    if conn is None:
-        return jsonify({"error": "Database connection failed"}), 500
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return redirect(f"{VERCEL_URL}/Login"), 500 #Return to login page if database error
 
-    #Save spotify ID
-    spotify_id = spotify_data["spotify_id"]
+        #Save spotify ID
+        spotify_id = spotify_data["spotify_id"]
 
-    #Fetch user_data_id based on current user
-    user_id = session.get('current_user_id')  # Retrieve from session
-    #user_id = "a2163de0-fe03-11ef-9f25-0242ac140002" #TEMP USER REMOVE LATER FOR THE LOVE OF GOD
+        #Get user_id from cookies
+        token = request.cookies.get("auth_token")
 
-    if not user_id:
-        return jsonify({"error": "User not logged in"}), 401
+        if not token:
+            return jsonify({"error": "No authentication token found"}), 401
+    
+        decoded_token = decode_jwt(token)
+        
+        if not decoded_token:
+            return jsonify({"error": "Invalid or expired token"}), 401
 
-    cursor.execute("SELECT user_data_id FROM users WHERE user_id = %s", (user_id,))
-    result = cursor.fetchone()
+        user_id = decoded_token.get("user_id")
 
-    if not result:
-        return jsonify({"error": "User data not found"}), 404
+        if not user_id:
+            return jsonify({"error": "User not logged in"}), 401
+        
+        response = conn.table("users").select("user_data_id").eq("user_id", user_id).execute()
 
-    user_data_id = result[0]
+        if not response.data:
+            return redirect(f"{VERCEL_URL}/Login"), 401
+        
+        user_data_id = response.data[0]["user_data_id"]
+        
+        response = conn.table("users_music_data").upsert({
+                "user_data_id": user_data_id,
+                "spotify_id": spotify_id,
+                "top_songs": ", ".join(spotify_data["top_songs"]),
+                "top_songs_pictures": ", ".join(spotify_data["top_songs_pictures"]),
+                "top_artists": ", ".join(spotify_data["top_artists"]), 
+                "top_artists_pictures": ", ".join(spotify_data["top_artists_pictures"]),
+                "top_genres": ", ".join(spotify_data["top_genres"]),
+                "top_genres_pictures": ", ".join(spotify_data["top_genres_pictures"]),
+                "profile_name": spotify_data.get("profile_name"), 
+                "profile_image": spotify_data.get("profile_image")
+            }).execute()
 
-    #Update users_music_data based on spotify data
-    query = """
-        INSERT INTO users_music_data (user_data_id, spotify_id, top_songs, top_songs_pictures, 
-                              top_artists, top_artists_pictures, top_genres, top_genres_pictures, 
-                              profile_name, profile_image) 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
-        ON DUPLICATE KEY UPDATE 
-        spotify_id=VALUES(spotify_id), 
-        top_songs=VALUES(top_songs), 
-        top_songs_pictures=VALUES(top_songs_pictures),
-        top_artists=VALUES(top_artists), 
-        top_artists_pictures=VALUES(top_artists_pictures),
-        top_genres=VALUES(top_genres), 
-        top_genres_pictures=VALUES(top_genres_pictures),
-        profile_name=VALUES(profile_name), 
-        profile_image=VALUES(profile_image)
-        """
-    cursor.execute(query, (
-        user_data_id,
-        spotify_id,
-        ", ".join(spotify_data["top_songs"]),
-        ", ".join(spotify_data["top_songs_pictures"]),
-        ", ".join(spotify_data["top_artists"]),
-        ", ".join(spotify_data["top_artists_pictures"]),
-        ", ".join(spotify_data["top_genres"]),
-        ", ".join(spotify_data["top_genres_pictures"]),
-        spotify_data["profile_name"],
-        spotify_data["profile_image"]
-    ))
-    conn.commit()
-    cursor.close()
-    conn.close()
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response["error"]["message"])
 
-    return jsonify({"message": "Spotify data fetched and stored successfully"})
+        return redirect(f"{VERCEL_URL}/Matching", code=302) #Return back to homepage after saving spotify data
+
+    except Exception as err:
+        return jsonify({"error": f"Database error: {err}"}), 500

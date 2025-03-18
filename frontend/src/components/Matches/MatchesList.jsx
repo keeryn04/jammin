@@ -7,6 +7,8 @@ const MatchesList = () => {
   const [acceptedMatches, setAcceptedMatches] = useState([]);
   const [loading, setLoading] = useState(true); // Add a loading state
 
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+
   useEffect(() => {
     const fetchMatches = async () => {
       if (!activeUser) {
@@ -16,7 +18,7 @@ const MatchesList = () => {
 
       try {
         // Fetch matches from the API
-        const response = await fetch("http://localhost:5001/api/matches");
+        const response = await fetch(`${VERCEL_URL}/api/matches`);
         if (!response.ok) {
           throw new Error("Failed to fetch matches");
         }
@@ -28,7 +30,7 @@ const MatchesList = () => {
         // Filter matches where user_1_id matches the active user's ID and status is "pending"
         const filteredMatches = matches.filter(
           (match) =>
-            match.user_1_id === activeUser.user_data_id && match.status === "accepted"
+            match.user_1_data_id === activeUser.user_data_id && match.status === "accepted"
         );
 
         // Debug: Log the filtered matches

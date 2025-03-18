@@ -5,9 +5,8 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "/api/app.py",
-      "use": "@vercel/python",
-      "config": { "pythonPath":"api" }
+      "src": "api/app.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -16,8 +15,12 @@
       "dest": "/api/app.py"
     },
     {
-      "src": "(.*)",
-      "dest": "frontend/$1"
+      "src": "/(.*\\.js|.*\\.css|.*\\.jpg|.*\\.png|.*\\.svg|.*\\.woff2|.*\\.ttf)",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
     }
   ]
 }

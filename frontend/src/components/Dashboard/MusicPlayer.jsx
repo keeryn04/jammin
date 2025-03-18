@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+
 export default function MusicPlayer({
   currentTime,
   totalDuration,
@@ -51,7 +53,7 @@ export default function MusicPlayer({
 
       try {
         const response = await fetch(
-          `http://localhost:5001/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
+          `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
@@ -122,15 +124,15 @@ export default function MusicPlayer({
     if (!activeUser || !currentDisplayedUser) return;
 
     try {
-      // Fetch all matches from the backend
-      const matchesResponse = await fetch("http://localhost:5001/api/matches");
+      // Fetch all matches from the backen
+      const matchesResponse = await fetch(`${VERCEL_URL}/api/matches`);
       const matchesData = await matchesResponse.json();
 
       // Find the match where user_1_id matches activeUser.user_data_id and user_2_id matches currentDisplayedUser.user_data_id
       const match = matchesData.find(
         (match) =>
-          match.user_1_id === activeUser.user_data_id &&
-          match.user_2_id === currentDisplayedUser.user_data_id
+          match.user_1_data_id === activeUser.user_data_id &&
+          match.user_2_data_id === currentDisplayedUser.user_data_id
       );
 
       // If no match is found, log an error and return
@@ -141,17 +143,18 @@ export default function MusicPlayer({
 
       // Update the match status to 'waiting'
       const updateResponse = await fetch(
-        `http://localhost:5001/api/matches/${match.match_id}`,
+        `${VERCEL_URL}/api/matches/${match.match_id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_1_id: match.user_1_id,
-            user_2_id: match.user_2_id,
+            user_1_id: match.user_1_data_id,
+            user_2_id: match.user_2_data_id,
             match_score: match.match_score, // Keep the existing score
             status: "waiting", // Update the status to 'waiting'
+            reasoning: match.reasoning,
           }),
         }
       );
@@ -163,24 +166,25 @@ export default function MusicPlayer({
       // Check for the opposite match
       const oppositeMatch = matchesData.find(
         (m) =>
-          m.user_1_id === currentDisplayedUser.user_data_id &&
-          m.user_2_id === activeUser.user_data_id
+          m.user_1_data_id === currentDisplayedUser.user_data_id &&
+          m.user_2_data_id === activeUser.user_data_id
       );
 
       if (oppositeMatch && oppositeMatch.status === "waiting") {
         // If both matches are in 'waiting' status, update both to 'accepted'
         const updateOppositeMatchResponse = await fetch(
-          `http://localhost:5001/api/matches/${oppositeMatch.match_id}`,
+          `${VERCEL_URL}/api/matches/${oppositeMatch.match_id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              user_1_id: oppositeMatch.user_1_id,
-              user_2_id: oppositeMatch.user_2_id,
+              user_1_id: oppositeMatch.user_1_data_id,
+              user_2_id: oppositeMatch.user_2_data_id,
               match_score: oppositeMatch.match_score,
               status: "accepted", // Update the status to 'accepted'
+              reasoning: oppositeMatch.reasoning,
             }),
           }
         );
@@ -190,17 +194,18 @@ export default function MusicPlayer({
 
         // Update the original match to 'accepted' as well
         const updateOriginalMatchResponse = await fetch(
-          `http://localhost:5001/api/matches/${match.match_id}`,
+          `${VERCEL_URL}/api/matches/${match.match_id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              user_1_id: match.user_1_id,
-              user_2_id: match.user_2_id,
+              user_1_id: match.user_1_data_id,
+              user_2_id: match.user_2_data_id,
               match_score: match.match_score,
               status: "accepted", // Update the status to 'accepted'
+              reasoning: match.reasoning,
             }),
           }
         );

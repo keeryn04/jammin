@@ -9,14 +9,16 @@ import ActionButton from "../Generic/ActionButton";
 import DropdownMenu from "../Generic/DropdownMenu"
 import { useSignupContext } from "./SignupContext";
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const fetchLink = `${VERCEL_URL}/api/users`;
+const redirectLink = `${VERCEL_URL}/api/spotify/login`;
+
 const SignupContainer2 = () => {
   const {signupData, setSignupData} = useSignupContext()
   const [name, setName] = useState(null);
   const [gender, setGender] = useState(null);
   const [age, setAge] = useState(null)
   const [error, setError] = useState(null);
-
-  const fetchLink = "http://localhost:5000/api/users";
 
   const attemptUserPost = async (signupData, name, gender, age) => {
     try {
@@ -38,6 +40,7 @@ const SignupContainer2 = () => {
       const data = await response.text();
       if (response.ok) {
         console.log("Signup Successful")
+        window.location.href = redirectLink;  //Send user to spotify to add spotify data
       } else {
         setError(data.error)
       }

@@ -12,7 +12,10 @@ export const UserProvider = ({ children }) => {
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "e93b74a7-035a-11f0-82cf-0242ac120002"; // Replace with your desired user_data_id
+
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+  const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
+
 
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
@@ -20,9 +23,18 @@ export const UserProvider = ({ children }) => {
 
     const fetchAllUsersData = async () => {
       try {
+        // Fetch the active user ID
+        const res = await fetch(cookieFetchLink, { credentials: "include" });
+        const data = await res.json();
+        const activeUserId = data.user.user_data_id
+
+        if (!activeUserId) {
+          console.error("No active user data_id found");
+          return;
+        }
         // Fetch all users from the users_music_data endpoint
         const allUsersDataResponse = await fetch(
-          `http://localhost:5001/api/user_data`,
+          `${VERCEL_URL}/api/user_data`,
           { signal: abortController.signal } // Pass the abort signal
         );
         const allUsersData = await allUsersDataResponse.json();
@@ -43,7 +55,7 @@ export const UserProvider = ({ children }) => {
 
         // Fetch ALL matches from the matches endpoint
         const matchesResponse = await fetch(
-          `http://localhost:5001/api/matches`,
+          `${VERCEL_URL}/api/matches`,
           { signal: abortController.signal } // Pass the abort signal
         );
         const matchesData = await matchesResponse.json();
@@ -61,7 +73,7 @@ export const UserProvider = ({ children }) => {
 
         // Call the LLM to generate compatibility data
         const llmResponse = await fetch(
-          `http://localhost:5001/chattesting/${activeUserId}`,
+          `${VERCEL_URL}/api/chattesting/${activeUserId}`,
           { signal: abortController.signal } // Pass the abort signal
         );
         const llmData = await llmResponse.json();
@@ -113,7 +125,7 @@ export const UserProvider = ({ children }) => {
     return () => {
       abortController.abort();
     };
-  }, [activeUserId]); // Re-run effect when activeUserId changes
+  }, []); // Re-run effect when activeUserId changes
 
   return (
     <UserContext.Provider

@@ -1,7 +1,5 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for
 from flask_cors import CORS
-from spotipy.oauth2 import SpotifyOAuth
-import mysql.connector
 import os
 import requests
 from dotenv import load_dotenv
@@ -10,7 +8,7 @@ import openai
 import json
 
 load_dotenv()
-from database_connector import get_db_connection
+from api.database_connector import get_db_connection
 
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -26,13 +24,7 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def find_common_elements(list1, list2):
-    """Helper function to find common elements between two lists."""
-    set1 = set(list1)
-    set2 = set(list2)
-    return list(set1.intersection(set2))
-
-@openai_routes.route("/chattesting/<ref_user_id>", methods=["GET"])
+@openai_routes.route("/api/chattesting/<ref_user_id>", methods=["GET"])
 def run_ChatQuery(ref_user_id):
     messages = [
         {"role": "system", "content": 
@@ -65,32 +57,30 @@ def run_ChatQuery(ref_user_id):
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
 
-        cursor = conn.cursor(dictionary=True)
-        
         # Fetch the reference user
-        cursor.execute("SELECT * FROM users_music_data WHERE user_data_id = %s", (ref_user_id,))
-        reference_user = cursor.fetchone()
+        response = conn.table("users_music_data").select("*").eq("user_data_id", ref_user_id).execute()
+        reference_user = response.data[0] if response.data else None
 
         if not reference_user:
             return jsonify({"error": "Could not get your Profile."}), 404
 
         # Fetch all users excluding the reference user
-        cursor.execute("SELECT * FROM users_music_data WHERE user_data_id != %s", (ref_user_id,))
-        rows = cursor.fetchall()
+        response = conn.table("users_music_data").select("*").neq("user_data_id", ref_user_id).execute()
+        rows = response.data
 
         if not rows:
             return jsonify({"error": "No other users found for comparison"}), 404
 
         # Fetch ALL matches from the matches table
-        cursor.execute("SELECT * FROM matches")
-        matches_data = cursor.fetchall()
+        matches_response = conn.table("matches").select("*").execute()
+        matches_data = matches_response.data
 
         # Prepare the data for the LLM
         users_data = []
         for row in rows:
             # Check if a match exists for this user
             existing_match = next(
-                (match for match in matches_data if match["user_1_id"] == ref_user_id and match["user_2_id"] == row["user_data_id"]),
+                (match for match in matches_data if match["user_1_data_id"] == ref_user_id and match["user_2_data_id"] == row["user_data_id"]),
                 None
             )
 
@@ -138,12 +128,7 @@ def run_ChatQuery(ref_user_id):
 
         insert_response(parsed_reply, ref_user_id)
 
-        cursor.close()
-        conn.close()
         return jsonify(parsed_reply)
-
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Database error: {err}"}), 500
 
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
@@ -164,7 +149,6 @@ def insert_response(reply, ref_user_id):
             print("Unable to connect to the database.")
             return
 
-        cursor = conn.cursor()
         inserted_count = 0
         skipped_count = 0
 
@@ -177,7 +161,7 @@ def insert_response(reply, ref_user_id):
             print(f"Extracted Match Data - userID: {user_id}, compatibility_score: {compatibility_score}, reasoning: {reasoning}")
 
             # Validate data
-            if not all([user_id, compatibility_score, reasoning]):
+            if not user_id or not compatibility_score or not reasoning:
                 print(f"Skipping invalid match data: {match}")
                 skipped_count += 1
                 continue
@@ -187,35 +171,42 @@ def insert_response(reply, ref_user_id):
 
             try:
                 # Check if the match already exists and has a status of 'accepted'
-                cursor.execute("""
-                    SELECT status 
-                    FROM matches 
-                    WHERE user_1_id = %s AND user_2_id = %s
-                """, (ref_user_id, user_id))
-                existing_match = cursor.fetchone()
+                existing_match_response = conn.table("matches") \
+                    .select("*") \
+                    .filter("user_1_data_id", "eq", ref_user_id) \
+                    .filter("user_2_data_id", "eq", user_id) \
+                    .execute()
 
-                if existing_match and existing_match["status"] == 'accepted':
-                    print(f"Skipping update for match {user_id} because it is already 'accepted'.")
+                existing_match_json = existing_match_response.data
+
+                # If any match exists between these users, skip creating a new one
+                if existing_match_json:
+                    match_id = existing_match_json[0].get("match_id")
+                    status = existing_match_json[0].get("status")
+                    conn.table("matches").update({
+                        "match_score": compatibility_score,
+                        "reasoning": reasoning
+                    }).filter("match_id", "eq", match_id).execute()
+                    
+                    print(f"Updating match {user_id} because it already exists. New Status: {status}.")
                     skipped_count += 1
                     continue
 
+                match_uuid = uuid.uuid4()
+
                 # Insert or update the match
-                cursor.execute("""
-                    INSERT INTO matches (match_id, user_1_id, user_2_id, match_score, reasoning, status)
-                    VALUES (UUID(), %s, %s, %s, %s, 'pending')
-                    ON DUPLICATE KEY UPDATE 
-                    match_score = VALUES(match_score), 
-                    status = VALUES(status), 
-                    reasoning = VALUES(reasoning);
-                """, (ref_user_id, user_id, compatibility_score, reasoning))
+                conn.table("matches").upsert({
+                    "match_id": str(match_uuid),
+                    "user_1_data_id": ref_user_id,
+                    "user_2_data_id": user_id,
+                    "match_score": compatibility_score,
+                    "reasoning": reasoning,
+                    "status": "pending"
+                }).execute()
                 inserted_count += 1
-            except mysql.connector.Error as err:
+            except Exception as err:
                 print(f"Database error for match {user_id}: {err}")
                 skipped_count += 1
-
-        conn.commit()
-        cursor.close()
-        conn.close()
 
         print(f"Inserted {inserted_count} matches, skipped {skipped_count} matches.")
 
@@ -223,3 +214,5 @@ def insert_response(reply, ref_user_id):
         print(f"JSON parsing error: {err}")
     except Exception as e:
         print(f"Unexpected error in insert_response: {str(e)}")
+
+

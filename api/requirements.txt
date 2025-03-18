@@ -5,5 +5,7 @@ requests
 spotipy
 dotenv
 flask-session
-uuid
+supabase
+pyjwt
+datetime
 openai

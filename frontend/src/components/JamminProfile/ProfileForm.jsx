@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
-const usersLink = `http://localhost:5001/api/users`;
-const userDataToUserLink = `http://localhost:5001/api/users/by_user_data`;
+const usersLink = `${VERCEL_URL}/api/users`;
+const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
 
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);

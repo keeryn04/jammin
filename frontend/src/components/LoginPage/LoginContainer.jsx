@@ -8,19 +8,30 @@ import FormInput from "../Generic/FormInput";
 import ActionButton from "../Generic/ActionButton";
 
 /**
- * This the login container. It is the page displayed for the user such that they can input their email and password and login to the system
+ * This is the login container. It is the page displayed for the user such that they can input their email and password and login to the system
  * The components that make up this file are the logo svg, the form input, error message, and primary / secondary coloured buttons
  * The functions below contain functionality for handling clicking the buttons such as login and back, as well as functions that update the typed email and password
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
  */
+
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const fetchLink = `${VERCEL_URL}/api/users`;
+const loginLink = `${VERCEL_URL}/api/login`;
+const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const fetchLink = "http://localhost:5000/api/users"
-  const loginLink = "http://localhost:5000/api/login"
+  const backendRedirect = async () => {
+    try {
+      window.location.href = redirectLink; 
+    } catch (e) {
+      console.error("Error:", e);
+      setError("Error authenticating Spotify, please login and try again.");
+    }
+  };
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
@@ -29,14 +40,15 @@ const LoginContainer = () => {
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
         if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
+          //Save user_id as cookie via backend
           const loginReturn = await fetch(loginLink, {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user['user_id'] }) //Send user_id to save it as session variable
+            body: JSON.stringify({ user_id: user['user_id'] })
           });
 
           const data = await loginReturn.json();
-          console.log(data)
           return true;
         }
       }
@@ -53,7 +65,7 @@ const LoginContainer = () => {
     //Check login information, then either advance the user, or display and error
     const loginSuccessful = await attemptLogin(email, password)
     if (loginSuccessful == true) {
-      console.log("Woooooooooo")
+      backendRedirect();
     }
     else {
       setError("Email or password incorrect")

@@ -1,28 +1,45 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../UserContext"; // Adjust the import path as necessary
 
-const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) => {
+const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_data_id }) => {
   const { allUsersData } = useContext(UserContext);
   const [matchedUser, setMatchedUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false); // State to manage expanded/collapsed state
 
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Fetch user info from the users table using user_data_id
-        const userResponse = await fetch(
-          `http://localhost:5001/api/users/by_user_data/${user_2_id}`
+        // Fetch user id from the users table using user_data_id
+        const userIDResponse = await fetch(
+          `${VERCEL_URL}/api/users/by_user_data/${user_2_data_id}`
         );
+
+        if (!userIDResponse.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const userIDData = await userIDResponse.json(); 
+        const userID = userIDData.user_id;  
+
+        // Fetch the user data with the user_id
+        const userResponse = await fetch(
+          `${VERCEL_URL}/api/users/${userID}`
+        );
+
         if (!userResponse.ok) {
           throw new Error("Failed to fetch user info");
         }
-        const userData = await userResponse.json();
+
+        const userDataArray = await userResponse.json();
+        const userData = userDataArray[0];
 
         // Find the corresponding user_data entry in allUsersData
         const userDetails = allUsersData.find(
-          (user) => user.user_data_id === user_2_id
+          (user) => user.user_data_id === user_2_data_id
         );
 
         if (!userDetails) {
@@ -46,7 +63,7 @@ const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) 
     };
 
     fetchUserData();
-  }, [user_2_id, allUsersData]);
+  }, [user_2_data_id, allUsersData]);
 
   if (loading) {
     return <div>Loading user data...</div>;
