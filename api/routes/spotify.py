@@ -18,7 +18,7 @@ VERCEL_URL = os.getenv('VITE_VERCEL_URL')
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 SCOPE = "user-library-read user-read-private playlist-read-private user-top-read"
@@ -26,7 +26,7 @@ SCOPE = "user-library-read user-read-private playlist-read-private user-top-read
 sp_oauth = SpotifyOAuth(
     client_id=SPOTIFY_CLIENT_ID,
     client_secret=SPOTIFY_CLIENT_SECRET,
-    redirect_uri=SPOTIFY_REDIRECT_URI,
+    redirect_uri=SPOTIPY_REDIRECT_URI,
     scope=SCOPE,
     cache_path=None
 )
@@ -40,26 +40,44 @@ def spotify_login():
 @spotify_routes.route("/api/spotify/callback")
 def spotify_callback():
     code = request.args.get("code")
+
+    if not code:
+        return jsonify({"error": "Missing authorization code in callback"}), 400
+
     token_url = "https://accounts.spotify.com/api/token"
     response = requests.post(
         token_url,
         data={
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": SPOTIFY_REDIRECT_URI,
+            "redirect_uri": SPOTIPY_REDIRECT_URI,
             "client_id": SPOTIFY_CLIENT_ID,
             "client_secret": SPOTIFY_CLIENT_SECRET,
         },
     )
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch access token", "details": response.text}), 400
+
     data = response.json()
     spotify_access_token = data.get("access_token")
-    old_token = request.cookies.get("auth_token")
+    if not spotify_access_token:
+        return jsonify({"error": "Failed to get access token from Spotify"}), 400
 
+    old_token = request.cookies.get("auth_token")
     new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
-    response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
-    response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
     
-    return response
+    print("New JWT Token:", new_token)
+
+    if new_token is None:
+        return jsonify({"error": "Failed to update JWT token"}), 500
+    
+    if isinstance(new_token, str):
+        response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
+        response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+        return response
+    else:
+        return jsonify({"error": "Invalid token format"}), 500
 
 @spotify_routes.route("/api/fetch_spotify_data")
 def fetch_spotify_data():
