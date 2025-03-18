@@ -39,7 +39,7 @@ const SignupContainer2 = () => {
       const data = await response.text();
       if (response.ok) {
         console.log("Signup Successful")
-        navigate("/Matching");
+        navigate("/api/spotify/login"); //Send user to spotify to add spotify data
       } else {
         setError(data.error)
       }

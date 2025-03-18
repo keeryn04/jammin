@@ -30,7 +30,7 @@ const MatchesList = () => {
         // Filter matches where user_1_id matches the active user's ID and status is "pending"
         const filteredMatches = matches.filter(
           (match) =>
-            match.user_1_id === activeUser.user_data_id && match.status === "accepted"
+            match.user_1_data_id === activeUser.user_data_id && match.status === "accepted"
         );
 
         // Debug: Log the filtered matches

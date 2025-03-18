@@ -40,10 +40,10 @@ export default function MainLayout() {
           // Find the match where user_1_id and user_2_id match the active and displayed users
           const match = matches.find(
             (m) =>
-              (m.user_1_id === activeUser.user_data_id &&
-                m.user_2_id === currentDisplayedUser.user_data_id) ||
-              (m.user_1_id === currentDisplayedUser.user_data_id &&
-                m.user_2_id === activeUser.user_data_id)
+              (m.user_1_data_id === activeUser.user_data_id &&
+                m.user_2_data_id === currentDisplayedUser.user_data_id) ||
+              (m.user_1_data_id === currentDisplayedUser.user_data_id &&
+                m.user_2_data_id === activeUser.user_data_id)
           );
 
           setCurrentMatch(match); // Set the found match
@@ -112,10 +112,11 @@ export default function MainLayout() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_1_id: currentMatch.user_1_id,
-            user_2_id: currentMatch.user_2_id,
+            user_1_id: currentMatch.user_1_data_id,
+            user_2_id: currentMatch.user_2_data_id,
             match_score: currentMatch.match_score, // Keep the existing score
             status: "rejected", // Update the status to 'rejected'
+            reasoning: currentMatch.reasoning,
           }),
         }
       );

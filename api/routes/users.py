@@ -89,8 +89,7 @@ def add_user():
             "bio": data.get("bio", None)
         }).execute()
 
-        user_data_id = get_user_data_id_by_user_id(user_uuid)
-        jwt_token = generate_jwt(user_uuid,user_data_id) #Store current user_id and user_data_id as cookie (Register)
+        jwt_token = generate_jwt(user_uuid, user_data_uuid) #Store current user_id and user_data_id as cookie (Register)
         response = make_response(jsonify({"message": "Register successful", "user_id": user_uuid}))
         response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
     

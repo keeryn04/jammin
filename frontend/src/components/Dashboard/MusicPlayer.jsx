@@ -131,8 +131,8 @@ export default function MusicPlayer({
       // Find the match where user_1_id matches activeUser.user_data_id and user_2_id matches currentDisplayedUser.user_data_id
       const match = matchesData.find(
         (match) =>
-          match.user_1_id === activeUser.user_data_id &&
-          match.user_2_id === currentDisplayedUser.user_data_id
+          match.user_1_data_id === activeUser.user_data_id &&
+          match.user_2_data_id === currentDisplayedUser.user_data_id
       );
 
       // If no match is found, log an error and return
@@ -150,10 +150,11 @@ export default function MusicPlayer({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            user_1_id: match.user_1_id,
-            user_2_id: match.user_2_id,
+            user_1_id: match.user_1_data_id,
+            user_2_id: match.user_2_data_id,
             match_score: match.match_score, // Keep the existing score
             status: "waiting", // Update the status to 'waiting'
+            reasoning: match.reasoning,
           }),
         }
       );
@@ -165,8 +166,8 @@ export default function MusicPlayer({
       // Check for the opposite match
       const oppositeMatch = matchesData.find(
         (m) =>
-          m.user_1_id === currentDisplayedUser.user_data_id &&
-          m.user_2_id === activeUser.user_data_id
+          m.user_1_data_id === currentDisplayedUser.user_data_id &&
+          m.user_2_data_id === activeUser.user_data_id
       );
 
       if (oppositeMatch && oppositeMatch.status === "waiting") {
@@ -179,10 +180,11 @@ export default function MusicPlayer({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              user_1_id: oppositeMatch.user_1_id,
-              user_2_id: oppositeMatch.user_2_id,
+              user_1_id: oppositeMatch.user_1_data_id,
+              user_2_id: oppositeMatch.user_2_data_id,
               match_score: oppositeMatch.match_score,
               status: "accepted", // Update the status to 'accepted'
+              reasoning: oppositeMatch.reasoning,
             }),
           }
         );
@@ -199,10 +201,11 @@ export default function MusicPlayer({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              user_1_id: match.user_1_id,
-              user_2_id: match.user_2_id,
+              user_1_id: match.user_1_data_id,
+              user_2_id: match.user_2_data_id,
               match_score: match.match_score,
               status: "accepted", // Update the status to 'accepted'
+              reasoning: match.reasoning,
             }),
           }
         );
