@@ -11,6 +11,7 @@ import { useSignupContext } from "./SignupContext";
 
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const fetchLink = `${VERCEL_URL}/api/users`;
+const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
 const SignupContainer2 = () => {
   const {signupData, setSignupData} = useSignupContext()
@@ -39,7 +40,7 @@ const SignupContainer2 = () => {
       const data = await response.text();
       if (response.ok) {
         console.log("Signup Successful")
-        navigate("/api/spotify/login"); //Send user to spotify to add spotify data
+        window.location.href = redirectLink;  //Send user to spotify to add spotify data
       } else {
         setError(data.error)
       }
