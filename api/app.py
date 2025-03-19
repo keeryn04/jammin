@@ -18,12 +18,16 @@ load_dotenv()
 
 app = Flask(__name__)
 
+#API Key Authentication
+API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL')
+
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_COOKIE_SAMESITE"] = None  #Allows cross-site cookies
 app.config["SESSION_COOKIE_SECURE"] = True  #Only over HTTPS
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=[f"{VERCEL_URL}"])
 
 # Register Blueprints
 app.register_blueprint(spotify_routes)
@@ -34,9 +38,6 @@ app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
 app.register_blueprint(openai_routes)
 app.register_blueprint(jwt_routes)
-
-#API Key Authentication
-API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 
 #Apply API key to backend access
 def require_api_key(f):

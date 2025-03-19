@@ -43,7 +43,7 @@ def run_ChatQuery(ref_user_id):
                "userID": "72",
                "profile_name": "Thor",
                "compatibility_score": 75,
-               "reasoning": "You and *insert profile_name* share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
+               "reasoning": "You share favorite artists and genres (provide example if they do), showing strong compatibility. Your similar tastes suggest you would enjoy each other's playlists. Recommended artists: (provide recommendations based on both their top genres). (Keep reasoning ~30 words)",
                "common_top_songs": ["SongB"],
                "common_top_artists": ["ArtistB"]
              }
@@ -214,5 +214,3 @@ def insert_response(reply, ref_user_id):
         print(f"JSON parsing error: {err}")
     except Exception as e:
         print(f"Unexpected error in insert_response: {str(e)}")
-
-
