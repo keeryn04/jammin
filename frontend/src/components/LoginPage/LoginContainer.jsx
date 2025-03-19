@@ -112,7 +112,7 @@ const LoginContainer = () => {
           </p>
         )}
 
-        <div className="flex gap-10 justify-center max-sm:flex-col max-sm:gap-4 max-sm:items-center">
+        <div className="flex mt-1.5 justify-center gap-4 items-center">
           <ActionButton variant="secondary" onClick={handleBack}>
             Back
           </ActionButton>
