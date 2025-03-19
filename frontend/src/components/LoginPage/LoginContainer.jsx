@@ -63,6 +63,7 @@ const LoginContainer = () => {
 
   const handleLogin = async () => {
     //Check login information, then either advance the user, or display and error
+    setEmail(email.toLowerCase());
     const loginSuccessful = await attemptLogin(email, password)
     if (loginSuccessful == true) {
       backendRedirect();
