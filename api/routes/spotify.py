@@ -9,7 +9,7 @@ load_dotenv()
 
 import logging
 
-from api.database_connector import get_db_connection
+from database.database_connector import get_db_connection
 from api.jwt import generate_jwt, decode_jwt, update_jwt
 
 spotify_routes = Blueprint("spotify_routes", __name__)
@@ -65,6 +65,12 @@ def spotify_callback():
         return jsonify({"error": "Failed to get access token from Spotify"}), 400
 
     old_token = request.cookies.get("auth_token")
+    print(f"Old Token: {old_token}")
+
+    if not old_token:
+        print("No auth_token found")
+        return jsonify({"error": "No auth token found"}), 401
+
     new_token = update_jwt(old_token, {"spotify_access_token": spotify_access_token})
     
     print("New JWT Token:", new_token)
@@ -74,7 +80,7 @@ def spotify_callback():
     
     if isinstance(new_token, str):
         response = make_response(redirect(f"{VERCEL_URL}/api/fetch_spotify_data"))
-        response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+        response.set_cookie("auth_token", new_token, httponly=True, secure=True, samesite="None", max_age=3600)
         return response
     else:
         return jsonify({"error": "Invalid token format"}), 500

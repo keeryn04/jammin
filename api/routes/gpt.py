@@ -8,7 +8,7 @@ import openai
 import json
 
 load_dotenv()
-from api.database_connector import get_db_connection
+from database.database_connector import get_db_connection
 
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY', 'key')
 openai.api_key = os.getenv("OPENAI_API_KEY")

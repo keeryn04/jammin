@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 from mockito import when, patch, unstub, mock
 import unittest
-from api.database_connector import get_db_connection
+from database.database_connector import get_db_connection
 from supabase import create_client, Client
 
 class TestDBConnector(unittest.TestCase):

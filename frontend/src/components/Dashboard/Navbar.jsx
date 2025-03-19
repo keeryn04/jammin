@@ -2,11 +2,14 @@ import React from "react";
 import { NavItem, LogOutNavItem } from "./NavItem";
 import { useNavigate } from "react-router-dom";
 
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const logoutLink = `${VERCEL_URL}/api/logout`;
+
 export default function Navbar() {
   const navigate = useNavigate()
 
   const handleMatchesClick = () => {
-    navigate("/Matching");
+    navigate("/Matches");
   }
   
   const handleProfileClick = () => {
@@ -22,7 +25,12 @@ export default function Navbar() {
   }
 
   const handleLogOutClick = () => {
-    
+    try {
+      window.location.href = logoutLink; 
+    } catch (e) {
+      console.error("Error:", e);
+      setError("Error logging out, please try again.");
+    }
   }
   
   

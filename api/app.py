@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response, request, session
+from flask import Flask, jsonify, make_response, redirect, request, session
 from flask_cors import CORS
 from api.jwt import generate_jwt
 from api.routes.spotify import spotify_routes
@@ -67,9 +67,16 @@ def login_user():
 
     # Set the JWT token in an HTTP-only cookie, allows access of user_id elsewhere in program
     response = make_response(jsonify({"message": "Login successful", "user_id": user_id}))
-    response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+    response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="None", max_age=3600)
     
     return response, 201
+
+@app.route("/api/logout", methods=["POST"])
+def logout_user():
+    response = make_response(redirect("https://accounts.spotify.com/en/logout"))
+    response.set_cookie("auth_token", "", expires=0, httponly=True, secure=True, samesite="Lax")
+    response.set_cookie("spotify_access_token", "", expires=0, httponly=True, secure=True, samesite="Lax")
+    return response  # Return the modified response
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
