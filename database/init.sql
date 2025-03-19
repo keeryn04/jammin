@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
     occupation VARCHAR(20) DEFAULT NULL,
     looking_for VARCHAR(20) DEFAULT NULL,
     spotify_auth BOOLEAN NOT NULL DEFAULT FALSE,
-    contact VARCHAR(100) DEFAULT NULL, 
+    contact VARCHAR(1000) DEFAULT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_data_id) REFERENCES users_music_data(user_data_id) ON DELETE CASCADE
 );
@@ -145,7 +145,7 @@ VALUES
         'John Legend, A Great Big World, Sam Smith, Ed Sheeran, Adele', 'https://example.com/johnlegend.jpg, https://example.com/greatbigworld.jpg, https://example.com/samsmith.jpg, https://example.com/ed.jpg, https://example.com/adele.jpg',
         'Pop, Soul, Ballad, R&B, Electronic', 'https://example.com/pop.jpg, https://example.com/soul.jpg, https://example.com/ballad.jpg, https://example.com/rnb.jpg, https://example.com/electronic.jpg'),
 
-    (@user_data10, 'spotify_2026', 'Elias Poitras', 'https://media.licdn.com/dms/image/v2/D5603AQFTlUd5G6X5Pw/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1677177020737?e=1747267200&v=beta&t=iI5bl_AtAR8cglDuLjHDoaqHLh1mfZp8gKjhDCFtZFU',
+    (@user_data10, 'spotify_2026', 'Elias Poitras', '',
         'Uptown Funk, 24K Magic, Thats What I Like, Finesse, Shape of You', 'https://example.com/uptown.jpg, https://example.com/24kmagic.jpg, https://example.com/like.jpg, https://example.com/finesse.jpg, https://example.com/shape.jpg',
         'Bruno Mars, Ed Sheeran, The Weeknd, Drake, Kendrick Lamar', 'https://example.com/bruno.jpg, https://example.com/ed.jpg, https://example.com/weeknd.jpg, https://example.com/drake.jpg, https://example.com/kendrick.jpg',
         'Funk, R&B, Pop, Hip-Hop, Electronic', 'https://example.com/funk.jpg, https://example.com/rnb.jpg, https://example.com/pop.jpg, https://example.com/hiphop.jpg, https://example.com/electronic.jpg'),
@@ -155,7 +155,7 @@ VALUES
         'Camila Cabello, Ed Sheeran, Bruno Mars, The Weeknd, Adele', 'https://example.com/camila.jpg, https://example.com/ed.jpg, https://example.com/bruno.jpg, https://example.com/weeknd.jpg, https://example.com/adele.jpg',
         'Pop, Latin Pop, R&B, Electronic, Soul', 'https://example.com/pop.jpg, https://example.com/latinpop.jpg, https://example.com/rnb.jpg, https://example.com/electronic.jpg, https://example.com/soul.jpg'),
 
-    (@user_data12, 'spotify_2028', 'Petr', 'https://instagram.fyyc7-1.fna.fbcdn.net/v/t51.2885-19/457871978_867794188190980_4331431307544718980_n.jpg?_nc_ht=instagram.fyyc7-1.fna.fbcdn.net&_nc_cat=104&_nc_oc=Q6cZ2AHcgyLEEGVfTZL9xntDnNLxxbczEZVulXtUAYGzuxkJYftQrnCYMGPdUPpX0Zb0Jy7BQ3Xhq9CxwmvVpsMeZfzW&_nc_ohc=gFaxQ9Tzn2kQ7kNvgHNQold&_nc_gid=92207a7f7ad3492796a4565435d8ee80&edm=APoiHPcBAAAA&ccb=7-5&oh=00_AYHXxZ6N9eIPwQy1vrbUEDBUYMxRcRWTH-dtmeZW5No8Kw&oe=67D80A96&_nc_sid=22de04',
+    (@user_data12, 'spotify_2028', 'Petr', '',
         'Despacito, Échame La Culpa, Vives, Bailando, Love Yourself', 'https://example.com/despacito.jpg, https://example.com/culpa.jpg, https://example.com/vives.jpg, https://example.com/bailando.jpg, https://example.com/shape.jpg',
         'Luis Fonsi, Daddy Yankee, Justine Bieber, Bruno Mars, The Weeknd', 'https://example.com/luis.jpg, https://example.com/daddy.jpg, https://example.com/ed.jpg, https://example.com/bruno.jpg, https://example.com/weeknd.jpg',
         'Latin Pop, Reggaeton, Pop, R&B, Electronic', 'https://example.com/latinpop.jpg, https://example.com/reggaeton.jpg, https://example.com/pop.jpg, https://example.com/rnb.jpg, https://example.com/electronic.jpg');

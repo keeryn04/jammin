@@ -69,6 +69,7 @@ const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) 
     looking_for, 
     occupation, 
     school, 
+    contact,
   } = matchedUser;
 
   // Toggle expanded state
@@ -142,6 +143,9 @@ const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_id }) 
             </div>
             <div className="flex items-center space-x-2 text-sm text-neutral-400">
               <p>{`School: ${school ?? "Not specified"}`}</p>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-neutral-400">
+              <p>{`Contact: ${contact ?? "Not specified"}`}</p>
             </div>
           </div>
         </div>

@@ -22,7 +22,7 @@ const ProfileSection = () => {
   const reasoning = currentMatch?.reasoning || "No compatibility data available.";
 
   // Fallback values for missing data
-  const profileImage = currentDisplayedUser?.profile_image || "default-profile.png";
+  const profileImage = currentDisplayedUser?.profile_image || "https://static.thenounproject.com/png/4530368-200.png";
   const profileName = currentDisplayedUser?.profile_name || "SpotifyUser";
 
   return (

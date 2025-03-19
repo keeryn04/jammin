@@ -38,6 +38,7 @@ const UserProfileForm = ({ activeUser }) => {
           school: activeUserData.school || "",
           occupation: activeUserData.occupation || "",
           looking_for: activeUserData.looking_for || "",
+          contact: activeUserData.contact || "",
           spotify_auth: activeUserData.spotify_auth || false,
         });
       } catch (error) {
@@ -216,6 +217,17 @@ const UserProfileForm = ({ activeUser }) => {
           type="text"
           name="looking_for"
           value={formData.looking_for}
+          onChange={handleChange}
+          className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+        />
+      </label>
+
+      <label className="text-white">
+        Contact:
+        <input
+          type="text"
+          name="contact"
+          value={formData.contact}
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
