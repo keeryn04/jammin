@@ -14,6 +14,7 @@ export default function MainLayout() {
   const [showHeart, setShowHeart] = useState(false);
   const [randomEmoji, setRandomEmoji] = useState("");
   const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isOutOfMatches, setIsOutOfMatches] = useState(false);
 
   // Access context values
   const {
@@ -29,18 +30,32 @@ export default function MainLayout() {
 
   // Update loading state when data is available
   useEffect(() => {
+    const loadingTimeout = setTimeout(() => {
+      if (isLoading) {
+        setIsOutOfMatches(true); // Switch to "out of matches" if loading takes too long
+        setIsLoading(false); // Stop loading
+      }
+    }, 20000); // 10 seconds
+
+    // Cleanup the timer when the component unmounts or loading finishes
+    return () => clearTimeout(loadingTimeout);
+  }, [isLoading]);
+
+  // Update loading state when data is available
+  useEffect(() => {
     if (displayedUsers.length > 0 && displayedUsersChat.length > 0) {
       setIsLoading(false);
     }
   }, [displayedUsers, displayedUsersChat]);
-
-  {/*
+  
   useEffect(() => {
-    if (displayedUsersChat.length = 0) {
+    if (displayedUsers.length === 0 || displayedUsersChat.length === 0) {
       setIsOutOfMatches(true);
+    } else {
+      setIsOutOfMatches(false);
     }
   }, [displayedUsers, displayedUsersChat]);
-  */}
+  
 
   // Fetch all matches and find the desired match based on user IDs
   useEffect(() => {
@@ -177,11 +192,17 @@ export default function MainLayout() {
         </div>
         {/* Main content area */}
         <main className="flex-1 flex justify-center items-center overflow-hidden">
-          {isLoading ? (
+        {isLoading ? (
             // Display the Loading component while data is being fetched
             <Loading />
+          ) : isOutOfMatches ? (
+            // Display the "out of users" message when there are no more users
+            <div className="text-center">
+              <h1 className="text-2xl font-afacad">Jam it! You're Out of Matches</h1>
+              <p className="text-neutral-400">Come back later to see new matches!</p>
+            </div>
           ) : (
-            // Display the main content once loading is complete
+            // Display the main content if there are users to match with
             <div className="flex flex-col items-center gap-2">
               {/* Header with "Jammin'" text and three-dot dropdown */}
               <div className="w-[400px] flex justify-between items-center mb-1">

@@ -19,6 +19,7 @@ const Loading = () => {
 
       {/* Optional Loading Text */}
       <p className="absolute bottom-10 text-white text-lg">Jammin' Away...</p>
+      <p className="absolute bottom-5 text-gray-500 text-sm">{'(LLM Processing Data)'}</p>
     </div>
   );
 };

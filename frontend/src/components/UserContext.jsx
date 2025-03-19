@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "67aba87f-046f-11f0-8d25-0242ac120002"; // Replace with your desired user_data_id
+  const activeUserId = "7d592cb4-04de-11f0-ba20-0242ac120002"; // Replace with your desired user_data_id
 
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
@@ -55,10 +55,6 @@ export const UserProvider = ({ children }) => {
         );
         console.log("Other Users:", otherUsers); // Log other users
 
-        // Prepare the list of users to display
-        const usersToDisplay = [];
-        const compatibilityData = [];
-
         // Call the LLM to generate compatibility data
         const llmResponse = await fetch(
           `http://localhost:5001/chattesting/${activeUserId}`,
@@ -66,6 +62,10 @@ export const UserProvider = ({ children }) => {
         );
         const llmData = await llmResponse.json();
         console.log("LLM Response:", llmData); // Log the LLM response
+
+        // Prepare the list of users to display
+        const usersToDisplay = [];
+        const compatibilityData = [];
 
         if (llmData.matches) {
           for (const match of llmData.matches) {
@@ -84,6 +84,49 @@ export const UserProvider = ({ children }) => {
                 compatibility_score,
                 reasoning,
               });
+
+              // Check if a match exists for this user
+              const existingMatch = matchesData.find(
+                (m) =>
+                  m.user_1_id === activeUserId &&
+                  m.user_2_id === user_id &&
+                  m.status === "pending"
+              );
+
+              if (existingMatch) {
+                // Update the match with LLM data
+                await fetch(
+                  `http://localhost:5001/api/matches/${existingMatch.match_id}`,
+                  {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      user_1_id: existingMatch.user_1_id,
+                      user_2_id: existingMatch.user_2_id,
+                      match_score: compatibility_score,
+                      reasoning: reasoning,
+                      status: "pending", // Keep status as pending
+                    }),
+                    signal: abortController.signal,
+                  }
+                );
+                console.log("Updated match:", existingMatch.match_id);
+              } else {
+                // Create a new match with LLM data
+                await fetch(`http://localhost:5001/api/matches`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    user_1_id: activeUserId,
+                    user_2_id: user_id,
+                    match_score: compatibility_score,
+                    reasoning: reasoning,
+                    status: "pending",
+                  }),
+                  signal: abortController.signal,
+                });
+                console.log("Created new match for user:", user_id);
+              }
             }
           }
         }
