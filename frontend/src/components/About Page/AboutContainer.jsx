@@ -7,7 +7,8 @@ import Sidebar from "../Dashboard/Sidebar";
 const AboutContainer = () => {
 
   function setAppHeight() {
-    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${vh}px`);
   }
 
   window.addEventListener('resize', setAppHeight);
@@ -23,7 +24,7 @@ const AboutContainer = () => {
       dark:[&::-webkit-scrollbar-track]:bg-neutral-700
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       <Sidebar/>  
-      <div className="flex flex-1 flex-col items-center sm:order-none order-first">
+      <div className="flex flex-1 flex-col flex-grow items-center sm:order-none order-first">
 
         <div className="w-[100%]">
           <h1 className="   m-8 text-6xl
