@@ -5,7 +5,7 @@ import { ProfileHeader } from "./ProfileHeader";
 
 const ProfileContent = ({ activeUser }) => {
   return (
-    <div className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
+    <div className="flex flex-1 flex-col flex-grow items-center sm:order-none order-first">
       {/* Main Content (Flexible and Scrollable) */}
       <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
         {/* Profile Header (Consistent Positioning) */}
