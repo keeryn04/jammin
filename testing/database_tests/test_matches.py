@@ -80,8 +80,8 @@ class TestMatchesRoutes(unittest.TestCase):
 
         # Define the match data to be sent in the request
         match_data = {
-            "user_1_id": "user1",
-            "user_2_id": "user2",
+            "user_1_data_id": "user1",
+            "user_2_data_id": "user2",
             "match_score": 85,
             "status": "active",
             "reasoning": "Shared interests"
@@ -113,8 +113,8 @@ class TestMatchesRoutes(unittest.TestCase):
             "reasoning": "No longer compatible"
         }
 
-        # Send the POST request
-        response = self.client.post(f'/api/matches/{match_id}', json=match_data)
+        # Send the PUT request (corrected from POST)
+        response = self.client.put(f'/api/matches/{match_id}', json=match_data)
 
         # Assert the response
         self.assertEqual(response.status_code, 200)
