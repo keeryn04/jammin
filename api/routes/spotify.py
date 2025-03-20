@@ -110,7 +110,7 @@ def fetch_spotify_data():
     top_tracks = requests.get("https://api.spotify.com/v1/me/top/tracks?limit=5", headers=headers).json()
 
     images = user_profile.get("images", [])
-    profile_image = images[0]["url"] if images and "url" in images[0] else "profile.png"
+    profile_image = images[0]["url"] if images and "url" in images[0] else "https://static.thenounproject.com/png/4530368-200.png"
 
     spotify_data = {
         "spotify_id": user_profile.get("id"),
