@@ -13,7 +13,7 @@ export const UserProvider = ({ children }) => {
 
   // Specify the user_data_id of the active user manually
 
-  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
   const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
 
 

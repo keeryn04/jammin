@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, make_response, redirect, request, session
 from flask_cors import CORS
-from api.jwt import generate_jwt
 from api.routes.spotify import spotify_routes
 from api.routes.users import user_routes
 from api.routes.user_settings import user_setting_routes
@@ -8,8 +7,9 @@ from api.routes.swipes import swipes_routes
 from api.routes.matches import matches_routes 
 from api.routes.user_data import user_data_routes
 from api.routes.gpt import openai_routes
-from api.jwt import jwt_routes
+from api.jwt import generate_jwt, jwt_routes
 from api.routes.users import get_user_data_id_by_user_id
+from api.auth_helpers import auth_routes
 import os
 from dotenv import load_dotenv
 from waitress import serve
@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
-VERCEL_URL = os.getenv('VITE_VERCEL_URL')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL_PREVIEW')
 
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"
@@ -38,6 +38,7 @@ app.register_blueprint(matches_routes)
 app.register_blueprint(swipes_routes)
 app.register_blueprint(user_data_routes)
 app.register_blueprint(openai_routes)
+app.register_blueprint(auth_routes)
 app.register_blueprint(jwt_routes)
 
 #Apply API key to backend access
