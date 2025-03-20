@@ -13,6 +13,7 @@ const AboutContainer = () => {
 
   window.addEventListener('resize', setAppHeight);
   window.addEventListener('load', setAppHeight);
+  setTimeout(setAppHeight, 100); // Small delay to allow UI adjustments
 
   return (
     <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]
