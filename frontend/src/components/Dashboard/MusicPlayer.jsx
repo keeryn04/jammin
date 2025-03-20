@@ -55,10 +55,25 @@ export default function MusicPlayer({
         const response = await fetch(
           `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
         );
+
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
-        const userData = await response.json();
+
+        const userIDData = await response.json();
+        const userID = userIDData.user_id;
+
+        const userDataResponse = await fetch(
+          `${VERCEL_URL}/api/users/${userID}`
+        );
+
+        if (!userDataResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userDataArray = await userDataResponse.json();
+        const userData = userDataArray[0];
+
         setUserBio(userData.bio || ""); // Set the user's bio
       } catch (error) {
         console.error("Error fetching user bio:", error);
