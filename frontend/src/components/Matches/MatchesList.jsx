@@ -24,17 +24,11 @@ const MatchesList = () => {
         }
         const matches = await response.json();
 
-        // Debug: Log the fetched matches
-        console.log("Fetched Matches:", matches);
-
         // Filter matches where user_1_id matches the active user's ID and status is "pending"
         const filteredMatches = matches.filter(
           (match) =>
             match.user_1_data_id === activeUser.user_data_id && match.status === "accepted"
         );
-
-        // Debug: Log the filtered matches
-        console.log("Filtered Matches:", filteredMatches);
 
         setAcceptedMatches(filteredMatches);
       } catch (error) {
