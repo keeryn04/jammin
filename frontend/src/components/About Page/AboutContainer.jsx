@@ -1,15 +1,13 @@
 "use client";
 import React from "react";
 import Navbar from "../Dashboard/Navbar";
+import Sidebar from "../Dashboard/Sidebar";
 
 
 const AboutContainer = () => {
   return (
     <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-screen ">
-      <div className="flex flex-col items-center">
-        <img className="hidden sm:block w-[115px] h-[115px] m-4 mb-10" src="/icons/FlattenedLogo.svg" />
-        <Navbar />
-      </div>
+      <Sidebar/>  
       <div className="flex flex-1 flex-col items-center sm:order-none order-first">
 
         <div className="w-[100%]">
