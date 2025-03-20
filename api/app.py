@@ -80,5 +80,5 @@ def logout_user():
     return response  # Return the modified response
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=5000, threads=6, debug=True)
+    serve(app, host="0.0.0.0", port=5000, threads=6, debug=True, timeout=120)
     app.config["DEBUG"] = True
