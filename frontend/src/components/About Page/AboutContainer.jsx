@@ -29,7 +29,7 @@ const AboutContainer = () => {
           </h1>
         </div>
 
-        <div className="flex flex-col w-[134px] sm:w-[100%] h-full items-center justify-center">
+        <div className="flex flex-col w-[80%] sm:w-[100%] h-full items-center justify-center">
           <h1 className="text-center text-md sm:test-2xl font-bold text-white px-40 mb-5">Jammin is a project created for SENG 401 - Software Architecture that uses ChatGPT to parse a user’s Spotify analytics and match them with people with similar music taste. Matches are made based on both user’s top artists, songs and genres, combining to generate a compatibility score between both parties.</h1>
           <br></br>
           <h2 className="text-center text-sm sm:test-xl font-bold text-white">Credits: Samiul Haque <br/> Keeryn Johnson <br/> Elias Poitras-Whitecalf <br/> Petr Dubovsky <br/> Ryan Graham <br/> Evan Mann</h2>
