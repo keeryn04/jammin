@@ -90,8 +90,9 @@ def add_user():
         }).execute()
 
         jwt_token = generate_jwt(user_uuid, user_data_uuid) #Store current user_id and user_data_id as cookie (Register)
+        
         response = make_response(jsonify({"message": "Register successful", "user_id": user_uuid}))
-        response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="Strict", max_age=3600)
+        response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="None", max_age=3600)
     
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
