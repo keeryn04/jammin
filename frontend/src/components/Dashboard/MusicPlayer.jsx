@@ -123,7 +123,6 @@ export default function MusicPlayer({
       console.log(activeUser);
       return nextIndex; // Return the new index
     });
-    onSeek(0);
   };
 
   const handlePreviousUser = () => {
@@ -134,7 +133,6 @@ export default function MusicPlayer({
       console.log(activeUser);
       return previousIndex; // Return the new index
     });
-    onSeek(0);
   };
 
   const handlePlay = async () => {
@@ -254,7 +252,6 @@ export default function MusicPlayer({
       setTimeout(() => {
         setShowHeart(false);
       }, 1000); // Adjust the timeout to match the animation duration
-      onSeek(0);
     } catch (error) {
       console.error("Error:", error);
     }

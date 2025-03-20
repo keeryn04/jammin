@@ -205,7 +205,6 @@ export default function MainLayout() {
         setTimeout(() => {
           setShowHeart(false);
         }, 1000); // Adjust the timeout to match the animation duration
-        onSeek(0);
       } else {
         console.error("Failed to update match status");
       }
