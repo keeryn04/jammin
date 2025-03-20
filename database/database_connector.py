@@ -2,18 +2,29 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-#Get environment variables for MySQL connection
+# Load environment variables
 load_dotenv()
 
-#Get Supabase connection things from environment file
-SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+class SupabaseSingleton:
+    _instance: Client = None
 
-#Test database connection
-def get_db_connection():
-    try:
-        supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-        return supabase
-    except Exception as e:
-        print(f"Supabase connection error: {e}")
-        return None
+    @classmethod
+    def get_instance(cls) -> Client:
+        """Returns a singleton instance of the Supabase client."""
+        if cls._instance is None:
+            try:
+                supabase_url = os.getenv("VITE_SUPABASE_URL")
+                supabase_service_key = os.getenv("SUPABASE_SERVICE_KEY")
+
+                if not supabase_url or not supabase_service_key:
+                    raise ValueError("Supabase URL or Service Key is missing.")
+
+                cls._instance = create_client(supabase_url, supabase_service_key)
+            except Exception as e:
+                print(f"Supabase connection error: {e}")
+                cls._instance = None
+        return cls._instance
+
+def get_db_connection() -> Client:
+    """Returns the singleton instance of the Supabase client."""
+    return SupabaseSingleton.get_instance()
