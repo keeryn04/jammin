@@ -1,6 +1,5 @@
 from flask import Blueprint, Flask, jsonify, make_response, request, session
 from flask_session import Session
-from flask_cors import CORS
 from database.database_connector import get_db_connection
 import os
 import uuid
@@ -99,7 +98,7 @@ def add_user():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return response, 201
+        return response, 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -133,7 +132,7 @@ def update_user(user_id):
         if isinstance(response, dict) and "error" in response:
             raise Exception(response.error.message)
 
-        return jsonify({"message": "User updated successfully"}), 201
+        return jsonify({"message": "User updated successfully"}), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
 
@@ -176,8 +175,9 @@ def get_user_id_by_user_data_id(user_data_id):
         if not response.data:
             return jsonify({"error": "No user found with the provided user_data_id"}), 404
 
-        return jsonify({"user_id": response.data[0]["user_id"]})
+        return jsonify({"user_id": response.data[0]["user_id"]}), 200
     except Exception as err:
+        print(f"\n\n\n ERORR: {str(err)} \n\n\n")
         return jsonify({"error": str(err)}), 500
     
 @user_routes.route("/api/user_data/by_user/<user_id>", methods=["GET"])
@@ -200,6 +200,6 @@ def get_user_data_id_by_user_id(user_id):
             print("Connection Error")
             return None  # No user found
 
-        return response.data[0]["user_data_id"]
+        return jsonify(response.data[0]["user_data_id"]), 200
     except Exception as err:
-        return None
+        return jsonify({"error": str(err)}), 500

@@ -1,7 +1,6 @@
 import uuid
 from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
-from flask_cors import CORS
 from database.database_connector import get_db_connection
 import mysql.connector
 import os
@@ -74,7 +73,7 @@ def add_user_settings():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify({"message": "User settings added successfully"}), 201
+        return jsonify({"message": "User settings added successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
