@@ -19,6 +19,9 @@ export default function MainLayout() {
 
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
 
+  // Use a ref to track the previous displayed user
+  const prevDisplayedUserRef = useRef();
+
   // Access context values
   const {
     activeUser,
