@@ -5,7 +5,7 @@ import { ProfileHeader } from "./ProfileHeader";
 
 const ProfileContent = ({ activeUser }) => {
   return (
-    <div className="flex flex-1 flex-col flex-grow items-center sm:order-none order-first
+    <div className="flex flex-1 flex-col sm:w-screen flex-grow items-center sm:order-none order-first
      overflow-y-auto [&::-webkit-scrollbar]:w-2
       [&::-webkit-scrollbar-track]:rounded-full
       [&::-webkit-scrollbar-track]:bg-gray-100
