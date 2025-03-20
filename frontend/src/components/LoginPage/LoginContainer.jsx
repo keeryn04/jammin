@@ -14,10 +14,11 @@ import ActionButton from "../Generic/ActionButton";
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
  */
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
 const fetchLink = `${VERCEL_URL}/api/users`;
 const loginLink = `${VERCEL_URL}/api/login`;
 const redirectLink = `${VERCEL_URL}/api/spotify/login`;
+const passwordLink = `${VERCEL_URL}/api/auth/password_check`
 
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
@@ -38,18 +39,25 @@ const LoginContainer = () => {
       const response = await fetch(fetchLink);
       const data = await response.json();
       for (var i = 0; i < data.length; i++) {
-        var user = data[i];
-        if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
-          //Save user_id as cookie via backend
-          const loginReturn = await fetch(loginLink, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user['user_id'] })
-          });
+        var user = data[i];        
+        if (inputEmail === user["email"]){
+          //Fetch savedPassword
+          const response = await fetch(fetchLink);
+          const savedPassword = await response.json(`passwordLink/${inputPassword}`); //Returns true if inputPassword matches saved password
 
-          const data = await loginReturn.json();
-          return true;
+          //Check if password entered was matched with database password
+          if (savedPassword){
+            //Save user_id as cookie via backend
+            const loginReturn = await fetch(loginLink, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: user['user_id'] })
+            });
+
+            const data = await loginReturn.json();
+            return true;
+          }
         }
       }
       return false;
