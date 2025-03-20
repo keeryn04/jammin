@@ -17,7 +17,7 @@ export default function MainLayout() {
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [isOutOfMatches, setIsOutOfMatches] = useState(false);
 
-  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   // Access context values
   const {

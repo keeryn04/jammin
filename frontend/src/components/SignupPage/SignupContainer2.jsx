@@ -9,7 +9,7 @@ import ActionButton from "../Generic/ActionButton";
 import DropdownMenu from "../Generic/DropdownMenu"
 import { useSignupContext } from "./SignupContext";
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const fetchLink = `${VERCEL_URL}/api/users`;
 const redirectLink = `${VERCEL_URL}/api/spotify/login`;
 
