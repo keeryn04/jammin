@@ -169,7 +169,7 @@ const UserProfileForm = ({ activeUser }) => {
 
       <label className="text-white">
         Bio:
-        <textarea
+        <input
           name="bio"
           value={formData.bio}
           onChange={handleChange}

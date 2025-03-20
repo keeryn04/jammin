@@ -29,7 +29,7 @@ const ProfileContent = ({ activeUser }) => {
         dark:[&::-webkit-scrollbar-track]:bg-neutral-700
         dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <div className="max-w-[800px] w-full flex flex-col gap-10">
-            <PhotoSection activeUser={activeUser} /> {/* Pass activeUser */}
+          {/* <PhotoSection activeUser={activeUser} /> */}
             <ProfileForm activeUser={activeUser} /> {/* Pass activeUser */}
           </div>
         </div>
