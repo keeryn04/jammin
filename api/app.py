@@ -12,6 +12,7 @@ from api.jwt import jwt_routes
 from api.routes.users import get_user_data_id_by_user_id
 import os
 from dotenv import load_dotenv
+from waitress import serve
 
 # Load environment variables
 load_dotenv()
@@ -71,7 +72,7 @@ def login_user():
     
     return response, 201
 
-@app.route("/api/logout", methods=["POST"])
+@app.route("/api/logout", methods=["GET"])
 def logout_user():
     response = make_response(redirect("https://accounts.spotify.com/en/logout"))
     response.set_cookie("auth_token", "", expires=0, httponly=True, secure=True, samesite="Lax")
@@ -79,5 +80,5 @@ def logout_user():
     return response  # Return the modified response
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    serve(app, host="0.0.0.0", port=5000, threads=6, debug=True)
     app.config["DEBUG"] = True
