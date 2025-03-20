@@ -64,6 +64,8 @@ const SignupContainer1 = () => {
       setError("Passwords entered do not match")
     }
     else {
+      //Clean the data going into the database since emails shouldn't be case sensitive
+      setEmail(email.toLowerCase());
       setSignupData({...signupData, email, password})
       navigate("/Signup/step2")
     }

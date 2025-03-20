@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage/LandingPageContainer';
 import LoginContainer from './components/LoginPage/LoginContainer';
 import About from './components/About/About';
-import QuickNav from './components/ErrorPage/QuickNav';
+import ErrorContainer from './components/ErrorPage/ErrorContainer';
 import Dashboard from './components/Dashboard/MainLayout';
 import SpotifyProfile from './components/Profile/SpotifyProfile';
 import PublicProfile from './components/PublicProfile/ProfileLayout'
@@ -41,7 +41,7 @@ function App() {
                 </Routes>
               </SignupProvider>
             }/>
-          <Route path="/QuickNav" element={<QuickNav />}/>
+          <Route path="/Error" element={<ErrorContainer />}/>
           <Route path="/Matching" element={<Dashboard />}/>
           <Route path="/PublicProfile" element={<PublicProfile />}/>
           <Route path="/JamminProfile" element={<JamminProfile />}/>
