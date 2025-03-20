@@ -14,7 +14,7 @@ import ActionButton from "../Generic/ActionButton";
  * Login will check the email and password inputted against the database and either advance the user or display an error that either one is incorrect
  */
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const fetchLink = `${VERCEL_URL}/api/users`;
 const loginLink = `${VERCEL_URL}/api/login`;
 const redirectLink = `${VERCEL_URL}/api/spotify/login`;

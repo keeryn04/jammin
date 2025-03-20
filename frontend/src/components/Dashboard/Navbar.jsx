@@ -2,7 +2,7 @@ import React from "react";
 import { NavItem, LogOutNavItem } from "./NavItem";
 import { useNavigate } from "react-router-dom";
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const logoutLink = `${VERCEL_URL}/api/logout`;
 
 export default function Navbar() {

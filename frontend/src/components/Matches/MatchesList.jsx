@@ -7,7 +7,7 @@ const MatchesList = () => {
   const [acceptedMatches, setAcceptedMatches] = useState([]);
   const [loading, setLoading] = useState(true); // Add a loading state
 
-  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   useEffect(() => {
     const fetchMatches = async () => {

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import { UserContext } from "../UserContext"; // Import the context
 import { PrevButton, PlayButton, NextButton, RedPlayButton } from "./icons"; // Import icons
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
 export default function MusicPlayer({
   currentTime,
