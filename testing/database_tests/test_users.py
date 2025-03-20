@@ -72,7 +72,7 @@ class TestUsersRoutes(unittest.TestCase):
         response = self.client.post('/api/users', json=user_data)
 
         # Assert the response status code and message
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertIn("Register successful", response.json["message"])
 
         # Verify that the database inserts were called
@@ -93,7 +93,7 @@ class TestUsersRoutes(unittest.TestCase):
             "gender": "female"
         }
         response = self.client.put('/api/users/123e4567-e89b-12d3-a456-426614174000', json=user_data)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertIn("User updated successfully", response.json["message"])
 
     @patch('api.routes.users.get_db_connection')

@@ -1,6 +1,5 @@
 import uuid
 from flask import Blueprint, Flask, jsonify, request, session
-from flask_cors import CORS
 from database.database_connector import get_db_connection
 import os
 from dotenv import load_dotenv
