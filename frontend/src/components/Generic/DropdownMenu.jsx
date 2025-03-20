@@ -51,9 +51,9 @@ const DropdownMenu = ( {setValue} ) => {
   };
 
   return (
-    <section className="flex flex-col pb-10 justify-center items-center text-2xl font-bold text-center  text-neutral-400 max-md:px-5 max-md:py-24">
-      <div ref={dropdownRef} className="relative w-full text-left">
-        <label className="mb-2 text-2xl font-bold text-white max-sm:text-xl">
+  
+      <div ref={dropdownRef} className="flex flex-col relative w-full text-left justify-center">
+        <label className="mb-1 text-2xl font-bold text-white max-sm:text-xl">
           Gender
         </label>
         <DropdownButton
@@ -68,7 +68,7 @@ const DropdownMenu = ( {setValue} ) => {
           onItemClick={handleItemClick}
         />
       </div>
-    </section>
+
   );
 };
 

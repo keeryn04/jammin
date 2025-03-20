@@ -192,9 +192,7 @@ export default function MainLayout() {
       {/* Full-height container */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="flex-shrink-0">
-          <Sidebar />
-        </div>
+        <Sidebar />
         {/* Main content area */}
         <main className="flex-1 flex justify-center items-center overflow-hidden">
           {/* Centered content */}

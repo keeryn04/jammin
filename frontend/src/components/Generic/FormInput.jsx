@@ -7,16 +7,16 @@
 
 const FormInput = ({ label, type, placeholder, inputHandler }) => {
     return (
-      <div className="mb-5 max-sm:mb-4 justify-items-start">
-        <label className="mb-2 text-2xl font-bold text-white max-sm:text-xl">
+      <div className="mb-1 sm:mb-2 justify-items-start">
+        <label className="mb-1 text-xl font-bold text-white sm:text-2xl">
           {label}
         </label>
-        <div className="relative w-full rounded-md bg-stone-500 h-[59px] max-sm:h-[50px]">
+        <div className="w-full rounded-md mt-1 bg-stone-500 h-[50px] sm:h-[50px]">
           <input
             type={type}
             placeholder={placeholder}
             onChange={inputHandler}
-            className="px-4 py-0 text-2xl font-bold placeholder-stone-400 text-white border-[none] size-full max-sm:text-xl"
+            className="px-4 py-0 text-xl font-bold placeholder-stone-400 text-white border-[none] size-full sm:text-2xl"
           />
         </div>
       </div>

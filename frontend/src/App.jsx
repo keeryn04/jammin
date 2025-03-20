@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage/LandingPageContainer';
 import LoginContainer from './components/LoginPage/LoginContainer';
 import About from './components/About/About';
-import QuickNav from './components/ErrorPage/QuickNav';
+import ErrorContainer from './components/ErrorPage/ErrorContainer';
 import Dashboard from './components/Dashboard/MainLayout';
 import SpotifyProfile from './components/Profile/SpotifyProfile';
 import PublicProfile from './components/PublicProfile/ProfileLayout'
@@ -14,6 +14,7 @@ import SignupContainer2 from './components/SignupPage/SignupContainer2';
 import { SignupProvider } from './components/SignupPage/SignupContext';
 import Matches from './components/Matches/MainDashboard';
 import { UserProvider } from './components/UserContext';
+import AboutContainer from './components/About Page/AboutContainer';
 
 const isAuthenticated = true; //replace with authentication check later
 
@@ -40,13 +41,12 @@ function App() {
                 </Routes>
               </SignupProvider>
             }/>
-          <Route path="/About" element={<About />}/>
-          <Route path="/QuickNav" element={<QuickNav />}/>
+          <Route path="/Error" element={<ErrorContainer />}/>
           <Route path="/Matching" element={<Dashboard />}/>
           <Route path="/PublicProfile" element={<PublicProfile />}/>
           <Route path="/JamminProfile" element={<JamminProfile />}/>
           <Route path="/Matches" element={<Matches />}/>
-
+          <Route path="/About" element={<AboutContainer />}/>
 
           <Route path="/SpotifyProfile" element={<SpotifyProfile />}/>
 

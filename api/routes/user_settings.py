@@ -2,7 +2,7 @@ import uuid
 from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
 from flask_cors import CORS
-from api.database_connector import get_db_connection
+from database.database_connector import get_db_connection
 import mysql.connector
 import os
 from dotenv import load_dotenv
