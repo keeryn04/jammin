@@ -65,18 +65,6 @@ def add_user():
         user_uuid = str(uuid.uuid4())
         user_data_uuid = str(uuid.uuid4())
 
-        response = conn.table('users_music_data').insert({
-            "user_data_id": user_data_uuid,
-            "profile_name": "",
-            "profile_image": "",
-            "top_songs": "",
-            "top_songs_pictures": "",
-            "top_artists": "",
-            "top_artists_pictures": "",
-            "top_genres": "",
-            "top_genres_pictures": ""
-        }).execute()
-
         response = conn.table('users').insert({
             "user_id": user_uuid,
             "user_data_id": user_data_uuid,
@@ -87,6 +75,18 @@ def add_user():
             "gender": data["gender"], 
             "spotify_auth": data["spotify_auth"],
             "bio": data.get("bio", None)
+        }).execute()
+
+        response = conn.table('users_music_data').insert({
+            "user_data_id": user_data_uuid,
+            "profile_name": "",
+            "profile_image": "",
+            "top_songs": "",
+            "top_songs_pictures": "",
+            "top_artists": "",
+            "top_artists_pictures": "",
+            "top_genres": "",
+            "top_genres_pictures": ""
         }).execute()
 
         jwt_token = generate_jwt(user_uuid, user_data_uuid) #Store current user_id and user_data_id as cookie (Register)
