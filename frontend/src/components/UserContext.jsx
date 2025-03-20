@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "7d594929-04de-11f0-ba20-0242ac120002"; // Replace with your desired user_data_id
+  const activeUserId = "7d61cacd-04fa-11f0-ab72-0242ac120002"; // Replace with your desired user_data_id
 
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {

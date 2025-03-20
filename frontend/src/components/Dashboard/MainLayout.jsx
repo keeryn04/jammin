@@ -99,27 +99,29 @@ export default function MainLayout() {
     }
   };
 
-  // Handle scroll events to update currentTime
-  useEffect(() => {
-    const container = profileContainerRef.current;
-    const handleScroll = () => {
-      if (container) {
-        const scrollWidth = container.scrollWidth;
-        const containerWidth = container.clientWidth;
-        const scrollPosition = container.scrollLeft;
-        const newTime = (scrollPosition / (scrollWidth - containerWidth)) * totalDuration;
-        setCurrentTime(newTime);
-      }
-    };
+// Handle scroll events to update currentTime
+useEffect(() => {
+  const container = profileContainerRef.current;
+  const handleScroll = () => {
     if (container) {
-      container.addEventListener("scroll", handleScroll);
+      const scrollWidth = container.scrollWidth;
+      const containerWidth = container.clientWidth;
+      const scrollPosition = container.scrollLeft;
+      const newTime = (scrollPosition / (scrollWidth - containerWidth)) * totalDuration;
+      setCurrentTime(newTime);
     }
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [totalDuration]);
+  };
+
+  if (container && !isLoading && !isOutOfMatches) {
+    container.addEventListener("scroll", handleScroll);
+  }
+
+  return () => {
+    if (container) {
+      container.removeEventListener("scroll", handleScroll);
+    }
+  };
+}, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
 
   // Toggle dropdown
   const toggleDropdown = () => {
