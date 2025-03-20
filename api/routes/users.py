@@ -175,6 +175,7 @@ def get_user_id_by_user_data_id(user_data_id):
 
         return jsonify({"user_id": response.data[0]["user_id"]}), 200
     except Exception as err:
+        print(f"\n\n\n ERORR: {str(err)} \n\n\n")
         return jsonify({"error": str(err)}), 500
     
 @user_routes.route("/api/user_data/by_user/<user_id>", methods=["GET"])

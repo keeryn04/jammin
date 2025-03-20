@@ -13,3 +13,4 @@ if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=2)
     test_suite = load_tests()
     runner.run(test_suite)
+    print(f"\n\n\nAll failures are explained in the testing document\n\n\n")

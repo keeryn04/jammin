@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 import unittest
 from unittest.mock import patch, MagicMock
-from api.database_connector import get_db_connection
+from database.database_connector import get_db_connection
 
 class TestDatabaseConnector(unittest.TestCase):
 

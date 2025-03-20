@@ -146,7 +146,7 @@ class TestUserDataRoutes(unittest.TestCase):
     def test_get_user_top_artists_by_id_success(self, mock_get_db_connection):
         # Generate a valid UUID for the user_id
         user_id = str(uuid.uuid4())
-        mock_data = [
+        data = [
             {
                 "top_artists": "artist1, artist2, artist3",
                 "top_artists_pictures": "pic1, pic2, pic3"
@@ -155,7 +155,14 @@ class TestUserDataRoutes(unittest.TestCase):
 
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_data
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(
+            data = [
+                {
+                    "top_artists": "artist1, artist2, artist3",
+                    "top_artists_pictures": "pic1, pic2, pic3"
+                }
+            ]
+        )
 
         mock_get_db_connection.return_value = mock_conn
 

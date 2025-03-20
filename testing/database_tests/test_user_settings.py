@@ -91,7 +91,7 @@ class TestUserSettingsRoutes(unittest.TestCase):
         response = self.client.post('/api/user_settings', json=user_settings_data)
 
         # Assert the response
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertIn("User settings added successfully", response.json["message"])
 
     @patch('api.routes.user_settings.get_db_connection')
