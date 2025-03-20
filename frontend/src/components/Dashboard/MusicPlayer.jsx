@@ -23,11 +23,11 @@ export default function MusicPlayer({
     setCurrentDisplayedUser,
     currentIndex,
     setCurrentIndex,
+    userBio,
   } = useContext(UserContext);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isHoveringPlayButton, setIsHoveringPlayButton] = useState(false);
-  const [userBio, setUserBio] = useState(""); // State to store the user's bio
   const seekBarRef = useRef(null);
 
   // Array of emojis to choose from
@@ -45,44 +45,6 @@ export default function MusicPlayer({
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
-
-  // Fetch user bio when currentDisplayedUser changes
-  useEffect(() => {
-    const fetchUserBio = async () => {
-      if (!currentDisplayedUser) return;
-
-      try {
-        const response = await fetch(
-          `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const userIDData = await response.json();
-        const userID = userIDData.user_id;
-
-        const userDataResponse = await fetch(
-          `${VERCEL_URL}/api/users/${userID}`
-        );
-
-        if (!userDataResponse.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const userDataArray = await userDataResponse.json();
-        const userData = userDataArray[0];
-
-        setUserBio(userData.bio || ""); // Set the user's bio
-      } catch (error) {
-        console.error("Error fetching user bio:", error);
-        setUserBio(""); // Reset bio on error
-      }
-    };
-
-    fetchUserBio();
-  }, [currentDisplayedUser]);
 
   // Handle seek bar interaction (click)
   const handleSeek = (e) => {

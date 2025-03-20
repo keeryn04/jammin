@@ -10,11 +10,50 @@ export const UserProvider = ({ children }) => {
   const [currentDisplayedUser, setCurrentDisplayedUser] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
+  const [userBio, setUserBio] = useState(""); // State to store the user's bio
 
   // Specify the user_data_id of the active user manually
 
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
   const cookieFetchLink = `${VERCEL_URL}/api/auth/check`;
+
+  // Fetch user bio when currentDisplayedUser changes
+  useEffect(() => {
+    const fetchUserBio = async () => {
+      if (!currentDisplayedUser) return;
+
+      try {
+        const response = await fetch(
+          `${VERCEL_URL}/api/users/by_user_data/${currentDisplayedUser.user_data_id}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userIDData = await response.json();
+        const userID = userIDData.user_id;
+
+        const userDataResponse = await fetch(
+          `${VERCEL_URL}/api/users/${userID}`
+        );
+
+        if (!userDataResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const userDataArray = await userDataResponse.json();
+        const userData = userDataArray[0];
+
+        setUserBio(userData.bio || ""); // Set the user's bio
+      } catch (error) {
+        console.error("Error fetching user bio:", error);
+        setUserBio(""); // Reset bio on error
+      }
+    };
+
+    fetchUserBio();
+  }, [currentDisplayedUser]);
 
 
   // Fetch all user data from users_music_data and initialize displayed users
@@ -141,6 +180,7 @@ export const UserProvider = ({ children }) => {
         setActiveUser,
         setDisplayedUsers,
         allUsersData, // Provide all user data from users_music_data
+        userBio,
       }}
     >
       {children}
