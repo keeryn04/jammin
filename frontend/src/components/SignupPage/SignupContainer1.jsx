@@ -15,7 +15,7 @@ import { useSignupContext } from "./SignupContext";
  * There is error checking on the email that it doesn't already exist in the database (TO BE ADDED) and that both passwords entered match
  */
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
 const fetchLink = `${VERCEL_URL}/api/users`
 
 const SignupContainer1 = () => {

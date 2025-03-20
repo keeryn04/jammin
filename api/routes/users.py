@@ -2,11 +2,11 @@ from flask import Blueprint, Flask, jsonify, make_response, request, session
 from flask_session import Session
 from flask_cors import CORS
 from database.database_connector import get_db_connection
-import mysql.connector
 import os
 import uuid
 
 from api.jwt import generate_jwt
+from api.auth_helpers import hash_password
 
 user_routes = Blueprint("user_routes", __name__)
 
@@ -65,12 +65,14 @@ def add_user():
         user_uuid = str(uuid.uuid4())
         user_data_uuid = str(uuid.uuid4())
 
+        hashed_password = hash_password(data["password_hash"])
+
         response = conn.table('users').insert({
             "user_id": user_uuid,
             "user_data_id": user_data_uuid,
             "username": data["username"],
             "email": data["email"],
-            "password_hash": data["password_hash"],
+            "password_hash": hashed_password,
             "age": data["age"],
             "gender": data["gender"], 
             "spotify_auth": data["spotify_auth"],
@@ -154,7 +156,7 @@ def delete_user(user_id):
             raise Exception(response["error"]["message"])
 
         return jsonify({"message": "User deleted successfully"}), 200
-    except mysql.connector.Error as err:
+    except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
     
 @user_routes.route("/api/users/by_user_data/<user_data_id>", methods=["GET"])

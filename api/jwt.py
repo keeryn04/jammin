@@ -1,8 +1,8 @@
 import os
+import bcrypt
 import jwt
 import datetime
-from flask import Blueprint, Flask, request, jsonify
-import jwt
+from flask import Blueprint, jsonify, request
 
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 jwt_routes = Blueprint("jwt_routes", __name__)
@@ -43,7 +43,7 @@ def decode_jwt(token):
         return None
     except jwt.InvalidTokenError:
         return None
-
+    
 @jwt_routes.route("/api/auth/check", methods=["GET"])
 def check_auth():
     token = request.cookies.get("auth_token")  #Read cookie from request
@@ -55,4 +55,3 @@ def check_auth():
         return jsonify({"authenticated": False, "error": "Invalid or expired token"}), 401
     
     return jsonify({"authenticated": True, "user": decoded})
-
