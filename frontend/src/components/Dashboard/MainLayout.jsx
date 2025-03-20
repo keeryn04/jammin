@@ -113,15 +113,17 @@ export default function MainLayout() {
         setCurrentTime(newTime);
       }
     };
-    if (container) {
+  
+    if (container && !isLoading && !isOutOfMatches) {
       container.addEventListener("scroll", handleScroll);
     }
+  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [totalDuration]);
+  }, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
 
   // Toggle dropdown
   const toggleDropdown = () => {
