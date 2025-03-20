@@ -42,8 +42,17 @@ const LoginContainer = () => {
         var user = data[i];        
         if (inputEmail === user["email"]){
           //Fetch savedPassword
-          const response = await fetch(fetchLink);
-          const savedPassword = await response.json(`passwordLink/${inputPassword}`); //Returns true if inputPassword matches saved password
+          const response = await fetch(passwordLink, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ password: inputPassword })
+        });
+        
+        const data = await response.json(); //{ match: true/false }
+        const savedPassword = data.match;
+        
 
           //Check if password entered was matched with database password
           if (savedPassword){
