@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
 const usersLink = `${VERCEL_URL}/api/users`;
 const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
+const hashPasswordLink = `${VERCEL_URL}/api/auth/hash_password`;
 
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
@@ -17,35 +18,53 @@ const UserProfileForm = ({ activeUser }) => {
           throw new Error("Failed to fetch users");
         }
         const users = await usersResponse.json();
-
+  
         // Step 2: Find the user with the matching user_data_id
         const activeUserData = users.find(
           (user) => user.user_data_id === activeUser.user_data_id
         );
-
+  
         if (!activeUserData) {
           throw new Error("Active user not found in the users list");
         }
-
-        // Step 3: Set form data
-        setFormData({
-          username: activeUserData.username || "",
-          email: activeUserData.email || "",
-          password_hash: activeUserData.password_hash || "",
-          age: activeUserData.age || "",
-          bio: activeUserData.bio || "",
-          gender: activeUserData.gender || "",
-          school: activeUserData.school || "",
-          occupation: activeUserData.occupation || "",
-          looking_for: activeUserData.looking_for || "",
-          spotify_auth: activeUserData.spotify_auth || false,
+  
+        // Step 3: Send the plain password (not hashed) to the backend for hashing  
+        activeUserPassword = activeUserData.password_hash
+        const response = await fetch(hashPasswordLink, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ password: activeUserPassword })
         });
+  
+        if (!response.ok) {
+          console.error("Error hashing password");
+        } else {
+          const data = await response.json();
+          const hashedPassword = data.hashed_password;
+          console.log(`Hashed: ${hashedPassword}`);
+  
+          // Step 4: Set form data with hashed password
+          setFormData({
+            username: activeUserData.username || "",
+            email: activeUserData.email || "",
+            password_hash: hashedPassword || "",
+            age: activeUserData.age || "",
+            bio: activeUserData.bio || "",
+            gender: activeUserData.gender || "",
+            school: activeUserData.school || "",
+            occupation: activeUserData.occupation || "",
+            looking_for: activeUserData.looking_for || "",
+            spotify_auth: activeUserData.spotify_auth || false,
+          });
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Could not load user data.");
       }
     };
-
+  
     fetchUserData();
   }, [activeUser.user_data_id]);
 
@@ -75,10 +94,7 @@ const UserProfileForm = ({ activeUser }) => {
 
       // Parse the JSON response
       const data = await response.json();
-      console.log('User data:', data);
-
       const userId = data.user_id;
-      console.log('User ID:', userId);
 
       // Filter out empty fields from formData
       const updatedData = Object.keys(formData).reduce((acc, key) => {
@@ -98,8 +114,6 @@ const UserProfileForm = ({ activeUser }) => {
         }
         return acc;
       }, {});
-
-      console.log('Updated Data:', updatedData);
 
       // Send the PUT request with only non-empty fields
       const updateResponse = await fetch(`${usersLink}/${userId}`, {

@@ -10,7 +10,6 @@ const GenreSection = () => {
     } = useContext(UserContext);
 
     useEffect(() => {
-      console.log("GENRESSS", currentDisplayedUser);
       const topGenres = currentDisplayedUser.top_genres ? currentDisplayedUser.top_genres.split(", ") : [];
       setGenres(topGenres);
     }, [currentDisplayedUser]);

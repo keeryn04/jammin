@@ -23,13 +23,11 @@ def update_jwt(old_token, new_claims):
             return None
 
         decoded_token = jwt.decode(old_token, JWT_SECRET_KEY, algorithms=["HS256"], options={"verify_exp": False})
-        print("Decoded JWT:", decoded_token)
 
         decoded_token.update(new_claims)
         decoded_token["exp"] = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
 
         new_token = jwt.encode(decoded_token, JWT_SECRET_KEY, algorithm="HS256")
-        print("Updated JWT Token:", new_token)
 
         return new_token
     except Exception as e:

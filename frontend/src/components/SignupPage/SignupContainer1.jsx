@@ -53,7 +53,6 @@ const SignupContainer1 = () => {
     if (email === null || password === null || passwordCheck === null)
       setError("Please fill in all form inputs")
     else if (emailAlreadyExists) {
-      console.log("test")
       setError("Email entered is already in use")
     }
     else if (!emailRegex.test(email))

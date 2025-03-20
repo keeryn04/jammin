@@ -57,7 +57,6 @@ export const UserProvider = ({ children }) => {
           { signal: abortController.signal } // Pass the abort signal
         );
         const matchesData = await matchesResponse.json();
-        console.log("All Matches Data:", matchesData); // Log all matches data
 
         // Filter out the active user from the list of all users
         const otherUsers = allUsersData.filter(
