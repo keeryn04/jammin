@@ -20,20 +20,23 @@ class TestSwipesRoutes(unittest.TestCase):
     def test_get_swipes_success(self, mock_get_db_connection):
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.execute.return_value = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "swipe_id": "123", 
-                "swiper_id": "user1", 
-                "swiped_id": "user2", 
+                "swipe_id": "123",
+                "swiper_id": "user1",
+                "swiped_id": "user2",
                 "action": "like"
             }
         ]
         
+        mock_conn.table.return_value.select.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get('/api/swipes')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
@@ -44,23 +47,26 @@ class TestSwipesRoutes(unittest.TestCase):
     def test_get_swipe_success(self, mock_get_db_connection):
         # Generate a valid UUID for the swipe_id
         swipe_id = str(uuid.uuid4())
-
+        
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "swipe_id": swipe_id, 
-                "swiper_id": "user1", 
-                "swiped_id": "user2", 
+                "swipe_id": swipe_id,
+                "swiper_id": "user1",
+                "swiped_id": "user2",
                 "action": "like"
             }
         ]
         
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get(f'/api/swipes/{swipe_id}')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [

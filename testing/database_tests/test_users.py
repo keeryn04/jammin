@@ -49,14 +49,18 @@ class TestUsersRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Invalid user_id format", response.json["error"])
 
+    @patch('api.routes.users.generate_jwt')
     @patch('api.routes.users.get_db_connection')
-    def test_add_user_success(self, mock_get_db_connection):
+    def test_add_user_success(self, mock_get_db_connection, mock_generate_jwt):
         # Mock the database connection
         mock_conn = MagicMock()
         mock_conn.table.return_value.insert.return_value.execute.return_value = MagicMock(data={"id": 1})
         mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(data=[{"user_data_id": "mock_user_data_id"}])
         mock_get_db_connection.return_value = mock_conn
-
+        
+        # Mock the JWT generation function
+        mock_generate_jwt.return_value = "mocked_jwt_token"
+        
         # Define the user data to be sent in the request
         user_data = {
             "username": "testuser",
@@ -67,17 +71,21 @@ class TestUsersRoutes(unittest.TestCase):
             "spotify_auth": False,
             "bio": "This is a test bio"
         }
-
+        
         # Send a POST request to the /api/users endpoint
         response = self.client.post('/api/users', json=user_data)
-
+        
         # Assert the response status code and message
         self.assertEqual(response.status_code, 200)
         self.assertIn("Register successful", response.json["message"])
-
+        
         # Verify that the database inserts were called
         mock_conn.table.assert_any_call("users_music_data")
         mock_conn.table.assert_any_call("users")
+        
+        # Verify that generate_jwt was called with the correct parameters
+        # The arguments should match what your route would pass to generate_jwt
+        mock_generate_jwt.assert_called_once()
 
     @patch('api.routes.users.get_db_connection')
     def test_update_user_success(self, mock_get_db_connection):

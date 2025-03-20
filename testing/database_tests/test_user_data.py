@@ -18,13 +18,25 @@ class TestUserDataRoutes(unittest.TestCase):
 
     @patch('api.routes.user_data.get_db_connection')
     def test_get_users_data_success(self, mock_get_db_connection):
+        # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.execute.return_value = MagicMock(data=[
-            {"user_data_id": "123", "spotify_id": "spotify123", "top_songs": "song1, song2"}
-        ])
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
+            {
+                "user_data_id": "123", 
+                "spotify_id": "spotify123", 
+                "top_songs": "song1, song2"
+            }
+        ]
+        
+        mock_conn.table.return_value.select.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
+        # Send the GET request
         response = self.client.get('/api/user_data')
+        # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
             {"user_data_id": "123", "spotify_id": "spotify123", "top_songs": "song1, song2"}
@@ -100,32 +112,28 @@ class TestUserDataRoutes(unittest.TestCase):
         self.assertIn("Music data deleted successfully", response.json["message"])
 
     @patch('api.routes.user_data.get_db_connection')
-    # Will fail on main due to the line: "if isinstance(response, dict) and "error" in response:"
-    # This is because the response is being accessed prior to being initialized
-    # Possible solution: move the specified statement to just before the return statement
-    # and change the return to return jsonify(response), 200 
     def test_get_user_music_data_by_id_success(self, mock_get_db_connection):
         # Generate a valid UUID for the user_id
         user_id = str(uuid.uuid4())
-        mock_data = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "user_id": user_id, 
-                "top_songs": "song1, song2", 
-                "top_artists": "artist1, artist2", 
+                "user_id": user_id,
+                "top_songs": "song1, song2",
+                "top_artists": "artist1, artist2",
                 "top_genres": "genre1, genre2"
             }
         ]
-    
-
+        
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_data
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_response
         
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get(f'/api/user_data/{user_id}')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {
@@ -138,37 +146,26 @@ class TestUserDataRoutes(unittest.TestCase):
         })
 
     @patch('api.routes.user_data.get_db_connection')
-    # Will fail on main due to the line: "if isinstance(response, dict) and "error" in response:"
-    # This is because the response is being accessed prior to being initialized
-    # Possible solution: move the specified statement to just before the return statement
-    # and change the return to return jsonify(response), 200
-    # There is also a small inconsistency in the data accessing (must use row[0]["top_artists"].split(", ")[:limit]).
     def test_get_user_top_artists_by_id_success(self, mock_get_db_connection):
         # Generate a valid UUID for the user_id
         user_id = str(uuid.uuid4())
-        data = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
                 "top_artists": "artist1, artist2, artist3",
                 "top_artists_pictures": "pic1, pic2, pic3"
             }
         ]
-
+        
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = MagicMock(
-            data = [
-                {
-                    "top_artists": "artist1, artist2, artist3",
-                    "top_artists_pictures": "pic1, pic2, pic3"
-                }
-            ]
-        )
-
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get(f'/api/user_data/{user_id}/2')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {

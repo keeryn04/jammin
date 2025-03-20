@@ -20,22 +20,25 @@ class TestMatchesRoutes(unittest.TestCase):
     def test_get_matches_success(self, mock_get_db_connection):
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.execute.return_value = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "match_id": "123", 
-                "user_1_id": "user1", 
-                "user_2_id": "user2", 
-                "match_score": 85, 
-                "status": "active", 
+                "match_id": "123",
+                "user_1_id": "user1",
+                "user_2_id": "user2",
+                "match_score": 85,
+                "status": "active",
                 "reasoning": "Shared interests"
             }
         ]
         
+        mock_conn.table.return_value.select.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get('/api/matches')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
@@ -46,25 +49,28 @@ class TestMatchesRoutes(unittest.TestCase):
     def test_get_match_success(self, mock_get_db_connection):
         # Generate a valid UUID for the match_id
         match_id = str(uuid.uuid4())
-
+        
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = [
+        
+        # Create a mock response object with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "match_id": match_id, 
-                "user_1_id": "user1", 
-                "user_2_id": "user2", 
-                "match_score": 85, 
-                "status": "active", 
+                "match_id": match_id,
+                "user_1_id": "user1",
+                "user_2_id": "user2",
+                "match_score": 85,
+                "status": "active",
                 "reasoning": "Shared interests"
             }
         ]
         
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
         # Send the GET request
         response = self.client.get(f'/api/matches/{match_id}')
-
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
