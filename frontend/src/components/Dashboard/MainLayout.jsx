@@ -125,12 +125,31 @@ export default function MainLayout() {
   }, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
   // Reset time when the displayed user changes
   
+
+  // Handle scroll events to update currentTime
   useEffect(() => {
-    if (prevDisplayedUserRef.current !== currentDisplayedUser) {
-      handleSeek(0); // Reset time to 0:00
-      prevDisplayedUserRef.current = currentDisplayedUser; // Update the ref
+    const container = profileContainerRef.current;
+    const handleScroll = () => {
+      if (container) {
+        const scrollWidth = container.scrollWidth;
+        const containerWidth = container.clientWidth;
+        const scrollPosition = container.scrollLeft;
+        const newTime = (scrollPosition / (scrollWidth - containerWidth)) * totalDuration;
+        setCurrentTime(newTime);
+      }
+    };
+
+    if (container && !isLoading && !isOutOfMatches) {
+      container.addEventListener("scroll", handleScroll);
     }
-  }, [currentDisplayedUser, handleSeek]);
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
+
 
   // Toggle dropdown
   const toggleDropdown = () => {
