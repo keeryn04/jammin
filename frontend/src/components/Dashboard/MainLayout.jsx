@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import SpotifyProfile from "../Profile/SpotifyProfile";
 import MusicPlayer from "./MusicPlayer";
 import { UserContext } from "../UserContext"; // Import the context
+import Loading from "../Loading/Loading";
 
 export default function MainLayout() {
   const [currentTime, setCurrentTime] = useState(0);
@@ -13,6 +14,8 @@ export default function MainLayout() {
   const [currentMatch, setCurrentMatch] = useState(null); // State to store the current match
   const [showHeart, setShowHeart] = useState(false); // State to control heart animation
   const [randomEmoji, setRandomEmoji] = useState(""); // State to store the random emoji
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isOutOfMatches, setIsOutOfMatches] = useState(false);
 
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
@@ -25,7 +28,36 @@ export default function MainLayout() {
     setCurrentDisplayedUser,
     currentIndex,
     setCurrentIndex,
+    displayedUsersChat,
   } = useContext(UserContext);
+
+    // Update loading state when data is available
+    useEffect(() => {
+      const loadingTimeout = setTimeout(() => {
+        if (isLoading) {
+          setIsOutOfMatches(true); // Switch to "out of matches" if loading takes too long
+          setIsLoading(false); // Stop loading
+        }
+      }, 20000); // 10 seconds
+  
+      // Cleanup the timer when the component unmounts or loading finishes
+      return () => clearTimeout(loadingTimeout);
+    }, [isLoading]);
+  
+    // Update loading state when data is available
+    useEffect(() => {
+      if (displayedUsers.length > 0 && displayedUsersChat.length > 0) {
+        setIsLoading(false);
+      }
+    }, [displayedUsers, displayedUsersChat]);
+  
+    useEffect(() => {
+      if (displayedUsers.length === 0 || displayedUsersChat.length === 0) {
+        setIsOutOfMatches(true);
+      } else {
+        setIsOutOfMatches(false);
+      }
+    }, [displayedUsers, displayedUsersChat]);
 
   // Fetch all matches and find the desired match based on user IDs
   useEffect(() => {
@@ -81,15 +113,17 @@ export default function MainLayout() {
         setCurrentTime(newTime);
       }
     };
-    if (container) {
+  
+    if (container && !isLoading && !isOutOfMatches) {
       container.addEventListener("scroll", handleScroll);
     }
+  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [totalDuration]);
+  }, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
 
   // Toggle dropdown
   const toggleDropdown = () => {
@@ -162,28 +196,39 @@ export default function MainLayout() {
         {/* Main content area */}
         <main className="flex-1 flex justify-center items-center overflow-hidden">
           {/* Centered content */}
-          <div className="flex flex-col items-center gap-2"> {/* Reduced gap to gap-2 */}
-            {/* Header with "Jammin'" text and three-dot dropdown */}
-            <div className="w-[400px] flex justify-between items-center mb-1"> {/* Adjusted margin-bottom */}
-              <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
-              <div className="relative">
-                <button onClick={toggleDropdown} className="text-white focus:outline-none">
-                  &#8942; {/* Three dots */}
-                </button>
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
-                    <ul>
-                      <li
-                        className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md"
-                        onClick={handleRemove} // Add click handler for "Remove"
-                      >
-                        Remove
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
+          {isLoading ? (
+            // Display the Loading component while data is being fetched
+            <Loading />
+          ) : isOutOfMatches ? (
+            // Display the "out of users" message when there are no more users
+            <div className="text-center">
+              <h1 className="text-2xl font-afacad">Jam it! You're Out of Matches</h1>
+              <p className="text-neutral-400">Come back later to see new matches!</p>
             </div>
+          ) : (
+            // Display the main content if there are users to match with
+            <div className="flex flex-col items-center gap-2">
+              {/* Header with "Jammin'" text and three-dot dropdown */}
+              <div className="w-[400px] flex justify-between items-center mb-1">
+                <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
+                <div className="relative">
+                  <button onClick={toggleDropdown} className="text-white focus:outline-none">
+                    &#8942; {/* Three dots */}
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
+                      <ul>
+                        <li
+                          className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md"
+                          onClick={handleRemove}
+                        >
+                          Remove
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
 
             {/* SpotifyProfile container */}
             <div
@@ -213,6 +258,7 @@ export default function MainLayout() {
               setRandomEmoji={setRandomEmoji}
             />
           </div>
+          )}
         </main>
       </div>
 
