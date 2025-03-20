@@ -19,6 +19,9 @@ export default function MainLayout() {
 
   const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
+  // Use a ref to track the previous displayed user
+  const prevDisplayedUserRef = useRef();
+
   // Access context values
   const {
     activeUser,
@@ -113,11 +116,11 @@ export default function MainLayout() {
         setCurrentTime(newTime);
       }
     };
-  
+
     if (container && !isLoading && !isOutOfMatches) {
       container.addEventListener("scroll", handleScroll);
     }
-  
+
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
@@ -129,6 +132,14 @@ export default function MainLayout() {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // Reset time when the displayed user changes
+  useEffect(() => {
+    if (prevDisplayedUserRef.current !== currentDisplayedUser) {
+      handleSeek(0); // Reset time to 0:00
+      prevDisplayedUserRef.current = currentDisplayedUser; // Update the ref
+    }
+  }, [currentDisplayedUser, handleSeek]);
 
   // Handle "Remove" button click
   const handleRemove = async () => {
