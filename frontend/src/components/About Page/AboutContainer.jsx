@@ -5,8 +5,16 @@ import Sidebar from "../Dashboard/Sidebar";
 
 
 const AboutContainer = () => {
+
+  function setAppHeight() {
+    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+  }
+
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('load', setAppHeight);
+
   return (
-    <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-screen
+    <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]
       overflow-y-auto [&::-webkit-scrollbar]:w-2
       [&::-webkit-scrollbar-track]:rounded-full
       [&::-webkit-scrollbar-track]:bg-gray-100
