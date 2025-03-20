@@ -10,10 +10,40 @@ export const UserProvider = ({ children }) => {
   const [currentDisplayedUser, setCurrentDisplayedUser] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [allUsersData, setAllUsersData] = useState([]); // State to store all user data from users_music_data
+  const [userBio, setUserBio] = useState(""); // State to store the user's bio
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "7d61cacd-04fa-11f0-ab72-0242ac120002"; // Replace with your desired user_data_id
+  const activeUserId = "7d620866-04fa-11f0-ab72-0242ac120002"; // Replace with your desired user_data_id
 
+  useEffect(() => {
+    const abortController = new AbortController();
+  
+    const fetchUserBio = async () => {
+      if (!currentDisplayedUser) return;
+  
+      try {
+        const response = await fetch(
+          `http://localhost:5001/api/users/by_user_data/${currentDisplayedUser.user_data_id}`,
+          { signal: abortController.signal }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData = await response.json();
+        setUserBio(userData.bio || ""); // Set the user's bio
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Error fetching user bio:", error);
+          setUserBio(""); // Reset bio on error
+        }
+      }
+    };
+  
+    fetchUserBio();
+  
+    return () => abortController.abort(); // Cleanup on unmount or dependency change
+  }, [currentDisplayedUser]);
+  
   // Fetch all user data from users_music_data and initialize displayed users
   useEffect(() => {
     const abortController = new AbortController(); // Create an AbortController
@@ -172,6 +202,7 @@ export const UserProvider = ({ children }) => {
         setActiveUser,
         setDisplayedUsers,
         allUsersData, // Provide all user data from users_music_data
+        userBio,
       }}
     >
       {children}

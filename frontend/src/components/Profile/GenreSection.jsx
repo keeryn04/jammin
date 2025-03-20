@@ -1,21 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import GenreCard from "./GenreCard";
+import { UserContext } from "../UserContext";
 
 const GenreSection = () => {
   const [genres, setGenres] = useState([]);
+    // Access context values
+    const {
+      currentDisplayedUser,
+    } = useContext(UserContext);
 
-  useEffect(() => {
-    fetch("http://localhost:5001/api/user_data")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          const user = data[0]; // Assuming the first user for now
-          const topGenres = user.top_genres ? user.top_genres.split(", ") : [];
-          setGenres(topGenres);
-        }
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+    useEffect(() => {
+      console.log("GENRESSS", currentDisplayedUser);
+      const topGenres = currentDisplayedUser.top_genres ? currentDisplayedUser.top_genres.split(", ") : [];
+      setGenres(topGenres);
+    }, [currentDisplayedUser]);    
 
   return (
     <section className="px-0 py-4 w-[400px] max-md:w-full">
