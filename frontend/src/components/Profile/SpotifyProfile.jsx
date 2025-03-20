@@ -43,7 +43,7 @@ const SpotifyProfile = () => {
       />
 
       {/* Genre Section */}
-      <div className="flex-shrink-0 w-[400px] h-full">
+      <div className="flex-shrink-0 w-[380px] h-full">
         <GenreSection />
       </div>
 
