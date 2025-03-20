@@ -113,24 +113,17 @@ export default function MainLayout() {
         setCurrentTime(newTime);
       }
     };
-
+  
     if (container && !isLoading && !isOutOfMatches) {
       container.addEventListener("scroll", handleScroll);
     }
+  
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
   }, [totalDuration, isLoading, isOutOfMatches]); // Add isLoading and isOutOfMatches as dependencies
-  // Reset time when the displayed user changes
-  
-  useEffect(() => {
-    if (prevDisplayedUserRef.current !== currentDisplayedUser) {
-      handleSeek(0); // Reset time to 0:00
-      prevDisplayedUserRef.current = currentDisplayedUser; // Update the ref
-    }
-  }, [currentDisplayedUser, handleSeek]);
 
   // Toggle dropdown
   const toggleDropdown = () => {
