@@ -13,6 +13,16 @@ const ProfileContent = ({ activeUser }) => {
       [&::-webkit-scrollbar-thumb]:bg-gray-300
       dark:[&::-webkit-scrollbar-track]:bg-neutral-700
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+        <div className="w-[100%]">
+          <h1 className="   m-5 text-6xl
+                            font-bold text-left 
+                            text-white max-w-[866px] 
+                            max-md:max-w-[700px] 
+                            max-sm:max-w-full 
+                            ">
+            Profile
+          </h1>
+        </div>
       {/* Main Content (Flexible and Scrollable) */}
       <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
         {/* Profile Header (Consistent Positioning) */}
