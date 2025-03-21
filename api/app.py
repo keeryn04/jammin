@@ -64,11 +64,24 @@ def login_user():
     if not user_id:
         return jsonify({"error": "Missing user_id"}), 400
     
-    user_data_id = get_user_data_id_by_user_id(user_id)
+    user_data_id_response, status_code = get_user_data_id_by_user_id(user_id)
+    print(user_data_id_response)
+
+    # Parse the response body
+    user_data_id = user_data_id_response.get_json()
+    print(user_id, user_data_id)
+
+    # Handle case where user_data_id is not found
+    if not user_data_id:
+        return jsonify({"error": "User data ID not found"}), 404
+
+    # Generate the JWT token
     jwt_token = generate_jwt(user_id, user_data_id)
+    print(jwt_token)
 
     # Set the JWT token in an HTTP-only cookie, allows access of user_id elsewhere in program
     response = make_response(jsonify({"message": "Login successful", "user_id": user_id}))
+    print(response)
     response.set_cookie("auth_token", jwt_token, httponly=True, secure=True, samesite="None", max_age=3600)
     
     return response, 201
