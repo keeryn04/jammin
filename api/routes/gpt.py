@@ -1,7 +1,5 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for
-from flask_cors import CORS
 import os
-import requests
 from dotenv import load_dotenv
 import uuid
 import openai

@@ -20,22 +20,28 @@ class TestUserSettingsRoutes(unittest.TestCase):
     def test_get_user_settings_success(self, mock_get_db_connection):
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.execute.return_value = [
+        
+        # Create a mock with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "setting_id": "123", 
-                "user_id": "user1", 
-                "discoverability": True, 
-                "notifications": True, 
-                "theme_preference": "light", 
+                "setting_id": "123",
+                "user_id": "user1",
+                "discoverability": True,
+                "notifications": True,
+                "theme_preference": "light",
                 "language": "en"
             }
         ]
         
+        # Set up the mock chain to return our mock response
+        mock_conn.table.return_value.select.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
+        
         # Send the GET request
         response = self.client.get('/api/user_settings')
-
+        
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
@@ -46,25 +52,31 @@ class TestUserSettingsRoutes(unittest.TestCase):
     def test_get_user_setting_success(self, mock_get_db_connection):
         # Generate a valid UUID for the setting_id
         setting_id = str(uuid.uuid4())
-
+        
         # Mock the database connection and response
         mock_conn = MagicMock()
-        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = [
+        
+        # This is the key change - create a mock with a data attribute
+        mock_response = MagicMock()
+        mock_response.data = [
             {
-                "setting_id": setting_id, 
-                "user_id": "user1", 
-                "discoverability": True, 
-                "notifications": True, 
-                "theme_preference": "light", 
+                "setting_id": setting_id,
+                "user_id": "user1",
+                "discoverability": True,
+                "notifications": True,
+                "theme_preference": "light",
                 "language": "en"
             }
         ]
         
+        # Set up the mock chain to return our mock response
+        mock_conn.table.return_value.select.return_value.eq.return_value.execute.return_value = mock_response
+        
         mock_get_db_connection.return_value = mock_conn
-
+        
         # Send the GET request
         response = self.client.get(f'/api/user_settings/{setting_id}')
-
+        
         # Assert the response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [

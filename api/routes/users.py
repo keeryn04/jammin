@@ -1,5 +1,4 @@
-from flask import Blueprint, Flask, jsonify, make_response, request, session
-from flask_session import Session
+from flask import Blueprint, jsonify, make_response, request, session
 from database.database_connector import get_db_connection
 import os
 import uuid
