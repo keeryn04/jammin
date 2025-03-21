@@ -213,7 +213,7 @@ export default function MainLayout() {
       {/* Sidebar */}
       <Sidebar />
       {/* Main content area */}
-      <main className="flex-1 flex justify-center items-center sm:order-none order-first">
+      <main className="flex-1 flex flex-col justify-center items-center sm:order-none order-first">
         <div className="w-[100%]">
             <h1 className="   m-5 text-6xl
                               font-bold text-left 
