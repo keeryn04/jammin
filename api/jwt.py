@@ -48,8 +48,12 @@ def check_auth():
     if not token:
         return jsonify({"authenticated": False}), 401
     
+    print(f"Token: {token}")
+    
     decoded = decode_jwt(token)
     if not decoded:
         return jsonify({"authenticated": False, "error": "Invalid or expired token"}), 401
+    
+    print(f"Decoded JWT: {decoded}")
     
     return jsonify({"authenticated": True, "user": decoded})
