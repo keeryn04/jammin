@@ -1,6 +1,5 @@
 from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
-from flask_cors import CORS
 from database.database_connector import get_db_connection
 import mysql.connector
 import os
@@ -51,7 +50,7 @@ def get_swipe(swipe_id):
         return jsonify({"error": f"Database error: {err}"}), 500
 
 @swipes_routes.route("/api/swipes", methods=["POST"])
-def add_swipe(swipe_id):
+def add_swipe():
     try:
         data = request.json
         swipe_id = str(uuid.uuid4())

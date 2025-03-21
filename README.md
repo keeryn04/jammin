@@ -2,6 +2,11 @@
 Jammin is a project created for SENG 401 - Software Architecture that uses ChatGPT to parse a user’s Spotify analytics and match them with people with similar music taste. Matches are made based on both user’s top artists, songs and genres, combining to generate a compatibility score between both parties.
 
 ## Features
+
+### Login and Log Out
+If you wanted to remove your spotify account or add a new user to Jammin' you can use the logout button to remove your Spotify account and logout your Jammin' profile. This allows you to sign in or sign up with a different account, making Jammin' usable on one device. 
+![Screenshot of Login Page from Jammin'](/readme_images/jammin_signup_login.jpg)
+
 ### Matching
 You can scroll through people's profile, seeing their compatibility score with you, description of why they received that match score and more Spotify data of your matched user. Data visible includes top songs, top artists and top genres for each user. 
 ![Screenshot of Matching Page from Jammin'](/readme_images/jammin_matching.jpg)
@@ -14,9 +19,7 @@ You can see your own Spotify data and personal Jammin' data on the Profile page.
 
 ### Matches
 After matching with users, you can see who you matched with on the Matches page. If both of you matched with each other, you can see that persons profile name, match score and date you matched on. If you drop down that menu, you can see the Jammin' data associated with that user. This allows you to see the more personal data of the people you matched with, and get to know that person better.
-
-### Log Out
-If you wanted to remove your spotify account or add a new user to Jammin' you can use the logout button to remove your Spotify account and logout your Jammin' profile. This allows you to sign in or sign up with a different account, making Jammin' usable on one device. 
+![Screenshot of Matches Page from Jammin'](/readme_images/jammin_matches.jpg)
 
 ## Tech Stack
 - **Frontend**: Vercel, React + Vite

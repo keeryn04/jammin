@@ -71,10 +71,11 @@ const LoginContainer = () => {
         // If email doesn't match or password check fails, return false
         return false;
     } catch (error) {
-      console.error("error fetching users / login attempt", error)
-      return false
+        console.error("Error fetching users / login attempt", error);
+        return false;
     }
-  }
+  };
+
 
   const navigate = useNavigate()
 
