@@ -214,6 +214,16 @@ export default function MainLayout() {
       <Sidebar />
       {/* Main content area */}
       <main className="flex-1 flex justify-center items-center overflow-hidden">
+        <div className="w-[100%]">
+            <h1 className="   m-5 text-6xl
+                              font-bold text-left 
+                              text-white max-w-[866px] 
+                              max-md:max-w-[700px] 
+                              max-sm:max-w-full 
+                              ">
+              Explore
+            </h1>
+          </div>
         {/* Centered content */}
         {isLoading ? (
           // Display the Loading component while data is being fetched
@@ -228,16 +238,6 @@ export default function MainLayout() {
           
           // Display the main content if there are users to match with
           <div className="flex flex-col items-center gap-2">
-            <div className="w-[100%]">
-              <h1 className="   m-5 text-6xl
-                                font-bold text-left 
-                                text-white max-w-[866px] 
-                                max-md:max-w-[700px] 
-                                max-sm:max-w-full 
-                                ">
-                Explore
-              </h1>
-            </div>
             {/* Header with "Jammin'" text and three-dot dropdown */}
             <div className="w-[90%] flex justify-between items-center mb-1">
               <h1 className="text-sm font-afacad text-center flex-1 text-white">Jammin'</h1>
