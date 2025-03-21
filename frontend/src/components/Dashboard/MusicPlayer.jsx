@@ -268,7 +268,7 @@ export default function MusicPlayer({
       )}
 
       {/* Display the user's bio */}
-      <h2 className="text-2xl font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
+      <h2 className="text-2xl text-white font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
       <p className="mb-4 text-base text-zinc-400">
         {userBio || "A Display Caption?"}
       </p>
