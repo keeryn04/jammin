@@ -23,7 +23,9 @@ const ProfilePage = () => {
   return (
     <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]">
       <Sidebar />
-      <ProfileContent activeUser={activeUser} /> {/* Pass activeUser as a prop */}
+      <div className="flex flex-col h-screen">
+        <ProfileContent activeUser={activeUser} />
+      </div>
     </main>
   );
 };
