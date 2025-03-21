@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 #API Key Authentication
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
-VERCEL_URL = os.getenv('VITE_VERCEL_URL_PREVIEW')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL')
 
 # Configure Flask session
 app.config["SESSION_TYPE"] = "filesystem"

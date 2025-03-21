@@ -8,7 +8,7 @@ const MatchCard = ({ match_id, match_score, matched_at, reasoning, user_2_data_i
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false); // State to manage expanded/collapsed state
 
-  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+  const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 
   useEffect(() => {
     const fetchUserData = async () => {

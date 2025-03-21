@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const VERCEL_URL = import.meta.env.VITE_VERCEL_URL_PREVIEW;
+const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const usersLink = `${VERCEL_URL}/api/users`;
 const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
 const hashPasswordLink = `${VERCEL_URL}/api/auth/hash_password`;

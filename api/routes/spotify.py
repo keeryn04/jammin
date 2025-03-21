@@ -9,11 +9,11 @@ from api.jwt import decode_jwt, update_jwt
 
 spotify_routes = Blueprint("spotify_routes", __name__)
 
-VERCEL_URL = os.getenv('VITE_VERCEL_URL_PREVIEW')
+VERCEL_URL = os.getenv('VITE_VERCEL_URL')
 API_ACCESS_KEY = os.getenv('API_ACCESS_KEY')
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI_PREVIEW")
+SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 SCOPE = "user-library-read user-read-private playlist-read-private user-top-read"
