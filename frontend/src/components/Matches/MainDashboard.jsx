@@ -19,7 +19,7 @@ const MainDashboard = () => {
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
 
         <div className="w-[100%]">
-          <h1 className="   m-5 text-6xl
+          <h1 className="   m-5 text-2xl sm:text-6xl
                             font-bold text-left 
                             text-white max-w-[866px] 
                             max-md:max-w-[700px] 

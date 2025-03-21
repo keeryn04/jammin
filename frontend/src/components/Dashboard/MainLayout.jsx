@@ -215,7 +215,7 @@ export default function MainLayout() {
       {/* Main content area */}
       <main className="flex-1 flex flex-col justify-center items-center sm:order-none order-first">
         <div className="w-[100%]">
-            <h1 className="   mx-5 mb-1 text-6xl
+            <h1 className="   mx-5 mb-1 text-2xl sm:text-6xl
                               font-bold text-left 
                               text-white max-w-[866px] 
                               max-md:max-w-[700px] 

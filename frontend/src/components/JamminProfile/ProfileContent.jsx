@@ -15,7 +15,7 @@ const ProfileContent = ({ activeUser }) => {
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       {/* Profile Heading */}
       <div className="w-full">
-        <h1 className="m-5 text-6xl font-bold text-left text-white max-w-[866px] max-md:max-w-[700px] max-sm:max-w-full">
+        <h1 className="m-5 text-2xl sm:text-6xl font-bold text-left text-white max-w-[866px] max-md:max-w-[700px] max-sm:max-w-full">
           Profile
         </h1>
       </div>

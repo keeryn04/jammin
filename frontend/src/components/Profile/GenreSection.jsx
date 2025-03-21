@@ -16,7 +16,7 @@ const GenreSection = () => {
 
   return (
     <section className="px-0 py-4 w-[400px] max-md:w-full">
-      <h2 className="mb-12 text-base leading-6 text-center text-white">
+      <h2 className="mb-4 text-base leading-6 text-center text-white">
         Top Genres
       </h2>
       <div className="flex flex-col gap-3 p-4">

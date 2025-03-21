@@ -28,7 +28,7 @@ const AboutContainer = () => {
       <div className="flex flex-1 flex-col flex-grow items-center sm:order-none order-first">
 
         <div className="w-[100%]">
-          <h1 className="   m-8 text-6xl
+          <h1 className="   m-8 text-2xl sm:text-6xl
                             font-bold text-left 
                             text-white max-w-[866px] 
                             max-md:max-w-[700px] 
