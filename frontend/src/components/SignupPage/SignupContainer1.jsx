@@ -31,9 +31,7 @@ const SignupContainer1 = () => {
       const data = await response.json();
       for (var i = 0; i < data.length; i++) {
         var user = data[i];
-        console.log(user["email"]);
         if (inputEmail === user["email"]){
-          console.log("Email found")
           return true;
         }
       }
@@ -55,7 +53,6 @@ const SignupContainer1 = () => {
     if (email === null || password === null || passwordCheck === null)
       setError("Please fill in all form inputs")
     else if (emailAlreadyExists) {
-      console.log("test")
       setError("Email entered is already in use")
     }
     else if (!emailRegex.test(email))

@@ -16,7 +16,7 @@ const SpotifyProfile = () => {
   } = useContext(UserContext);
 
   return (
-    <div className="flex space-x-4 p-4 w-max h-[400px] -ml-3">
+    <div className="flex space-x-4 p-4 w-max h-[350px] -ml-3">
       {/* Profile Section */}
       <div className="flex-shrink-0 w-[400px] h-full">
         <ProfileSection />
@@ -43,7 +43,7 @@ const SpotifyProfile = () => {
       />
 
       {/* Genre Section */}
-      <div className="flex-shrink-0 w-[400px] h-full">
+      <div className="flex-shrink-0 w-[380px] h-full">
         <GenreSection />
       </div>
 

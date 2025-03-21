@@ -18,6 +18,7 @@ const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const fetchLink = `${VERCEL_URL}/api/users`;
 const loginLink = `${VERCEL_URL}/api/login`;
 const redirectLink = `${VERCEL_URL}/api/spotify/login`;
+const passwordLink = `${VERCEL_URL}/api/auth/password_check`
 
 const LoginContainer = () => {
   const [email, setEmail] = useState("");
@@ -35,29 +36,46 @@ const LoginContainer = () => {
 
   const attemptLogin = async (inputEmail, inputPassword) => {
     try {
-      const response = await fetch(fetchLink);
-      const data = await response.json();
-      for (var i = 0; i < data.length; i++) {
-        var user = data[i];
-        if (inputEmail === user["email"] && inputPassword === user["password_hash"]){
-          //Save user_id as cookie via backend
-          const loginReturn = await fetch(loginLink, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user['user_id'] })
-          });
+        const response = await fetch(fetchLink);
+        const data = await response.json();
 
-          const data = await loginReturn.json();
-          return true;
+        for (let i = 0; i < data.length; i++) {
+            let user = data[i];
+
+            if (inputEmail === user["email"]) {
+                // Save user_id for current user if email is found
+                const loginReturn = await fetch(loginLink, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: user["user_id"] }),
+                });
+
+                // Check if the saved password matches the entered password
+                const passwordResponse = await fetch(passwordLink, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ password: inputPassword }),
+                });
+
+                const passwordData = await passwordResponse.json(); // { match: true/false }
+                const passwordMatch = passwordData.match;
+
+                // Return true if the password matches
+                if (passwordMatch) {
+                    return true;
+                }
+            }
         }
-      }
-      return false;
+
+        // If email doesn't match or password check fails, return false
+        return false;
     } catch (error) {
-      console.error("error fetching users / login attempt", error)
-      return false
+        console.error("Error fetching users / login attempt", error);
+        return false;
     }
-  }
+  };
+
 
   const navigate = useNavigate()
 

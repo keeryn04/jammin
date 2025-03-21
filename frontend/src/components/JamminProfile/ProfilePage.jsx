@@ -11,8 +11,17 @@ const ProfilePage = () => {
     return <div>Loading...</div>; // Add a loading state
   }
 
+  function setAppHeight() {
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${vh}px`);
+  }
+
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('load', setAppHeight);
+  setTimeout(setAppHeight, 50); // Small delay to allow UI adjustments
+
   return (
-    <main className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
+    <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]">
       <Sidebar />
       <ProfileContent activeUser={activeUser} /> {/* Pass activeUser as a prop */}
     </main>
