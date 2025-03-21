@@ -10,6 +10,18 @@ def hash_password(password: str) -> str:
     hashed = bcrypt.hashpw(password.encode(), salt)  #Hash password
     return hashed.decode()  #Convert bytes to a string for storage
 
+@auth_routes.route("/api/auth/hash_password", methods=["POST"])
+def hash_password_route():
+    data = request.json
+    password = data.get("password")
+
+    if not password:
+        return jsonify({"error": "Password is required"}), 400
+
+    #Return hashed password
+    hashed = hash_password(password)
+    return jsonify({"hashed_password": hashed})
+
 @auth_routes.route("/api/auth/password_check", methods=["POST"])
 def check_password():
     from api.routes.users import get_user  #Import inside function to avoid circular dependency

@@ -51,8 +51,6 @@ const LoginContainer = () => {
                     body: JSON.stringify({ user_id: user["user_id"] }),
                 });
 
-                console.log(`Login Return: ${loginReturn}`);
-
                 // Check if the saved password matches the entered password
                 const passwordResponse = await fetch(passwordLink, {
                     method: "POST",
@@ -62,7 +60,6 @@ const LoginContainer = () => {
 
                 const passwordData = await passwordResponse.json(); // { match: true/false }
                 const passwordMatch = passwordData.match;
-                console.log(`Password Match Status: ${passwordMatch}`);
 
                 // Return true if the password matches
                 if (passwordMatch) {

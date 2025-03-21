@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 const VERCEL_URL = import.meta.env.VITE_VERCEL_URL;
 const usersLink = `${VERCEL_URL}/api/users`;
 const userDataToUserLink = `${VERCEL_URL}/api/users/by_user_data`;
+const hashPasswordLink = `${VERCEL_URL}/api/auth/hash_password`;
 
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
@@ -17,7 +18,6 @@ const UserProfileForm = ({ activeUser }) => {
           throw new Error("Failed to fetch users");
         }
         const users = await usersResponse.json();
-
         // Step 2: Find the user with the matching user_data_id
         const activeUserData = users.find(
           (user) => user.user_data_id === activeUser.user_data_id
@@ -45,7 +45,7 @@ const UserProfileForm = ({ activeUser }) => {
         setError("Could not load user data.");
       }
     };
-
+  
     fetchUserData();
   }, [activeUser.user_data_id]);
 
@@ -62,45 +62,47 @@ const UserProfileForm = ({ activeUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      // Fetch the user ID based on user_data_id
       const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
-
+  
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error fetching user data:', response.status, errorText);
-        return; // Exit the function early if the fetch fails
+        console.error("Error fetching user data:", response.status, errorText);
+        setError("Failed to fetch user data. Please try again.");
+        return;
       }
-
-      // Parse the JSON response
+  
       const data = await response.json();
-      console.log('User data:', data);
-
       const userId = data.user_id;
-      console.log('User ID:', userId);
-
-      // Filter out empty fields from formData
-      const updatedData = Object.keys(formData).reduce((acc, key) => {
-        if (key === "password_hash") {
-          // Only include password_hash if it's not empty
-          if (formData[key] !== "") {
-            acc[key] = formData[key];
-          } else {
-            // Explicitly set password_hash to null if it's empty
-            acc[key] = null;
-          }
-        } else {
-          // Include other fields if they are not empty
-          if (formData[key] !== "" && formData[key] !== null && formData[key] !== undefined) {
-            acc[key] = formData[key];
-          }
+  
+      let updatedData = { ...formData };
+  
+      // Hash the password if it is provided
+      if (formData.password_hash !== "") {
+        const hashResponse = await fetch(hashPasswordLink, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password: formData.password_hash }),
+        });
+  
+        if (!hashResponse.ok) {
+          throw new Error("Failed to hash password");
         }
-        return acc;
-      }, {});
-
-      console.log('Updated Data:', updatedData);
-
+  
+        const hashData = await hashResponse.json();
+        updatedData.password_hash = hashData.hashed_password;
+      } else {
+        delete updatedData.password_hash; //Remove password field if empty
+      }
+  
+      // Filter out empty fields
+      updatedData = Object.fromEntries(
+        Object.entries(updatedData).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
+      );
+  
       // Send the PUT request with only non-empty fields
       const updateResponse = await fetch(`${usersLink}/${userId}`, {
         method: "PUT",
@@ -109,17 +111,17 @@ const UserProfileForm = ({ activeUser }) => {
         },
         body: JSON.stringify(updatedData),
       });
-
+  
       if (!updateResponse.ok) {
         throw new Error("Failed to update profile");
       }
-
+  
       alert("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Error updating profile. Please try again.");
+      setError("Error updating profile. Please try again.");
     }
-  };
+  };  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-lg shadow-md">
