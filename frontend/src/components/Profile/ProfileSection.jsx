@@ -26,7 +26,7 @@ const ProfileSection = () => {
   const profileName = currentDisplayedUser?.profile_name || "SpotifyUser";
 
   return (
-    <section className="flex flex-col items-center p-4 w-[350px] max-md:w-full relative overflow-hidden h-[350px]">
+    <section className="flex flex-col items-center p-4 w-[350px] relative overflow-hidden h-[350px]">
       {/* Progress Bar */}
       <div
         className={`p-4 w-full transition-all duration-500 ${
