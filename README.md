@@ -40,3 +40,6 @@ Elias Poitras-Whitecalf,
 Petr Dubovsky,
 Ryan Graham,
 Evan Mann
+
+## AI Acknowledgement:
+Our frontend pages and many components were designed on Figma where we used tools such as 'Builder.io' which uses AI to convert these to visually established jsx files. Additionally, AI tools such as ChatGPT were used to brainstorm and find solutions to functionalities, bug-fixes, and best-practices implemented in parts of code. The use of AI still required us to make many modifications to returned code to serve our specific purposes or simply function as intended when the AI provided solution provided a starting point that did not work. This helped us simplify redundant tasks and organize our code better. Some challenges we encountered include: correcting incorrect/inapplicable code provided by AI, AI not having up-to-date/relevant solutions, inaccurate results/hallucinations. To overcome these challenges we would get high-level solutions that would allow us to apply our own knowledge and understanding towards obtaining a solution and using other -more up-to-date- resources like stackOverflow, various video tutorials
