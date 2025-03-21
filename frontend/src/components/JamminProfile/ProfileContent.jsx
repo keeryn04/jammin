@@ -5,7 +5,14 @@ import { ProfileHeader } from "./ProfileHeader";
 
 const ProfileContent = ({ activeUser }) => {
   return (
-    <div className="flex h-screen w-screen bg-neutral-800 overflow-hidden">
+    <div className="flex flex-1 flex-col sm:w-screen flex-grow items-center sm:order-none order-first
+     overflow-y-auto [&::-webkit-scrollbar]:w-2
+      [&::-webkit-scrollbar-track]:rounded-full
+      [&::-webkit-scrollbar-track]:bg-gray-100
+      [&::-webkit-scrollbar-thumb]:rounded-full
+      [&::-webkit-scrollbar-thumb]:bg-gray-300
+      dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+      dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       {/* Main Content (Flexible and Scrollable) */}
       <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
         {/* Profile Header (Consistent Positioning) */}
