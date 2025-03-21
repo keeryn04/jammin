@@ -14,7 +14,7 @@ const ProfileContent = ({ activeUser }) => {
       dark:[&::-webkit-scrollbar-track]:bg-neutral-700
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
       {/* Main Content (Flexible and Scrollable) */}
-      <main className="flex flex-1 flex-col overflow-hidden px-8 py-6 max-md:px-4">
+      <main className="flex flex-1 flex-col overflow-hidden px-8 pt-8 pb-6 max-md:px-4">
         {/* Profile Header (Consistent Positioning) */}
         <div className="flex-shrink-0 w-full flex justify-center mb-6">
           <ProfileHeader />
@@ -29,7 +29,7 @@ const ProfileContent = ({ activeUser }) => {
         dark:[&::-webkit-scrollbar-track]:bg-neutral-700
         dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <div className="max-w-[800px] w-full flex flex-col gap-10">
-          {/* <PhotoSection activeUser={activeUser} /> */}
+            {/* <PhotoSection activeUser={activeUser} /> */}
             <ProfileForm activeUser={activeUser} /> {/* Pass activeUser */}
           </div>
         </div>

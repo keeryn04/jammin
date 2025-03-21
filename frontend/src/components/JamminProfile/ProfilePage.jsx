@@ -22,20 +22,19 @@ const ProfilePage = () => {
 
   return (
     <main className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]">
+      {/* Sidebar */}
       <Sidebar />
 
-      <div className="w-[100%]">
-          <h1 className="   m-5 text-6xl
-                            font-bold text-left 
-                            text-white max-w-[866px] 
-                            max-md:max-w-[700px] 
-                            max-sm:max-w-full 
-                            ">
-            Profile
-          </h1>
-        </div>
-        
-      <ProfileContent activeUser={activeUser} /> {/* Pass activeUser as a prop */}
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 overflow-y-auto">
+        {/* Profile Heading */}
+        <h1 className="m-5 text-6xl font-bold text-left text-white max-w-[866px] max-md:max-w-[700px] max-sm:max-w-full">
+          Profile
+        </h1>
+
+        {/* Profile Content */}
+        <ProfileContent activeUser={activeUser} /> {/* Pass activeUser as a prop */}
+      </div>
     </main>
   );
 };
