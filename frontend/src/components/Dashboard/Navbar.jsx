@@ -38,7 +38,7 @@ export default function Navbar() {
   return (
     <nav className="flex flex-row items-center bg-neutral-900 w-full h-full
                     sm:flex-col sm:w-[80%] sm:rounded-4xl sm:h-5/7 sm:m-4">
-      <div className="flex flex-row sm:flex-col h-full justify-betweem items-center">
+      <div className="flex flex-row sm:flex-col h-full justify-between items-center">
         <NavItem icon={"/icons/MatchesIcon.png"} clickFunction={handleMatchesClick} />
         <NavItem icon={"/icons/ProfileIcon.png"} clickFunction={handleProfileClick} />
         <NavItem icon={"/icons/AIIcon.png"} clickFunction={handleAIClick}/>

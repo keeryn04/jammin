@@ -38,14 +38,12 @@ export const UserProvider = ({ children }) => {
           { signal: abortController.signal } // Pass the abort signal
         );
         const allUsersData = await allUsersDataResponse.json();
-        console.log("All Users Data (from users_music_data):", allUsersData); // Log all users data
         setAllUsersData(allUsersData);
 
         // Find the active user from the fetched data
         const activeUserData = allUsersData.find(
           (user) => user.user_data_id === activeUserId
         );
-        console.log("Active User Data:", activeUserData); // Log active user data
         setActiveUser(activeUserData);
 
         if (!activeUserData) {
@@ -59,13 +57,11 @@ export const UserProvider = ({ children }) => {
           { signal: abortController.signal } // Pass the abort signal
         );
         const matchesData = await matchesResponse.json();
-        console.log("All Matches Data:", matchesData); // Log all matches data
 
         // Filter out the active user from the list of all users
         const otherUsers = allUsersData.filter(
           (user) => user.user_data_id !== activeUserId
         );
-        console.log("Other Users:", otherUsers); // Log other users
 
         // Prepare the list of users to display
         const usersToDisplay = [];
@@ -77,7 +73,6 @@ export const UserProvider = ({ children }) => {
           { signal: abortController.signal } // Pass the abort signal
         );
         const llmData = await llmResponse.json();
-        console.log("LLM Response:", llmData); // Log the LLM response
 
         if (llmData.matches) {
           for (const match of llmData.matches) {

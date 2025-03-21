@@ -123,6 +123,7 @@ export default function MusicPlayer({
       console.log(activeUser);
       return nextIndex; // Return the new index
     });
+    onSeek(0);
   };
 
   const handlePreviousUser = () => {
@@ -133,6 +134,7 @@ export default function MusicPlayer({
       console.log(activeUser);
       return previousIndex; // Return the new index
     });
+    onSeek(0);
   };
 
   const handlePlay = async () => {
@@ -252,6 +254,7 @@ export default function MusicPlayer({
       setTimeout(() => {
         setShowHeart(false);
       }, 1000); // Adjust the timeout to match the animation duration
+      onSeek(0);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -274,7 +277,7 @@ export default function MusicPlayer({
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-left" style={style}>
+    <section className="mt-2 mb-3 w-[90%] text-left">
       {/* Emoji Animation */}
       {showHeart && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -283,9 +286,9 @@ export default function MusicPlayer({
       )}
 
       {/* Display the user's bio */}
-      <h2 className="text-2xl font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
+      <h2 className="text-2xl text-white font-semibold">{currentDisplayedUser?.profile_name || "Person's Name"}</h2>
       <p className="mb-4 text-base text-zinc-400">
-        {userBio || "A Display Caption?"}
+        {userBio || "No Bio"}
       </p>
       <div className="mx-auto mt-0 mb-5 w-full">
         {/* Seek bar */}

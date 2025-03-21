@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export const ProfileHeader = () => {
     return (
-      <header className="flex justify-center items-center gap-10 py-10 text-center max-md:flex-col max-md:gap-5">
+      <header className="flex justify-center items-center gap-10 py-10 text-center flex-row max-md:gap-5">
         
           <h1 className="text-2xl font-bold text-teal-400 max-sm:text-xl underline">
             Public Profile

@@ -39,7 +39,6 @@ const SignupContainer2 = () => {
 
       const data = await response.text();
       if (response.ok) {
-        console.log("Signup Successful")
         window.location.href = redirectLink;  //Send user to spotify to add spotify data
       } else {
         setError(data.error)

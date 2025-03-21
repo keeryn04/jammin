@@ -10,3 +10,4 @@ pyjwt
 datetime
 openai
 waitress
+bcrypt
