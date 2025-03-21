@@ -163,62 +163,76 @@ export default function MainLayout() {
   setTimeout(setAppHeight, 50); // Small delay to allow UI adjustments
 
   return (
-    <div className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)]">
+    <div className="flex flex-col sm:flex-row w-screen bg-neutral-800 h-[var(--app-height)] max-sm:items-center">
       <Sidebar />
       {/* Main content area */}
-      <main className="flex flex-1 flex-col flex-grow items-center sm:order-none order-first">
-        {/* Centered content */}
-        <div className="flex flex-col items-center gap-2"> {/* Reduced gap to gap-2 */}
-          {/* Header with "Jammin'" text and three-dot dropdown */}
-          <div className="w-[400px] flex justify-between items-center mb-1"> {/* Adjusted margin-bottom */}
-            <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
-            <div className="relative">
-              <button onClick={toggleDropdown} className="text-white focus:outline-none">
-                &#8942; {/* Three dots */}
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
-                  <ul>
-                    <li
-                      className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md"
-                      onClick={handleRemove} // Add click handler for "Remove"
-                    >
-                      Remove
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* SpotifyProfile container */}
-          <div
-            ref={profileContainerRef}
-            className="w-[400px] h-[400px] bg-neutral-700 rounded-lg shadow-lg overflow-x-auto overflow-y-hidden"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            <SpotifyProfile />
-            <style>
-              {`
-                .overflow-x-auto::-webkit-scrollbar {
-                  display: none;
-                }
-              `}
-            </style>
-          </div>
-
-          {/* MusicPlayer */}
-          <MusicPlayer
-            currentTime={currentTime}
-            totalDuration={totalDuration}
-            onSeek={handleSeek}
-            style={{ width: "400px" }}
-            showHeart={showHeart}
-            setShowHeart={setShowHeart}
-            randomEmoji={randomEmoji}
-            setRandomEmoji={setRandomEmoji}
-          />
+      <main className="flex flex-1 flex-col flex-grow w-[90%] items-center  sm:order-none order-first">
+        
+        <div className="w-[100%]">
+          <h1 className="   m-5 text-6xl
+                            font-bold text-left 
+                            text-white max-w-[866px] 
+                            max-md:max-w-[700px] 
+                            max-sm:max-w-full 
+                            ">
+            Explore
+          </h1>
         </div>
+
+        <div className="flex h-[100%] items-center">
+          <div className="flex flex-col items-center gap-2"> {/* Reduced gap to gap-2 */}
+            {/* Header with "Jammin'" text and three-dot dropdown */}
+            <div className="w-[90%] flex justify-between items-center mb-1"> {/* Adjusted margin-bottom */}
+              <h1 className="text-sm font-afacad text-center flex-1">Jammin'</h1>
+              <div className="relative">
+                <button onClick={toggleDropdown} className="text-white focus:outline-none">
+                  &#8942; {/* Three dots */}
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-28 bg-neutral-900 rounded-lg shadow-lg">
+                    <ul>
+                      <li
+                        className="px-4 py-2 hover:bg-red-500 cursor-pointer rounded-md"
+                        onClick={handleRemove} // Add click handler for "Remove"
+                      >
+                        Remove
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SpotifyProfile container */}
+            <div
+              ref={profileContainerRef}
+              className="w-[400px] h-[400px] bg-neutral-700 rounded-lg shadow-lg overflow-x-auto overflow-y-hidden"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              <SpotifyProfile />
+              <style>
+                {`
+                  .overflow-x-auto::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}
+              </style>
+            </div>
+
+            {/* MusicPlayer */}
+            <MusicPlayer
+              currentTime={currentTime}
+              totalDuration={totalDuration}
+              onSeek={handleSeek}
+              style={{ width: "400px" }}
+              showHeart={showHeart}
+              setShowHeart={setShowHeart}
+              randomEmoji={randomEmoji}
+              setRandomEmoji={setRandomEmoji}
+            />
+          </div>
+        </div>
+
       </main>
 
 

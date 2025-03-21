@@ -259,7 +259,7 @@ export default function MusicPlayer({
   }, [isDragging]);
 
   return (
-    <section className="mt-10 text-left" style={style}>
+    <section className="mt-7 mb-3 w-[90%] text-left" >
       {/* Emoji Animation */}
       {showHeart && (
         <div className="fixed inset-0 flex items-center justify-center z-50">

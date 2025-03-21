@@ -26,6 +26,18 @@ const MainDashboard = () => {
       [&::-webkit-scrollbar-thumb]:bg-gray-300
       dark:[&::-webkit-scrollbar-track]:bg-neutral-700
       dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+
+        <div className="w-[100%]">
+          <h1 className="   m-5 text-6xl
+                            font-bold text-left 
+                            text-white max-w-[866px] 
+                            max-md:max-w-[700px] 
+                            max-sm:max-w-full 
+                            ">
+            Matches
+          </h1>
+        </div>
+
         <MatchesList />
       </main>
     </div>
