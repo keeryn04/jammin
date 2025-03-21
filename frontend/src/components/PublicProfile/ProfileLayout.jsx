@@ -58,7 +58,14 @@ const ProfileLayout = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex flex-1 w-[85%] p-6 rounded-lg bg-neutral-900 shadow-lg overflow-y-auto max-md:flex-col max-md:p-4 ">
+        <div className="flex flex-1 w-[85%] p-6 rounded-lg bg-neutral-900 shadow-lg overflow-y-auto max-md:flex-col max-md:p-4 
+         [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:rounded-full
+        [&::-webkit-scrollbar-track]:bg-gray-100
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-gray-300
+        dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+        dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           {/* Left Column */}
           <div className="flex flex-col gap-10 flex-1 min-w-0">
             {/* Pass activeUser data to ProfilePhoto, TopTracks, and TopArtists */}
