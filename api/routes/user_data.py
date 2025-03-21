@@ -1,8 +1,7 @@
 import uuid
-from flask import Blueprint, Flask, jsonify, request, session
+from flask import Blueprint, jsonify, request, session
 from database.database_connector import get_db_connection
 import os
-from dotenv import load_dotenv
 
 user_data_routes = Blueprint("user_data_routes", __name__)
 

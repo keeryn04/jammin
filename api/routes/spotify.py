@@ -1,10 +1,8 @@
 from flask import Blueprint, app, jsonify, request, session, redirect, url_for, make_response
-from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import requests
 from dotenv import load_dotenv
-import uuid
 load_dotenv()
 
 import logging
