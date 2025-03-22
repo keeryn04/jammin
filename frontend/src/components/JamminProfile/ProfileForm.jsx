@@ -80,6 +80,7 @@ const UserProfileForm = ({ activeUser }) => {
       // Create a copy of formData to avoid mutating the state directly
       let updatedData = { ...formData };
   
+      {/*
       // Hash the password only if it is provided (not empty)
       if (formData.password_hash && formData.password_hash.trim() !== "") {
         const hashResponse = await fetch(hashPasswordLink, {
@@ -103,6 +104,7 @@ const UserProfileForm = ({ activeUser }) => {
         // Do not include password_hash in updatedData to avoid updating it
         delete updatedData.password_hash;
       }
+      */}
   
       // Filter out empty fields (optional, but recommended)
       updatedData = Object.fromEntries(
@@ -161,6 +163,7 @@ const UserProfileForm = ({ activeUser }) => {
         {validationErrors.email}</p>}
       </label>*/}
 
+      {/*
       <label className="text-white">
         Password:
         <input
@@ -171,6 +174,7 @@ const UserProfileForm = ({ activeUser }) => {
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
       </label>
+      */}
 
       <label className="text-white">
         Age:
