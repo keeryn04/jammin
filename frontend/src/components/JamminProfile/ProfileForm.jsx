@@ -30,7 +30,7 @@ const UserProfileForm = ({ activeUser }) => {
         // Step 3: Set form data
         setFormData({
           username: activeUserData.username || "",
-          //email: activeUserData.email || "",
+          email: activeUserData.email || "",
           password_hash: activeUserData.password_hash || "",
           age: activeUserData.age || "",
           bio: activeUserData.bio || "",
@@ -187,13 +187,15 @@ const UserProfileForm = ({ activeUser }) => {
 
       <label className="text-white">
         Gender:
-        <input
-          type="text"
+        <select
           name="gender"
           value={formData.gender}
           onChange={handleChange}
-          className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
+          className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
       </label>
 
       <label className="text-white">
