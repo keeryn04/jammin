@@ -8,6 +8,7 @@ const hashPasswordLink = `${VERCEL_URL}/api/auth/hash_password`;
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -51,6 +52,21 @@ const UserProfileForm = ({ activeUser }) => {
 
   if (error) return <p className="text-red-500">{error}</p>;
   if (!formData) return <p className="text-white">Loading user data...</p>;
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (formData.age < 13) {
+      errors.age = "Age must be at least 13.";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Invalid email format.";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -145,6 +161,8 @@ const UserProfileForm = ({ activeUser }) => {
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.email && <p className="text-red-500">
+        {validationErrors.email}</p>}
       </label>
 
       <label className="text-white">
@@ -164,9 +182,11 @@ const UserProfileForm = ({ activeUser }) => {
           type="number"
           name="age"
           value={formData.age}
+          min="13"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.age && <p className="text-red-500">{validationErrors.age}</p>}
       </label>
 
       <label className="text-white">
@@ -174,6 +194,7 @@ const UserProfileForm = ({ activeUser }) => {
         <input
           name="bio"
           value={formData.bio}
+          maxLength="50"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
@@ -181,13 +202,15 @@ const UserProfileForm = ({ activeUser }) => {
 
       <label className="text-white">
         Gender:
-        <input
-          type="text"
+        <select
           name="gender"
           value={formData.gender}
           onChange={handleChange}
-          className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
+          className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
       </label>
 
       <label className="text-white">
@@ -196,6 +219,7 @@ const UserProfileForm = ({ activeUser }) => {
           type="text"
           name="school"
           value={formData.school}
+          maxLength="30"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
@@ -207,6 +231,7 @@ const UserProfileForm = ({ activeUser }) => {
           type="text"
           name="occupation"
           value={formData.occupation}
+          maxLength="30"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
@@ -218,6 +243,7 @@ const UserProfileForm = ({ activeUser }) => {
           type="text"
           name="looking_for"
           value={formData.looking_for}
+          maxLength="30"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
