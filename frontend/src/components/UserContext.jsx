@@ -13,7 +13,7 @@ export const UserProvider = ({ children }) => {
   const [userBio, setUserBio] = useState(""); // State to store the user's bio
 
   // Specify the user_data_id of the active user manually
-  const activeUserId = "7d620866-04fa-11f0-ab72-0242ac120002"; // Replace with your desired user_data_id
+  const activeUserId = "bbc39056-06af-11f0-8bd9-0242ac120002"; // Replace with your desired user_data_id
 
   useEffect(() => {
     const abortController = new AbortController();

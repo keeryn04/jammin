@@ -7,18 +7,17 @@ const userDataToUserLink = `http://localhost:5001/api/users/by_user_data`;
 const UserProfileForm = ({ activeUser }) => {
   const [formData, setFormData] = useState(null);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Step 1: Fetch all users
         const usersResponse = await fetch(usersLink);
         if (!usersResponse.ok) {
           throw new Error("Failed to fetch users");
         }
         const users = await usersResponse.json();
 
-        // Step 2: Find the user with the matching user_data_id
         const activeUserData = users.find(
           (user) => user.user_data_id === activeUser.user_data_id
         );
@@ -27,7 +26,6 @@ const UserProfileForm = ({ activeUser }) => {
           throw new Error("Active user not found in the users list");
         }
 
-        // Step 3: Set form data
         setFormData({
           username: activeUserData.username || "",
           email: activeUserData.email || "",
@@ -50,8 +48,36 @@ const UserProfileForm = ({ activeUser }) => {
     fetchUserData();
   }, [activeUser.user_data_id]);
 
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!formData) return <p className="text-white">Loading user data...</p>;
+  const validateForm = () => {
+    const errors = {};
+
+    if (formData.age < 13) {
+      errors.age = "Age must be at least 13.";
+    }
+
+    if (formData.bio.length > 50) {
+      errors.bio = "Bio must be 50 characters or less.";
+    }
+
+    if (formData.school.length > 30) {
+      errors.school = "School must be 30 characters or less.";
+    }
+
+    if (formData.occupation.length > 30) {
+      errors.occupation = "Occupation must be 30 characters or less.";
+    }
+
+    if (formData.looking_for.length > 30) {
+      errors.looking_for = "Looking for must be 30 characters or less.";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Invalid email format.";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -64,35 +90,30 @@ const UserProfileForm = ({ activeUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      // Fetch the user ID based on user_data_id
       const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Error fetching user data:', response.status, errorText);
-        return; // Exit the function early if the fetch fails
+        return;
       }
 
-      // Parse the JSON response
       const data = await response.json();
-      console.log('User data:', data);
-
       const userId = data.user_id;
-      console.log('User ID:', userId);
 
-      // Filter out empty fields from formData
       const updatedData = Object.keys(formData).reduce((acc, key) => {
         if (key === "password_hash") {
-          // Only include password_hash if it's not empty
           if (formData[key] !== "") {
             acc[key] = formData[key];
           } else {
-            // Explicitly set password_hash to null if it's empty
             acc[key] = null;
           }
         } else {
-          // Include other fields if they are not empty
           if (formData[key] !== "" && formData[key] !== null && formData[key] !== undefined) {
             acc[key] = formData[key];
           }
@@ -100,9 +121,6 @@ const UserProfileForm = ({ activeUser }) => {
         return acc;
       }, {});
 
-      console.log('Updated Data:', updatedData);
-
-      // Send the PUT request with only non-empty fields
       const updateResponse = await fetch(`${usersLink}/${userId}`, {
         method: "PUT",
         headers: {
@@ -121,6 +139,9 @@ const UserProfileForm = ({ activeUser }) => {
       alert("Error updating profile. Please try again.");
     }
   };
+
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!formData) return <p className="text-white">Loading user data...</p>;
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-lg shadow-md">
@@ -144,6 +165,7 @@ const UserProfileForm = ({ activeUser }) => {
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.email && <p className="text-red-500">{validationErrors.email}</p>}
       </label>
 
       <label className="text-white">
@@ -164,8 +186,10 @@ const UserProfileForm = ({ activeUser }) => {
           name="age"
           value={formData.age}
           onChange={handleChange}
+          min="13"
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.age && <p className="text-red-500">{validationErrors.age}</p>}
       </label>
 
       <label className="text-white">
@@ -174,19 +198,24 @@ const UserProfileForm = ({ activeUser }) => {
           name="bio"
           value={formData.bio}
           onChange={handleChange}
+          maxLength="50"
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.bio && <p className="text-red-500">{validationErrors.bio}</p>}
       </label>
 
       <label className="text-white">
         Gender:
-        <input
-          type="text"
+        <select
           name="gender"
           value={formData.gender}
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
-        />
+        >
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
       </label>
 
       <label className="text-white">
@@ -196,8 +225,10 @@ const UserProfileForm = ({ activeUser }) => {
           name="school"
           value={formData.school}
           onChange={handleChange}
+          maxLength="30"
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.school && <p className="text-red-500">{validationErrors.school}</p>}
       </label>
 
       <label className="text-white">
@@ -207,8 +238,10 @@ const UserProfileForm = ({ activeUser }) => {
           name="occupation"
           value={formData.occupation}
           onChange={handleChange}
+          maxLength="30"
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.occupation && <p className="text-red-500">{validationErrors.occupation}</p>}
       </label>
 
       <label className="text-white">
@@ -218,8 +251,10 @@ const UserProfileForm = ({ activeUser }) => {
           name="looking_for"
           value={formData.looking_for}
           onChange={handleChange}
+          maxLength="30"
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
+        {validationErrors.looking_for && <p className="text-red-500">{validationErrors.looking_for}</p>}
       </label>
 
       <label className="text-white">
