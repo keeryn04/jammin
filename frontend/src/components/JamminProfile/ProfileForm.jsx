@@ -99,7 +99,8 @@ const UserProfileForm = ({ activeUser }) => {
         const hashData = await hashResponse.json();
         updatedData.password_hash = hashData.hashed_password; // Update with hashed password
       } else {
-        // Remove the password_hash field if the password field is empty
+        // If the password field is empty, retain the existing password_hash
+        // Do not include password_hash in updatedData to avoid updating it
         delete updatedData.password_hash;
       }
   
