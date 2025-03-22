@@ -1,5 +1,7 @@
 # Jammin
-Jammin is a project created for SENG 401 - Software Architecture that uses ChatGPT to parse a user’s Spotify analytics and match them with people with similar music taste. Matches are made based on both user’s top artists, songs and genres, combining to generate a compatibility score between both parties.
+Jammin' is a project created for SENG 401 by Group 11 - Software Architecture that uses ChatGPT to parse a user’s Spotify analytics and match them with people with similar music taste. Matches are made based on both user’s top artists, songs and genres, combining to generate a compatibility score between both parties.
+
+The Hosted Version can be found at this link: https://jammin-app.vercel.app/
 
 ## Features
 
@@ -43,7 +45,11 @@ To use Jammin' online, you simply visit [Jammin'](https://jammin-app.vercel.app)
 ## Future Plans
 Jammin' allows for expansion in various ways, some of which we already have planned out. Messaging was a big plan for our development cycle, where we wanted matched users to be able to message each other over Jammin' and actually talk about their music interests. We also wanted to add additional data to the account, such as prompts to display on the users profile to customize your account more. We were also looking into adding photos to your public profile, further personalizing the data users see when matching together.
 
+## Source Code
+Our source code can be found in this repository. Also it can be observed that we attempted to use proper git techniques such as making pull requests when merging branches and putting tags in our commit messages. One thing to be noted is towards the end, we were making many commits directly to main as we were evaluating and updating our hosted version which was automatically updated by making commits to main.
+
 ## Credits: 
+TEAM 11:
 Samiul Haque,
 Keeryn Johnson,
 Elias Poitras-Whitecalf,
@@ -52,4 +58,4 @@ Ryan Graham,
 Evan Mann
 
 ## AI Acknowledgement:
-Our frontend pages and many components were designed on Figma where we used tools such as 'Builder.io' which uses AI to convert these to visually established jsx files. Additionally, AI tools such as ChatGPT were used to brainstorm and find solutions to functionalities, bug-fixes, and best-practices implemented in parts of code. The use of AI still required us to make many modifications to returned code to serve our specific purposes or simply function as intended when the AI provided solution provided a starting point that did not work. This helped us simplify redundant tasks and organize our code better. Some challenges we encountered include: correcting incorrect/inapplicable code provided by AI, AI not having up-to-date/relevant solutions, inaccurate results/hallucinations. To overcome these challenges we would get high-level solutions that would allow us to apply our own knowledge and understanding towards obtaining a solution and using other -more up-to-date- resources like stackOverflow, various video tutorials
+Our frontend pages and many components were designed on Figma where we used tools such as 'Builder.io' which uses AI to convert these to visually established jsx files. Additionally, AI tools such as ChatGPT, DeepSeek, and Builder.io were used to brainstorm and find solutions to functionalities, bug-fixes, and best-practices implemented in parts of code. The use of AI still required us to make many modifications to returned code to serve our specific purposes or simply function as intended when the AI provided solution provided a starting point that did not work. This helped us simplify redundant tasks and organize our code better. Some challenges we encountered include: correcting incorrect/inapplicable code provided by AI, AI not having up-to-date/relevant solutions, inaccurate results/hallucinations. To overcome these challenges we would get high-level solutions that would allow us to apply our own knowledge and understanding towards obtaining a solution and using other -more up-to-date- resources like stackOverflow, various video tutorials
