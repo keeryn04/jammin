@@ -64,6 +64,7 @@ const UserProfileForm = ({ activeUser }) => {
     e.preventDefault();
   
     try {
+      // Fetch user ID based on user_data_id
       const response = await fetch(`${userDataToUserLink}/${activeUser.user_data_id}`);
   
       if (!response.ok) {
@@ -76,10 +77,11 @@ const UserProfileForm = ({ activeUser }) => {
       const data = await response.json();
       const userId = data.user_id;
   
+      // Create a copy of formData to avoid mutating the state directly
       let updatedData = { ...formData };
   
-      // Hash the password if it is provided
-      if (formData.password_hash !== "") {
+      // Hash the password only if it is provided (not empty)
+      if (formData.password_hash && formData.password_hash.trim() !== "") {
         const hashResponse = await fetch(hashPasswordLink, {
           method: "POST",
           headers: {
@@ -89,18 +91,23 @@ const UserProfileForm = ({ activeUser }) => {
         });
   
         if (!hashResponse.ok) {
+          const hashErrorText = await hashResponse.text();
+          console.error("Error hashing password:", hashResponse.status, hashErrorText);
           throw new Error("Failed to hash password");
         }
   
         const hashData = await hashResponse.json();
-        updatedData.password_hash = hashData.hashed_password;
+        updatedData.password_hash = hashData.hashed_password; // Update with hashed password
       } else {
-        delete updatedData.password_hash; //Remove password field if empty
+        // Remove the password_hash field if the password field is empty
+        delete updatedData.password_hash;
       }
   
-      // Filter out empty fields
+      // Filter out empty fields (optional, but recommended)
       updatedData = Object.fromEntries(
-        Object.entries(updatedData).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
+        Object.entries(updatedData).filter(
+          ([_, value]) => value !== "" && value !== null && value !== undefined
+        )
       );
   
       // Send the PUT request with only non-empty fields
@@ -113,6 +120,8 @@ const UserProfileForm = ({ activeUser }) => {
       });
   
       if (!updateResponse.ok) {
+        const updateErrorText = await updateResponse.text();
+        console.error("Error updating profile:", updateResponse.status, updateErrorText);
         throw new Error("Failed to update profile");
       }
   
@@ -121,7 +130,7 @@ const UserProfileForm = ({ activeUser }) => {
       console.error("Error updating profile:", error);
       setError("Error updating profile. Please try again.");
     }
-  };  
+  };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 bg-neutral-900 rounded-lg shadow-md">
