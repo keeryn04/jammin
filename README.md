@@ -7,6 +7,16 @@ Jammin is a project created for SENG 401 - Software Architecture that uses ChatG
 If you wanted to remove your spotify account or add a new user to Jammin' you can use the logout button to remove your Spotify account and logout your Jammin' profile. This allows you to sign in or sign up with a different account, making Jammin' usable on one device. 
 ![Screenshot of Login Page from Jammin'](/readme_images/jammin_signup_login.jpg)
 
+## TA TESTING USERS ******
+If you wish to sign-up and not use your own spotify accounts, we have made 2 for you to login to when making "Jammin'" accounts, please contact us if theres any issues (because spotify developer apps that don't have specific approval from spotify need to manually add users that are able to register with their app). If there are any issues, please reach out.
+
+*Note, the below are SPOTIFY ACCOUNTS that need to be used when Signing Up through Jammin*
+Username: sam.photolibrary4@gmail.com
+Password: SENG401project
+
+Username: hexdpizza@gmail.com
+Password: SENG401project
+
 ### Matching
 You can scroll through people's profile, seeing their compatibility score with you, description of why they received that match score and more Spotify data of your matched user. Data visible includes top songs, top artists and top genres for each user. 
 ![Screenshot of Matching Page from Jammin'](/readme_images/jammin_matching.jpg)
