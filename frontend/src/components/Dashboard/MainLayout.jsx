@@ -237,7 +237,7 @@ export default function MainLayout() {
         ) : (
           
           // display main content if there are users to match with
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col h-full items-center gap-2">
             {/* Header with "Jammin'" text and three-dot dropdown */}
             <div className="w-[90%] flex justify-between items-center mb-1">
               <h1 className="text-sm font-afacad text-center flex-1 text-white">Jammin'</h1>
