@@ -226,17 +226,17 @@ export default function MainLayout() {
           </div>
         {/* Centered content */}
         {isLoading ? (
-          // Display the Loading component while data is being fetched
+          // display Loading component while data is being fetched
           <Loading />
         ) : isOutOfMatches ? (
-          // Display the "out of users" message when there are no more users
+          // display the "out of users" message when there are no more users (or query times out)
           <div className="text-center">
             <h1 className="text-2xl font-afacad">Jam it! You're Out of Matches</h1>
             <p className="text-neutral-400">Come back later to see new matches!</p>
           </div>
         ) : (
           
-          // Display the main content if there are users to match with
+          // display main content if there are users to match with
           <div className="flex flex-col items-center gap-2">
             {/* Header with "Jammin'" text and three-dot dropdown */}
             <div className="w-[90%] flex justify-between items-center mb-1">

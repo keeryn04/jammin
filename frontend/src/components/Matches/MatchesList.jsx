@@ -17,14 +17,14 @@ const MatchesList = () => {
       }
 
       try {
-        // Fetch matches from the API
+        // fetch matches from the API
         const response = await fetch(`${VERCEL_URL}/api/matches`);
         if (!response.ok) {
           throw new Error("Failed to fetch matches");
         }
         const matches = await response.json();
 
-        // Filter matches where user_1_id matches the active user's ID and status is "pending"
+        // filter matches where user_1_id matches the active user's ID and status is "pending"
         const filteredMatches = matches.filter(
           (match) =>
             match.user_1_data_id === activeUser.user_data_id && match.status === "accepted"
@@ -34,7 +34,7 @@ const MatchesList = () => {
       } catch (error) {
         console.error("Error fetching matches:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false); //stop loading
       }
     };
 
@@ -46,7 +46,7 @@ const MatchesList = () => {
   }
 
   if (loading) {
-    return <div>Loading matches...</div>; // Show a loading message while fetching
+    return <div>Loading matches...</div>; // show a loading message while fetching
   }
 
   return (

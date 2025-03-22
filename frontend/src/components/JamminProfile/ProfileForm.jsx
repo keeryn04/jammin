@@ -31,7 +31,7 @@ const UserProfileForm = ({ activeUser }) => {
         // Step 3: Set form data
         setFormData({
           username: activeUserData.username || "",
-          email: activeUserData.email || "",
+          //email: activeUserData.email || "",
           password_hash: activeUserData.password_hash || "",
           age: activeUserData.age || "",
           bio: activeUserData.bio || "",
@@ -60,9 +60,9 @@ const UserProfileForm = ({ activeUser }) => {
       errors.age = "Age must be at least 13.";
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    {/*if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Invalid email format.";
-    }
+    }*/}
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -146,13 +146,14 @@ const UserProfileForm = ({ activeUser }) => {
         <input
           type="text"
           name="username"
+          maxLength="30"
           value={formData.username}
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
       </label>
 
-      <label className="text-white">
+      {/*<label className="text-white">
         Email:
         <input
           type="email"
@@ -163,7 +164,7 @@ const UserProfileForm = ({ activeUser }) => {
         />
         {validationErrors.email && <p className="text-red-500">
         {validationErrors.email}</p>}
-      </label>
+      </label>*/}
 
       <label className="text-white">
         Password:
@@ -182,7 +183,8 @@ const UserProfileForm = ({ activeUser }) => {
           type="number"
           name="age"
           value={formData.age}
-          min="13"
+          min="18"
+          max="120"
           onChange={handleChange}
           className="p-2 w-full rounded-md bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
         />

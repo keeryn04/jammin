@@ -7,7 +7,6 @@ import GenreSection from "./GenreSection";
 import CommonArtistsSection from "./CommonArtistsSection";
 
 const SpotifyProfile = () => {
-  // Consume the UserContext to get the necessary data
   const {
     activeUser,
     displayedUsers,

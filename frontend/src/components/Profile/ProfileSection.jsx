@@ -12,16 +12,16 @@ const ProfileSection = () => {
     setIsClicked(!isClicked);
   };
 
-  // Find the match data for the currently displayed user
+  // match data for the currently displayed user
   const currentMatch = displayedUsersChat.find(
     (match) => match.userID === currentDisplayedUser?.user_data_id
   );
 
-  // Extract compatibility score and reasoning
+  // compatibility score and reasoning
   const compatibilityScore = currentMatch?.compatibility_score || 0;
   const reasoning = currentMatch?.reasoning || "No compatibility data available.";
 
-  // Fallback values for missing data
+  // fallback values for missing data
   const profileImage = currentDisplayedUser?.profile_image || "default-profile.png";
   const profileName = currentDisplayedUser?.profile_name || "SpotifyUser";
 

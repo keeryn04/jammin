@@ -6,20 +6,20 @@ import image4 from "./assets/image4.webp"; // Import the image
 const CommonArtistsSection = () => {
   const { currentDisplayedUser, displayedUsersChat, activeUser } = useContext(UserContext);
 
-  // Find the match data for the currently displayed user
+  // f match data for the currently displayed user
   const currentMatch = displayedUsersChat.find(
     (match) => match.userID === currentDisplayedUser?.user_data_id
   );
 
-  // Extract common artists and songs
+  // common artists and songs
   const commonArtists = currentMatch?.common_top_artists || [];
   const commonSongs = currentMatch?.common_top_songs || [];
 
-  // Combine common artists and songs into a single list for display
+  // common artists and songs into a single list for display
   const artists = commonArtists.map((artist, index) => ({
     id: index,
     name: artist,
-    imageUrl: image4, // Use a placeholder image or fetch actual artist images
+    imageUrl: image4, // placeholder image or fetch actual artist images
   }));
 
   return (
